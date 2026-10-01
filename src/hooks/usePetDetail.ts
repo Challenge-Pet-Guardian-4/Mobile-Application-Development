@@ -45,7 +45,7 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
   const isResponsavelPrincipal = useMemo(() => {
     if (!user) return false;
     if (caregivers.length > 0) {
-      const meuVinculo = caregivers.find((c: CoCuidadorResponse) => c.usuarioId === user.id);
+      const meuVinculo = caregivers.find((c: CoCuidadorResponse) => c.email.toLowerCase() === user.email.toLowerCase());
       return meuVinculo ? Boolean(meuVinculo.responsavelPrincipal) : false;
     }
     return true;
@@ -106,13 +106,12 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
             porte: formData.porte,
             sexo: formData.sexo,
             castrado: formData.castrado,
-            usuarioId: user.id,
           },
         },
         createMutationCallbacks('Erro ao Atualizar Pet', 'Não foi possível atualizar o pet na API.', callbacks)
       );
     },
-    [activePet, user, isResponsavelPrincipal, updatePetMutation]
+    [activePet, isResponsavelPrincipal, updatePetMutation]
   );
 
   // Excluir pet com confirmação (DELETE /pets/{id})
@@ -134,7 +133,7 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
             style: 'destructive',
             onPress: () => {
               deletePetMutation.mutate(
-                { id: activePet.id, usuarioId: user?.id },
+                activePet.id,
                 createMutationCallbacks('Erro ao Excluir Pet', 'Não foi possível excluir o pet.', {
                   onSuccess: () => {
                     setSelectedPetId(undefined);
@@ -148,7 +147,7 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
         ]
       );
     },
-    [activePet, isResponsavelPrincipal, user?.id, deletePetMutation, setSelectedPetId]
+    [activePet, isResponsavelPrincipal, deletePetMutation, setSelectedPetId]
   );
 
   // Convidar co-cuidador para o pet ativo
@@ -163,7 +162,6 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
       inviteCaregiverMutation.mutate(
         {
           petId: activePet.id,
-          responsavelPrincipalId: user.id,
           email: email.trim().toLowerCase(),
         },
         createMutationCallbacks('Erro ao Convidar Cuidador', 'Não foi possível enviar o convite. Verifique se o e-mail está cadastrado.', callbacks)
@@ -172,12 +170,12 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
     [activePet, user, isResponsavelPrincipal, inviteCaregiverMutation]
   );
 
-  // Desvincular co-cuidador
+  // Desvincular co-cuidador por e-mail
   const removerCuidador = useCallback(
-    (cuidadorId: number, nomeCuidador: string, callbacks?: ActionCallbacks) => {
+    (cuidadorEmail: string, nomeCuidador: string, callbacks?: ActionCallbacks) => {
       if (!activePet || !user) return;
 
-      const isSelf = cuidadorId === user.id;
+      const isSelf = cuidadorEmail.toLowerCase() === user.email.toLowerCase();
       const title = isSelf ? 'Sair do Cuidado' : 'Remover Cuidador';
       const msg = isSelf
         ? `Deseja deixar de cuidar de ${activePet.nome}?`
@@ -192,8 +190,7 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
             removeCaregiverMutation.mutate(
               {
                 petId: activePet.id,
-                usuarioId: cuidadorId,
-                solicitanteId: user.id,
+                email: cuidadorEmail,
               },
               createMutationCallbacks('Erro ao Desvincular Cuidador', 'Não foi possível desvincular o cuidador.', callbacks)
             );
@@ -204,9 +201,9 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
     [activePet, user, removeCaregiverMutation]
   );
 
-  // Transferir titularidade de responsável principal
+  // Transferir titularidade de responsável principal por e-mail
   const transferirResponsabilidade = useCallback(
-    (novoResponsavelId: number, nomeNovoResponsavel: string, callbacks?: ActionCallbacks) => {
+    (novoResponsavelEmail: string, nomeNovoResponsavel: string, callbacks?: ActionCallbacks) => {
       if (!activePet || !user) return;
 
       Alert.alert(
@@ -221,8 +218,7 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
               transferResponsibilityMutation.mutate(
                 {
                   petId: activePet.id,
-                  responsavelAtualId: user.id,
-                  novoResponsavelId,
+                  novoResponsavelEmail,
                 },
                 createMutationCallbacks('Erro na Transferência', 'Não foi possível transferir a responsabilidade principal.', callbacks)
               );
@@ -233,6 +229,7 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
     },
     [activePet, user, transferResponsibilityMutation]
   );
+
 
   // Criar Registro de Histórico Clínico (POST /historicos)
   const criarHistorico = useCallback(
@@ -314,15 +311,15 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
 
   const caregiversWithActions = useMemo(
     () => caregivers.map((c: CoCuidadorResponse) => {
-      const isMe = c.usuarioId === user?.id;
+      const isMe = c.email.toLowerCase() === user?.email?.toLowerCase();
       return {
         ...c,
         isCurrentUser: isMe,
-        onTransfer: isResponsavelPrincipal && !isMe ? () => transferirResponsabilidade(c.usuarioId, c.nome) : undefined,
-        onRemove: isResponsavelPrincipal || isMe ? () => removerCuidador(c.usuarioId, c.nome) : undefined,
+        onTransfer: isResponsavelPrincipal && !isMe ? () => transferirResponsabilidade(c.email, c.nome) : undefined,
+        onRemove: isResponsavelPrincipal || isMe ? () => removerCuidador(c.email, c.nome) : undefined,
       };
     }),
-    [caregivers, user?.id, isResponsavelPrincipal, transferirResponsabilidade, removerCuidador]
+    [caregivers, user?.email, isResponsavelPrincipal, transferirResponsabilidade, removerCuidador]
   );
 
   return {

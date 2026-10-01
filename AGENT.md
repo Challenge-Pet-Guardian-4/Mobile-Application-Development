@@ -61,8 +61,8 @@ Mobile-Application-Development/
     │   ├── useFamilyCare.ts       → [DOMAIN HOOK] Gestão da rede familiar, pets, tarefas e cuidadores
     │   ├── useHomeData.ts         → [DOMAIN HOOK] Orquestração do pet ativo, pontuação e tarefas da Home
     │   ├── usePetDetail.ts        → [DOMAIN HOOK] Gestão da ficha clínica, histórico e edição do pet
-    │   ├── usePets.ts             → Queries e mutações básicas de pets (TanStack Query)
-    │   ├── useRedeCuidado.ts      → Query da rede de cuidado agregada (GET /usuarios/{id}/rede-cuidado)
+    │   ├── usePets.ts             → Queries e mutações básicas de pets (TanStack Query via /pets/me)
+    │   ├── useRedeCuidado.ts      → Query da rede de cuidado agregada (GET /usuarios/me/rede-cuidado)
     │   ├── useSession.ts          → Hook utilitário para consumir o AuthContext
     │   ├── useTasks.ts            → Queries e mutações de tarefas e pontos do tutor
     │   ├── useTrainings.ts        → [DOMAIN HOOK] Trilhas de adestramento gamificadas com TanStack Query
@@ -213,23 +213,26 @@ export const queryKeys = {
   },
   users: {
     all: ['users'] as const,
-    detail: (id: number) => ['users', 'detail', id] as const,
+    me: ['users', 'me'] as const,
+    detail: (id?: number) => ['users', 'detail', id ?? 0] as const,
     byEmail: (email: string) => ['users', 'email', email] as const,
-    redeCuidado: (id: number) => ['users', 'redeCuidado', id] as const,
+    redeCuidado: ['users', 'me', 'rede-cuidado'] as const,
   },
   pets: {
     all: ['pets'] as const,
     list: (page = 0, size = 20) => ['pets', 'list', { page, size }] as const,
-    detail: (id: number) => ['pets', 'detail', id] as const,
-    history: (id: number) => ['pets', 'history', id] as const,
-    pontos: (id: number) => ['pets', 'pontos', id] as const,
+    myPets: (page = 0, size = 20) => ['pets', 'me', page, size] as const,
+    detail: (id?: number) => ['pets', 'detail', id ?? 0] as const,
+    history: (id?: number) => ['pets', 'history', id ?? 0] as const,
+    pontos: (id?: number) => ['pets', 'pontos', id ?? 0] as const,
+    caregivers: (id?: number) => ['pets', 'caregivers', id ?? 0] as const,
   },
   tasks: {
     all: ['tasks'] as const,
     list: (page = 0, size = 50) => ['tasks', 'list', { page, size }] as const,
-    byUser: (userId: number) => ['tasks', 'byUser', userId] as const,
-    detail: (id: number) => ['tasks', 'detail', id] as const,
-    userPoints: (userId: number) => ['tasks', 'userPoints', userId] as const,
+    myTasks: (status = 'ALL', page = 0, size = 50) => ['tasks', 'me', status, page, size] as const,
+    detail: (id?: number) => ['tasks', 'detail', id ?? 0] as const,
+    myPoints: ['tasks', 'me', 'pontos'] as const,
   },
   training: {
     all: ['training'] as const,
@@ -238,8 +241,14 @@ export const queryKeys = {
     trackDetail: (id: string) => ['training', 'tracks', id] as const,
   },
   ai: {
-    insights: (petId: number) => ['ai', 'insights', petId] as const,
-    messages: (petId: number) => ['ai', 'messages', petId] as const,
+    insights: (petId?: number) => ['ai', 'insights', petId ?? 0] as const,
+    messages: (petId?: number) => ['ai', 'messages', petId ?? 0] as const,
+    sessions: (petId?: number) => ['ai', 'sessions', petId ?? 0] as const,
+  },
+  historicos: {
+    all: ['historicos'] as const,
+    byPet: (petId?: number) => ['historicos', 'pet', petId ?? 0] as const,
+    detail: (id?: number) => ['historicos', 'detail', id ?? 0] as const,
   },
 };
 ```

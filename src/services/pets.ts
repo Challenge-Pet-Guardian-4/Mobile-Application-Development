@@ -1,31 +1,13 @@
 import { http } from './http';
 import { Page } from '../types/api';
-import { CoCuidadorResponse, PetHistoryResponse, PetPontuacaoResponse, PetRequest, PetResponse, TransferirResponsabilidadeRequest } from '../types/pet';
+import { CoCuidadorResponse, PetHistoryResponse, PetPontuacaoResponse, PetRequest, PetResponse } from '../types/pet';
+
 
 export const PetService = {
-  // Lista pets vinculados a um usuário logado (como tutor principal ou co-cuidador)
-  async getPetsPorUsuario(usuarioId: number, page = 0, size = 20): Promise<Page<PetResponse>> {
-    const response = await http.get<Page<PetResponse>>('/pets/by-usuario', {
-      params: { usuarioId, page, size, sort: 'nome,asc' },
-    });
-    return response.data;
-  },
-
-  // Lista pets: se usuarioId for informado, busca apenas os pets do usuário; caso contrário, busca todos
-  async getPets(usuarioId?: number, page = 0, size = 20): Promise<Page<PetResponse>> {
-    if (usuarioId) {
-      return this.getPetsPorUsuario(usuarioId, page, size);
-    }
-    const response = await http.get<Page<PetResponse>>('/pets', {
+  // Lista pets vinculados ao usuário autenticado via JWT (/pets/me)
+  async getMyPets(page = 0, size = 20): Promise<Page<PetResponse>> {
+    const response = await http.get<Page<PetResponse>>('/pets/me', {
       params: { page, size, sort: 'nome,asc' },
-    });
-    return response.data;
-  },
-
-  // Busca pets por nome
-  async getPetsByNome(nome: string, page = 0, size = 20): Promise<Page<PetResponse>> {
-    const response = await http.get<Page<PetResponse>>('/pets/by-nome', {
-      params: { nome, page, size },
     });
     return response.data;
   },
@@ -60,11 +42,9 @@ export const PetService = {
     return response.data;
   },
 
-  // Exclui um pet do sistema (somente responsável principal)
-  async deletePet(id: number, usuarioId?: number): Promise<void> {
-    await http.delete(`/pets/${id}`, {
-      params: usuarioId ? { usuarioId } : undefined,
-    });
+  // Exclui um pet do sistema (somente responsável principal via JWT)
+  async deletePet(id: number): Promise<void> {
+    await http.delete(`/pets/${id}`);
   },
 
   // Care Circle: Lista cuidadores vinculados ao pet (GET /pets/{id}/cuidadores)
@@ -74,23 +54,25 @@ export const PetService = {
   },
 
   // Care Circle: Convida co-cuidador por e-mail (POST /pets/{id}/cuidadores)
-  async convidarPorEmail(petId: number, responsavelPrincipalId: number, email: string): Promise<CoCuidadorResponse> {
+  async convidarPorEmail(petId: number, email: string): Promise<CoCuidadorResponse> {
     const response = await http.post<CoCuidadorResponse>(`/pets/${petId}/cuidadores`, {
-      responsavelPrincipalId,
       email: email.trim().toLowerCase(),
     });
     return response.data;
   },
 
-  // Care Circle: Desvincula um cuidador (DELETE /pets/{id}/cuidadores/{usuarioId})
-  async desvincularCuidador(petId: number, usuarioId: number, solicitanteId: number): Promise<void> {
-    await http.delete(`/pets/${petId}/cuidadores/${usuarioId}`, {
-      params: { solicitanteId },
+  // Care Circle: Desvincula um cuidador por e-mail (DELETE /pets/{id}/cuidadores?email=...)
+  async desvincularCuidador(petId: number, email: string): Promise<void> {
+    await http.delete(`/pets/${petId}/cuidadores`, {
+      params: { email: email.trim().toLowerCase() },
     });
   },
 
-  // Care Circle: Transfere responsabilidade principal (PATCH /pets/{id}/responsavel-principal)
-  async transferirResponsabilidade(petId: number, request: TransferirResponsabilidadeRequest): Promise<void> {
-    await http.patch(`/pets/${petId}/responsavel-principal`, request);
+  // Care Circle: Transfere responsabilidade principal por e-mail (PATCH /pets/{id}/responsavel-principal)
+  async transferirResponsabilidade(petId: number, novoResponsavelEmail: string): Promise<void> {
+    await http.patch(`/pets/${petId}/responsavel-principal`, {
+      novoResponsavelEmail: novoResponsavelEmail.trim().toLowerCase(),
+    });
   },
 };
+

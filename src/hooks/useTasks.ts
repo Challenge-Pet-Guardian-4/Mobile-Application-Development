@@ -1,30 +1,20 @@
-import { useQuery, useMutation, useQueryClient, skipToken } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TaskService } from '../services/tasks';
 import { queryKeys } from '../lib/queryKeys';
 import { Page } from '../types/api';
-import { TarefaConclusaoRequest, TarefaRequest, TarefaResponse } from '../types/task';
+import { TarefaRequest, TarefaResponse } from '../types/task';
 
-export function useTasks(page = 0, size = 50, enabled = true) {
+export function useUserTasks(page = 0, size = 50, status = 'ALL') {
   return useQuery({
-    queryKey: queryKeys.tasks.list(page, size),
-    queryFn: () => TaskService.getTarefas(page, size),
-    enabled,
+    queryKey: ['tasks', 'me', status, page, size],
+    queryFn: () => TaskService.getMyTarefas(page, size, status),
   });
 }
 
-export function useUserTasks(userId?: number, page = 0, size = 50, status = 'ALL') {
+export function useUserPoints() {
   return useQuery({
-    queryKey: [...queryKeys.tasks.byUser(userId), status, page, size],
-    queryFn: userId
-      ? () => TaskService.getTarefasPorUsuario(userId, page, size, status)
-      : skipToken,
-  });
-}
-
-export function useUserPoints(userId?: number) {
-  return useQuery({
-    queryKey: queryKeys.tasks.userPoints(userId),
-    queryFn: userId ? () => TaskService.getPontosUsuario(userId) : skipToken,
+    queryKey: ['tasks', 'me', 'pontos'],
+    queryFn: () => TaskService.getMyPontos(),
   });
 }
 
@@ -58,9 +48,8 @@ export function useCompleteTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, request }: { id: number; request: TarefaConclusaoRequest }) =>
-      TaskService.concluirTarefa(id, request),
-    onMutate: async ({ id }) => {
+    mutationFn: (id: number) => TaskService.concluirTarefa(id),
+    onMutate: async (id: number) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.tasks.all });
 
       const previousTasksQueries = queryClient.getQueriesData<Page<TarefaResponse>>({
@@ -101,9 +90,8 @@ export function useUncompleteTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, usuarioId }: { id: number; usuarioId: number }) =>
-      TaskService.desmarcarTarefa(id, usuarioId),
-    onMutate: async ({ id }) => {
+    mutationFn: (id: number) => TaskService.desmarcarTarefa(id),
+    onMutate: async (id: number) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.tasks.all });
 
       const previousTasksQueries = queryClient.getQueriesData<Page<TarefaResponse>>({

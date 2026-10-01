@@ -9,7 +9,6 @@ export interface PetRequest {
   porte: PetPorte;
   sexo: string; // 'M' | 'F'
   castrado: boolean;
-  usuarioId: number;
 }
 
 export interface PetResponse {
@@ -29,7 +28,6 @@ export interface PetHistoryResponse {
 }
 
 export interface CoCuidadorResponse {
-  usuarioId: number;
   nome: string;
   email: string;
   petId: number;
@@ -37,9 +35,14 @@ export interface CoCuidadorResponse {
   responsavelPrincipal: boolean;
 }
 
+export interface CaregiverWithActions extends CoCuidadorResponse {
+  isCurrentUser: boolean;
+  onTransfer?: () => void;
+  onRemove?: () => void;
+}
+
 export interface TransferirResponsabilidadeRequest {
-  responsavelAtualId: number;
-  novoResponsavelId: number;
+  novoResponsavelEmail: string;
 }
 
 export interface PetPontuacaoResponse {

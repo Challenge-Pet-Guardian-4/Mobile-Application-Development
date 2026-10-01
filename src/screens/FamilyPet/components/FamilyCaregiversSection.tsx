@@ -5,11 +5,12 @@ import { CaregiverCard } from '../../../components/CaregiverCard';
 import { colors, spacing, borderRadius } from '../../../constants/theme';
 import { shadows } from '../../../utils/shadow';
 import { useFamilyCare } from '../../../hooks/useFamilyCare';
+import { CuidadorFamiliarItem } from '../../../types/user';
 
 interface FamilyCaregiversSectionProps {
   family: ReturnType<typeof useFamilyCare>['family'];
   onInvite: () => void;
-  onManageCaregiver: (caregiver: ReturnType<typeof useFamilyCare>['family']['coCuidadores'][number]) => void;
+  onManageCaregiver: (caregiver: CuidadorFamiliarItem) => void;
 }
 
 export function FamilyCaregiversSection({
@@ -44,9 +45,9 @@ export function FamilyCaregiversSection({
       )}
 
       {/* Co-cuidadores */}
-      {(coCuidadores ?? []).map((c) => (
+      {(coCuidadores ?? []).map((c: CuidadorFamiliarItem) => (
         <CaregiverCard
-          key={c.id}
+          key={c.email}
           nome={c.nome}
           email={c.email}
           roleText={c.roleText}

@@ -4,15 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { BaseModal } from '../BaseModal';
 import { CustomInput } from '../CustomInput';
 import { CustomButton } from '../CustomButton';
-import { RoleSelector } from '../RoleSelector';
 import { EditProfileFormData } from '../../types/user';
+
 import { ProfileEditSchema, formatZodError } from '../../utils/schemas';
 export type { EditProfileFormData };
 
 const INITIAL_PROFILE_FORM: EditProfileFormData = {
   nome: '',
   email: '',
-  role: 'PREMIUM',
   ddd: '',
   numeroTelefone: '',
   cep: '',
@@ -64,19 +63,13 @@ const EditProfileBody = memo(function EditProfileBody({
       numeroTelefone: validacao.data.numeroTelefone,
       cep: validacao.data.cep,
       numero: validacao.data.numero,
-      role: validacao.data.role,
       senha: validacao.data.senha,
     });
   };
 
   return (
     <>
-      <RoleSelector
-        value={form.role}
-        onChange={(r) => updateField('role', r)}
-        variant="compact"
-        label="Perfil do Tutor:"
-      />
+
 
       <CustomInput
         label="Nome Completo"

@@ -10,11 +10,9 @@ import { useUserPoints } from './useTasks';
 import { useRedeCuidado } from './useRedeCuidado';
 
 export function useUserProfileData() {
-  const { user } = useSession();
-
   const { data: petsData, isLoading: isLoadingPets, isFetching: isFetchingPets, refetch: refetchPets } = usePets();
-  const { data: pontosTarefas, refetch: refetchPoints } = useUserPoints(user?.id);
-  const { data: redeCuidado, isLoading: isLoadingRede, isFetching: isFetchingRede, refetch: refetchRede } = useRedeCuidado(user?.id);
+  const { data: pontosTarefas, refetch: refetchPoints } = useUserPoints();
+  const { data: redeCuidado, isLoading: isLoadingRede, isFetching: isFetchingRede, refetch: refetchRede } = useRedeCuidado();
 
   const pets: PetResponse[] = petsData?.content || [];
 
@@ -45,15 +43,34 @@ export function useUpdateUser() {
   const { setUser } = useSession();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: UsuarioRequest }) => {
-      const updatedUser = await UserService.updateUsuario(id, data);
+    mutationFn: async (data: UsuarioRequest) => {
+      const updatedUser = await UserService.updateMe(data);
       setUser(updatedUser);
       return updatedUser;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(data.id) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.redeCuidado(data.id) });
+      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['users', 'me', 'rede-cuidado'] });
     },
   });
 }
+
+export function useUpgradePremium() {
+  const queryClient = useQueryClient();
+  const { setUser } = useSession();
+
+  return useMutation({
+    mutationFn: async () => {
+      const updatedUser = await UserService.upgradeMyPremium();
+      setUser(updatedUser);
+      return updatedUser;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
+      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['users', 'me', 'rede-cuidado'] });
+    },
+  });
+}
+

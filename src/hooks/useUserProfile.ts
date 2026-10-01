@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useSession } from './useSession';
-import { useUpdateUser, useUserProfileData } from './useUsers';
+import { useUpdateUser, useUserProfileData, useUpgradePremium } from './useUsers';
 import { EditProfileFormData } from '../types/user';
 import { ProfileEditSchema, formatZodError } from '../utils/schemas';
 import { ActionCallbacks, createMutationCallbacks } from '../utils/apiError';
@@ -14,6 +14,7 @@ export function useUserProfile() {
   const { redeCuidado, pontosTotais, isLoading, isFetching, refetchAll } = useUserProfileData();
 
   const updateUserMutation = useUpdateUser();
+  const upgradePremiumMutation = useUpgradePremium();
 
   const [modalAtivo, setModalAtivo] = useState<UserProfileModal>(null);
 
@@ -27,7 +28,7 @@ export function useUserProfile() {
 
   const initials = useMemo(() => user?.nome.substring(0, 2).toUpperCase() ?? '', [user?.nome]);
 
-  const enderecoPrincipal = user?.enderecos[0] ?? null;
+  const enderecoPrincipal = user?.endereco ?? null;
 
   const initialFormData: EditProfileFormData = useMemo(
     () => ({
@@ -36,9 +37,8 @@ export function useUserProfile() {
       senha: '',
       ddd: user?.ddd ?? '',
       numeroTelefone: user?.numeroTelefone ?? '',
-      role: user?.role ?? 'PREMIUM',
-      cep: user?.enderecos[0]?.cep ?? '',
-      numero: user?.enderecos[0]?.numero ?? '',
+      cep: user?.endereco?.cep ?? '',
+      numero: user?.endereco?.numero ?? '',
     }),
     [user]
   );
@@ -61,18 +61,14 @@ export function useUserProfile() {
 
       updateUserMutation.mutate(
         {
-          id: user.id,
-          data: {
-            nome: formEdit.nome.trim(),
-            email: formEdit.email.trim().toLowerCase(),
-            senha: formEdit.senha.trim(),
-            ddd: formEdit.ddd.replace(/\D/g, ''),
-            numeroTelefone: formEdit.numeroTelefone.replace(/\D/g, ''),
-            role: formEdit.role,
-            endereco: {
-              cep: formEdit.cep.replace(/\D/g, ''),
-              numero: formEdit.numero.trim(),
-            },
+          nome: formEdit.nome.trim(),
+          email: formEdit.email.trim().toLowerCase(),
+          senha: formEdit.senha.trim(),
+          ddd: formEdit.ddd.replace(/\D/g, ''),
+          numeroTelefone: formEdit.numeroTelefone.replace(/\D/g, ''),
+          endereco: {
+            cep: formEdit.cep.replace(/\D/g, ''),
+            numero: formEdit.numero.trim(),
           },
         },
         createMutationCallbacks('Erro ao Atualizar Perfil', 'Não foi possível atualizar seus dados na API.', {
@@ -86,6 +82,26 @@ export function useUserProfile() {
     },
     [user, updateUserMutation, fecharModal]
   );
+
+  const realizarUpgradePremium = useCallback(() => {
+    if (!user) return;
+    Alert.alert(
+      'Tornar-se Premium ⭐',
+      'Deseja ativar o plano PetGuardian Premium para ter acesso ilimitado a trilhas, aulas de adestramento e assistente IA?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Ativar Premium',
+          onPress: () => {
+            upgradePremiumMutation.mutate(
+              undefined,
+              createMutationCallbacks('Sucesso!', 'Seu perfil foi atualizado para Premium com sucesso!')
+            );
+          },
+        },
+      ]
+    );
+  }, [user, upgradePremiumMutation]);
 
   const logoutComConfirmacao = useCallback(() => {
     Alert.alert('Sair da Conta', 'Deseja realmente encerrar sua sessão no PetGuardian?', [
@@ -130,9 +146,12 @@ export function useUserProfile() {
     },
     actions: {
       salvarPerfil,
+      realizarUpgradePremium,
       logout: logoutComConfirmacao,
       isUpdating: updateUserMutation.isPending,
+      isUpgradingPremium: upgradePremiumMutation.isPending,
       refetch: refetchAll,
     },
   };
 }
+

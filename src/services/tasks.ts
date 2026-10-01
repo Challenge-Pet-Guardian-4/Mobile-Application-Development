@@ -1,32 +1,25 @@
 import { http } from './http';
 import { Page } from '../types/api';
-import { TarefaConclusaoRequest, TarefaRequest, TarefaResponse } from '../types/task';
+import { TarefaRequest, TarefaResponse } from '../types/task';
 
 export const TaskService = {
-  // Lista todas as tarefas paginadas
-  async getTarefas(page = 0, size = 50): Promise<Page<TarefaResponse>> {
-    const response = await http.get<Page<TarefaResponse>>('/tarefas', {
-      params: { page, size, sort: 'prazo,asc' },
-    });
-    return response.data;
-  },
-
-  // Lista tarefas do usuário com filtro opcional de status (ALL, PENDENTE, CONCLUIDO)
-  async getTarefasPorUsuario(
-    usuarioId: number,
-    page = 0,
-    size = 50,
-    status?: string
-  ): Promise<Page<TarefaResponse>> {
-    const params: Record<string, unknown> = { usuarioId, page, size, sort: 'prazo,asc' };
+  // Lista tarefas do usuário autenticado via JWT (/tarefas/me)
+  async getMyTarefas(page = 0, size = 50, status?: string): Promise<Page<TarefaResponse>> {
+    const params: Record<string, unknown> = { page, size, sort: 'prazo,asc' };
     if (status) {
       params.status = status;
     }
-    const response = await http.get<Page<TarefaResponse>>('/tarefas/by-usuario', { params });
+    const response = await http.get<Page<TarefaResponse>>('/tarefas/me', { params });
     return response.data;
   },
 
-  // Lista tarefas de um pet específico
+  // Consulta o total de pontos acumulados pelo usuário autenticado via JWT (/tarefas/me/pontos)
+  async getMyPontos(): Promise<number> {
+    const response = await http.get<number>('/tarefas/me/pontos');
+    return response.data;
+  },
+
+  // Lista tarefas de um pet específico (/tarefas/by-pet/{petId})
   async getTarefasPorPet(petId: number, page = 0, size = 50): Promise<Page<TarefaResponse>> {
     const response = await http.get<Page<TarefaResponse>>(`/tarefas/by-pet/${petId}`, {
       params: { page, size, sort: 'prazo,asc' },
@@ -52,25 +45,15 @@ export const TaskService = {
     return response.data;
   },
 
-  // Conclui uma tarefa somando pontos ao cuidador e ao pet
-  async concluirTarefa(id: number, request: TarefaConclusaoRequest): Promise<TarefaResponse> {
-    const response = await http.patch<TarefaResponse>(`/tarefas/${id}/concluir`, request);
+  // Conclui uma tarefa somando pontos ao cuidador e ao pet via JWT
+  async concluirTarefa(id: number): Promise<TarefaResponse> {
+    const response = await http.patch<TarefaResponse>(`/tarefas/${id}/concluir`);
     return response.data;
   },
 
-  // Desmarca uma tarefa concluída, retornando seu status para PENDENTE e estornando pontos
-  async desmarcarTarefa(id: number, usuarioId: number): Promise<TarefaResponse> {
-    const response = await http.patch<TarefaResponse>(`/tarefas/${id}/desmarcar`, null, {
-      params: { usuarioId },
-    });
-    return response.data;
-  },
-
-  // Consulta o total de pontos acumulados por um usuário
-  async getPontosUsuario(usuarioId: number): Promise<number> {
-    const response = await http.get<number>('/tarefas/by-usuario/pontos', {
-      params: { usuarioId },
-    });
+  // Desmarca uma tarefa concluída retornando seu status para PENDENTE via JWT
+  async desmarcarTarefa(id: number): Promise<TarefaResponse> {
+    const response = await http.patch<TarefaResponse>(`/tarefas/${id}/desmarcar`);
     return response.data;
   },
 

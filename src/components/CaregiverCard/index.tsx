@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius } from '../../constants/theme';
 
-interface CaregiverCardProps {
+export interface CaregiverCardProps {
+  key?: React.Key;
   nome: string;
   email?: string;
   roleText?: string;

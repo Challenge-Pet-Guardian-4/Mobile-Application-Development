@@ -5,6 +5,7 @@ import { CaregiverCard } from '../../../components/CaregiverCard';
 import { shadows } from '../../../utils/shadow';
 import { usePetDetail } from '../../../hooks/usePetDetail';
 import { useSession } from '../../../hooks/useSession';
+import { CaregiverWithActions } from '../../../types/pet';
 
 interface PetCaregiversSectionProps {
   pet: ReturnType<typeof usePetDetail>['pet'];
@@ -49,9 +50,9 @@ export function PetCaregiversSection({ pet, user, onInvite }: PetCaregiversSecti
           />
         )
       ) : (
-        pet?.caregivers?.map((c) => (
+        pet?.caregivers?.map((c: CaregiverWithActions) => (
           <CaregiverCard
-            key={c.usuarioId}
+            key={c.email}
             nome={c.nome}
             email={c.email}
             isPrincipal={c.responsavelPrincipal}

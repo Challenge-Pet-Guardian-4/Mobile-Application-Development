@@ -5,15 +5,11 @@ export interface TarefaRequest {
   pontosTarefa: number;
   descricao: string;
   prazo: string; // ISO 8601 LocalDateTime
-  usuarioId: number;
   petId: number;
   status: EnumStatus;
   conclusao?: string | null;
 }
 
-export interface TarefaConclusaoRequest {
-  concluinteId: number;
-}
 
 export interface TarefaResponse {
   id: number;
@@ -24,7 +20,8 @@ export interface TarefaResponse {
   prazo: string;
   conclusao: string | null;
   status: EnumStatus;
-  usuarioId: number;
+  usuarioEmail: string | null;
+  usuarioNome: string | null;
   petId: number;
 }
 

@@ -2,7 +2,8 @@ import { useState, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useSession } from './useSession';
 import { usePets, usePetsPontosMap, useCreatePet, useInviteCaregiver } from './usePets';
-import { useUserTasks, useTasks, useCreateTask } from './useTasks';
+import { useUserTasks, useCreateTask } from './useTasks';
+
 import { useTaskActions } from './useTaskActions';
 import { useRedeCuidado } from './useRedeCuidado';
 import { useFamilyModals } from './useFamilyModals';
@@ -27,11 +28,9 @@ export function useFamilyCare() {
     isLoading: isLoadingTasks,
     isFetching: isFetchingTasks,
     refetch: refetchTasks,
-  } = useUserTasks(user?.id, 0, 100, 'ALL');
+  } = useUserTasks(0, 100, 'ALL');
 
-  // Fallback global de tarefas apenas caso não haja usuário logado
-  const { data: globalTasksData } = useTasks(0, 100, !user?.id);
-  const { data: redeCuidadoData, isLoading: isLoadingRede, isFetching: isFetchingRede, refetch: refetchRede } = useRedeCuidado(user?.id);
+  const { data: redeCuidadoData, isLoading: isLoadingRede, isFetching: isFetchingRede, refetch: refetchRede } = useRedeCuidado();
 
   const pets: PetResponse[] = petsData?.content || [];
 
@@ -45,10 +44,9 @@ export function useFamilyCare() {
 
   const taskActions = useTaskActions();
 
-  const allTasks: TarefaResponse[] = user?.id
-    ? userTasksData?.content || []
-    : globalTasksData?.content || [];
+  const allTasks: TarefaResponse[] = userTasksData?.content || [];
   const redeCuidado: RedeCuidadoResponse | undefined = redeCuidadoData;
+
 
   const hojeYmd = useMemo(() => formatarDataIsoYmd(new Date()), []);
 
@@ -77,7 +75,6 @@ export function useFamilyCare() {
           porte: data.porte,
           sexo: data.sexo,
           castrado: data.castrado,
-          usuarioId: user.id,
         },
         createMutationCallbacks('Erro ao Cadastrar Pet', 'Não foi possível cadastrar o pet na API.', callbacks)
       );
@@ -98,7 +95,6 @@ export function useFamilyCare() {
           descricao: data.descricao.trim(),
           pontosTarefa: Number(data.pontos),
           prazo: normalizarPrazoParaIso(data.prazo),
-          usuarioId: user.id,
           petId: data.petId,
           status: data.status || 'PENDENTE',
         },
@@ -118,7 +114,6 @@ export function useFamilyCare() {
       inviteMutation.mutate(
         {
           petId: validacao.data.petId,
-          responsavelPrincipalId: user.id,
           email: data.email.trim().toLowerCase(),
         },
         createMutationCallbacks('Erro ao Convidar Cuidador', 'Não foi possível enviar o convite.', callbacks)
@@ -126,6 +121,7 @@ export function useFamilyCare() {
     },
     [user, inviteMutation]
   );
+
 
   // Mapeamento e estruturas pré-processadas (KISS & DRY)
   const petsResumoMap = useMemo(
@@ -235,7 +231,6 @@ export function useFamilyCare() {
     const isPrincipal = petsPrincipalNomes.length > 0;
 
     return {
-      id: user.id,
       nome: user.nome || 'Tutor',
       email: user.email,
       isPrincipal,

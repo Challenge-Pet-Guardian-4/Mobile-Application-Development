@@ -11,7 +11,6 @@ export const AuthService = {
       senha: data.senha,
       ddd: data.ddd.replace(/\D/g, ''),
       numeroTelefone: data.numeroTelefone.replace(/\D/g, ''),
-      role: data.role || 'PREMIUM',
       endereco: {
         cep: data.cep.replace(/\D/g, ''),
         numero: data.numero.trim(),
@@ -27,25 +26,25 @@ export const AuthService = {
       senha: credentials.senha,
     });
 
-    await StorageService.saveAuth(data.token, email);
+    await StorageService.saveAuth(data.token, data.user);
     return data;
   },
 
   async getStoredSession(): Promise<{ user: UsuarioResponse | null; token: string | null }> {
-    const [token, email] = await Promise.all([
+    const [token, user] = await Promise.all([
       StorageService.getToken(),
-      StorageService.getEmail(),
+      StorageService.getUser(),
     ]);
 
-    if (!token || !email) return { user: null, token: null };
+    if (!token || !user) return { user: null, token: null };
 
     try {
-      const { data: user } = await http.get<UsuarioResponse>('/usuarios/by-email', {
-        params: { email },
-      });
-      return { user, token };
+      const { data: freshUser } = await http.get<UsuarioResponse>('/usuarios/me');
+      await StorageService.saveUser(freshUser);
+      return { user: freshUser, token };
     } catch {
-      return { user: null, token: null };
+      // Mantém a sessão local com os dados persistidos no SecureStore em caso de cold start
+      return { user, token };
     }
   },
 
@@ -53,3 +52,4 @@ export const AuthService = {
     await StorageService.clearAuthSession();
   },
 };
+

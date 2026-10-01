@@ -21,7 +21,6 @@ export interface UsuarioRequest {
   senha: string;
   ddd: string;
   numeroTelefone: string;
-  role: UsuarioRole;
   endereco: EnderecoRequest;
 }
 
@@ -32,7 +31,7 @@ export interface UsuarioResponse {
   role: UsuarioRole;
   ddd: string;
   numeroTelefone: string;
-  enderecos: EnderecoResponse[];
+  endereco: EnderecoResponse;
 }
 
 export interface PetResumo {
@@ -44,7 +43,6 @@ export interface PetResumo {
 }
 
 export interface CuidadorResumo {
-  id: number;
   nome: string;
   email: string;
   responsavelPrincipal: boolean;
@@ -54,8 +52,12 @@ export interface CuidadorResumo {
   petsAjudaNomes?: string[];
 }
 
+export interface CuidadorFamiliarItem extends CuidadorResumo {
+  roleText: string;
+}
+
 export interface RedeCuidadoResponse {
-  usuarioId: number;
+  emailUsuario: string;
   nomeUsuario: string;
   pets: PetResumo[];
   coCuidadores: CuidadorResumo[];
@@ -72,7 +74,6 @@ export interface InviteCaregiverData {
 export interface EditProfileFormData {
   nome: string;
   email: string;
-  role: UsuarioRole;
   ddd: string;
   numeroTelefone: string;
   cep: string;

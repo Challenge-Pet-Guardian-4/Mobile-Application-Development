@@ -39,7 +39,10 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
         <PerfilUsuarioCard
           profile={profile}
           onEdit={() => modals.abrir('editar')}
+          onUpgrade={actions.realizarUpgradePremium}
+          isUpgrading={actions.isUpgradingPremium}
         />
+
 
         {/* Estatísticas Gamificadas */}
         <EstatisticasPerfil profile={profile} />

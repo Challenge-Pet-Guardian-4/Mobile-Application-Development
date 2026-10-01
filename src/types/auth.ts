@@ -1,4 +1,4 @@
-import { UsuarioResponse, UsuarioRole } from './user';
+import { UsuarioResponse } from './user';
 
 export interface LoginCredentials {
   email: string;
@@ -11,7 +11,6 @@ export interface RegisterCredentials {
   senha: string;
   ddd: string;
   numeroTelefone: string;
-  role: UsuarioRole;
   cep: string;
   numero: string;
 }

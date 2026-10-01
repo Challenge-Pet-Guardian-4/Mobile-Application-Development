@@ -8,9 +8,11 @@ import { useUserProfile } from '../../../hooks/useUserProfile';
 interface PerfilUsuarioCardProps {
   profile: ReturnType<typeof useUserProfile>['profile'];
   onEdit: () => void;
+  onUpgrade?: () => void;
+  isUpgrading?: boolean;
 }
 
-export function PerfilUsuarioCard({ profile, onEdit }: PerfilUsuarioCardProps) {
+export function PerfilUsuarioCard({ profile, onEdit, onUpgrade, isUpgrading = false }: PerfilUsuarioCardProps) {
   const { user, initials, enderecoPrincipal } = profile;
 
   return (
@@ -24,6 +26,20 @@ export function PerfilUsuarioCard({ profile, onEdit }: PerfilUsuarioCardProps) {
       <View style={styles.roleBadgeBox}>
         <RoleBadge role={user?.role} />
       </View>
+
+      {user?.role === 'COMUM' && onUpgrade && (
+        <TouchableOpacity
+          style={styles.btnUpgradePremium}
+          onPress={onUpgrade}
+          activeOpacity={0.8}
+          disabled={isUpgrading}
+        >
+          <Ionicons name="sparkles" size={14} color="#B45309" />
+          <Text style={styles.btnUpgradePremiumText}>
+            {isUpgrading ? 'Ativando Premium...' : 'Fazer Upgrade para Premium ⭐'}
+          </Text>
+        </TouchableOpacity>
+      )}
 
       <View style={styles.infoPillsRow}>
         {user?.ddd && user?.numeroTelefone ? (
@@ -52,6 +68,7 @@ export function PerfilUsuarioCard({ profile, onEdit }: PerfilUsuarioCardProps) {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   profileCard: {
@@ -105,4 +122,18 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   btnEditProfileText: { color: '#2563EB', fontSize: 12, fontWeight: '700' },
+  btnUpgradePremium: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 14,
+    marginBottom: 12,
+  },
+  btnUpgradePremiumText: { color: '#B45309', fontSize: 12, fontWeight: '800' },
 });
+

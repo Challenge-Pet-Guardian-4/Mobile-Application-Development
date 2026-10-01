@@ -6,16 +6,17 @@ export const queryKeys = {
   },
   users: {
     all: ['users'] as const,
+    me: ['users', 'me'] as const,
     detail: (id?: number) => ['users', 'detail', id ?? 0] as const,
     byEmail: (email: string) => ['users', 'email', email] as const,
-    redeCuidado: (id?: number) => ['users', 'redeCuidado', id ?? 0] as const,
+    redeCuidado: ['users', 'me', 'rede-cuidado'] as const,
   },
 
   // Pets
   pets: {
     all: ['pets'] as const,
     list: (page = 0, size = 20) => ['pets', 'list', { page, size }] as const,
-    byUser: (userId?: number, page = 0, size = 20) => ['pets', 'byUser', userId ?? 0, { page, size }] as const,
+    myPets: (page = 0, size = 20) => ['pets', 'me', page, size] as const,
     detail: (id?: number) => ['pets', 'detail', id ?? 0] as const,
     history: (id?: number) => ['pets', 'history', id ?? 0] as const,
     pontos: (id?: number) => ['pets', 'pontos', id ?? 0] as const,
@@ -26,9 +27,9 @@ export const queryKeys = {
   tasks: {
     all: ['tasks'] as const,
     list: (page = 0, size = 50) => ['tasks', 'list', { page, size }] as const,
-    byUser: (userId?: number) => ['tasks', 'byUser', userId ?? 0] as const,
+    myTasks: (status = 'ALL', page = 0, size = 50) => ['tasks', 'me', status, page, size] as const,
     detail: (id?: number) => ['tasks', 'detail', id ?? 0] as const,
-    userPoints: (userId?: number) => ['tasks', 'userPoints', userId ?? 0] as const,
+    myPoints: ['tasks', 'me', 'pontos'] as const,
   },
 
   // Treinamentos

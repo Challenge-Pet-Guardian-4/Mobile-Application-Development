@@ -85,6 +85,14 @@ export const RoutineCard = memo(function RoutineCard({
                 </Text>
               </View>
             ) : null}
+            {tarefa.usuarioNome ? (
+              <View style={[styles.userBadge, isDone && styles.userBadgeDone]}>
+                <Ionicons name="person-outline" size={10} color={isDone ? colors.success[600] : colors.neutral[500]} />
+                <Text style={[styles.userBadgeText, isDone && styles.userBadgeTextDone]} numberOfLines={1}>
+                  {tarefa.usuarioNome}
+                </Text>
+              </View>
+            ) : null}
           </View>
         </View>
       </TouchableOpacity>
@@ -258,5 +266,25 @@ const styles = StyleSheet.create({
   },
   prazoTextDone: {
     color: colors.neutral[400],
+  },
+  userBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: colors.neutral[100],
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: borderRadius.xs,
+  },
+  userBadgeDone: {
+    backgroundColor: colors.success[50],
+  },
+  userBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: colors.neutral[600],
+  },
+  userBadgeTextDone: {
+    color: colors.success[700],
   },
 });

@@ -11,10 +11,10 @@ const INITIAL_REGISTER_FORM: RegisterFormData = {
   confirmarSenha: '',
   ddd: '',
   numeroTelefone: '',
-  role: 'PREMIUM',
   cep: '',
   numero: '',
 };
+
 
 type NavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 
@@ -87,10 +87,10 @@ export function useRegisterForm(navigation: NavigationProp) {
       senha: validacao.data.senha,
       ddd: validacao.data.ddd,
       numeroTelefone: validacao.data.numeroTelefone,
-      role: validacao.data.role,
       cep: validacao.data.cep,
       numero: validacao.data.numero,
     });
+
   }, [form, register, limparErros]);
 
   const handleGoBack = useCallback(() => {

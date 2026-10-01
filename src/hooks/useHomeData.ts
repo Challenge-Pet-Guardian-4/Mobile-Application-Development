@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
-import { useSession } from './useSession';
 import { usePets, usePetPontos } from './usePets';
-import { useUserTasks, useTasks } from './useTasks';
+import { useUserTasks } from './useTasks';
 import { useActivePet } from './useActivePet';
 import { useTaskActions } from './useTaskActions';
 import { PetResponse } from '../types/pet';
@@ -12,7 +11,6 @@ import { RootStackParamList } from '../routes/types';
 import { calcularDiasSemanaAtual, calcularTotalOfensiva, formatarDataIsoYmd } from '../utils/streakUtils';
 
 export function useHomeData(navigation?: NativeStackNavigationProp<RootStackParamList>) {
-  const { user } = useSession();
   const taskActions = useTaskActions();
 
   const {
@@ -35,24 +33,14 @@ export function useHomeData(navigation?: NativeStackNavigationProp<RootStackPara
     isError: isErrorUserTasks,
     error: userTasksError,
     refetch: refetchUserTasks,
-  } = useUserTasks(user?.id, 0, 100, 'ALL');
+  } = useUserTasks(0, 100, 'ALL');
 
-  // Fallback para useTasks global apenas caso user não esteja logado
-  const {
-    data: globalTasksData,
-    isLoading: isLoadingGlobalTasks,
-    isFetching: isFetchingGlobalTasks,
-    refetch: refetchGlobalTasks,
-  } = useTasks(0, 100, !user?.id);
+  const isLoadingTasks = isLoadingUserTasks;
+  const isFetchingTasks = isFetchingUserTasks;
+  const isErrorTasks = isErrorUserTasks;
+  const tasksError = userTasksError;
 
-  const isLoadingTasks = user?.id ? isLoadingUserTasks : isLoadingGlobalTasks;
-  const isFetchingTasks = user?.id ? isFetchingUserTasks : isFetchingGlobalTasks;
-  const isErrorTasks = user?.id ? isErrorUserTasks : false;
-  const tasksError = user?.id ? userTasksError : null;
-
-  const allTasks: TarefaResponse[] = user?.id
-    ? userTasksData?.content || []
-    : globalTasksData?.content || [];
+  const allTasks: TarefaResponse[] = userTasksData?.content || [];
 
   const { data: pontosPetData, refetch: refetchPontos } = usePetPontos(activePet?.id);
 
@@ -90,10 +78,11 @@ export function useHomeData(navigation?: NativeStackNavigationProp<RootStackPara
   const refetch = useCallback(async () => {
     await Promise.all([
       refetchPets(),
-      user?.id ? refetchUserTasks() : refetchGlobalTasks(),
+      refetchUserTasks(),
       refetchPontos(),
     ]);
-  }, [refetchPets, user?.id, refetchUserTasks, refetchGlobalTasks, refetchPontos]);
+  }, [refetchPets, refetchUserTasks, refetchPontos]);
+
 
   // Controle de Visualização da Rotina (Hoje vs Todas)
   const [filtroRotina, setFiltroRotina] = useState<'HOJE' | 'TODAS'>('HOJE');

@@ -38,7 +38,7 @@ export function useTaskActions() {
 
       if (tarefa.status === 'CONCLUIDO') {
         uncompleteTaskMutation.mutate(
-          { id: taskId, usuarioId: user.id },
+          taskId,
           createMutationCallbacks('Erro ao Desmarcar', 'Não foi possível desmarcar a tarefa.', options)
         );
       } else if (tarefa.status === 'EXPIRADO') {
@@ -65,10 +65,7 @@ export function useTaskActions() {
         }
       } else {
         completeTaskMutation.mutate(
-          {
-            id: taskId,
-            request: { concluinteId: user.id },
-          },
+          taskId,
           createMutationCallbacks('Erro ao Concluir', 'Não foi possível concluir a tarefa.', options)
         );
       }
@@ -123,7 +120,6 @@ export function useTaskActions() {
             descricao: data.descricao.trim(),
             pontosTarefa: Number(data.pontos),
             prazo: prazoIso,
-            usuarioId: user.id,
             petId: data.petId,
             status: statusFinal,
             conclusao: conclusaoIso,
@@ -134,6 +130,7 @@ export function useTaskActions() {
     },
     [user, updateTaskMutation]
   );
+
 
   return {
     alternarStatus,

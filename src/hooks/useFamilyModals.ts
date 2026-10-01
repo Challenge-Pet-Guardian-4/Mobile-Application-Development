@@ -60,7 +60,7 @@ export function useFamilyModals({
 
       if (isCurrentlyLinked) {
         removeCaregiverMutation.mutate(
-          { petId, usuarioId: cuidadorEmGestao.id, solicitanteId: user.id },
+          { petId, email: cuidadorEmGestao.email },
           createMutationCallbacks('Erro ao Desvincular', 'Não foi possível desvincular o cuidador deste pet.', {
             onSuccess: () => {
               setCuidadorEmGestao((prev) =>
@@ -71,7 +71,7 @@ export function useFamilyModals({
         );
       } else {
         inviteMutation.mutate(
-          { petId, responsavelPrincipalId: user.id, email: cuidadorEmGestao.email },
+          { petId, email: cuidadorEmGestao.email },
           createMutationCallbacks('Erro ao Vincular', 'Não foi possível vincular o cuidador a este pet.', {
             onSuccess: () => {
               setCuidadorEmGestao((prev) =>
@@ -81,6 +81,7 @@ export function useFamilyModals({
           })
         );
       }
+
     },
     [cuidadorEmGestao, user, removeCaregiverMutation, inviteMutation]
   );
@@ -90,7 +91,7 @@ export function useFamilyModals({
       if (!cuidadorEmGestao || !user) return;
 
       transferResponsibilityMutation.mutate(
-        { petId, responsavelAtualId: user.id, novoResponsavelId: cuidadorEmGestao.id },
+        { petId, novoResponsavelEmail: cuidadorEmGestao.email },
         createMutationCallbacks('Erro ao Transferir Titularidade', 'Não foi possível transferir a titularidade do pet.', {
           onSuccess: handleFecharGerenciamento,
         })
@@ -115,14 +116,14 @@ export function useFamilyModals({
       petsParaRemover.map((p) =>
         removeCaregiverMutation.mutateAsync({
           petId: p.id,
-          usuarioId: cuidadorEmGestao.id,
-          solicitanteId: user.id,
+          email: cuidadorEmGestao.email,
         })
       )
     )
       .then(() => {
         handleFecharGerenciamento();
       })
+
       .catch((err) => {
         Alert.alert('Erro ao Remover', getApiErrorMessage(err, 'Ocorreu um erro ao desvincular o cuidador de alguns pets.'));
       });

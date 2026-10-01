@@ -4,15 +4,13 @@ import { queryKeys } from '../lib/queryKeys';
 import { PetRequest, PetResponse } from '../types/pet';
 import { useSession } from './useSession';
 
-export function usePets(usuarioId?: number, page = 0, size = 20) {
-  const { user } = useSession();
-  const effectiveUserId = usuarioId !== undefined ? usuarioId : user?.id;
+export function usePets(page = 0, size = 20) {
+  const { token } = useSession();
 
   return useQuery({
-    queryKey: effectiveUserId
-      ? queryKeys.pets.byUser(effectiveUserId, page, size)
-      : queryKeys.pets.list(page, size),
-    queryFn: () => PetService.getPets(effectiveUserId, page, size),
+    queryKey: ['pets', 'me', page, size],
+    queryFn: () => PetService.getMyPets(page, size),
+    enabled: !!token,
   });
 }
 
@@ -108,11 +106,7 @@ export function useDeletePet() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (args: number | { id: number; usuarioId?: number }) => {
-      const id = typeof args === 'number' ? args : args.id;
-      const usuarioId = typeof args === 'number' ? undefined : args.usuarioId;
-      return PetService.deletePet(id, usuarioId);
-    },
+    mutationFn: (id: number) => PetService.deletePet(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
@@ -127,13 +121,11 @@ export function useInviteCaregiver() {
   return useMutation({
     mutationFn: ({
       petId,
-      responsavelPrincipalId,
       email,
     }: {
       petId: number;
-      responsavelPrincipalId: number;
       email: string;
-    }) => PetService.convidarPorEmail(petId, responsavelPrincipalId, email),
+    }) => PetService.convidarPorEmail(petId, email),
     onSuccess: (_, { petId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.caregivers(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
@@ -156,13 +148,11 @@ export function useRemoveCaregiver() {
   return useMutation({
     mutationFn: ({
       petId,
-      usuarioId,
-      solicitanteId,
+      email,
     }: {
       petId: number;
-      usuarioId: number;
-      solicitanteId: number;
-    }) => PetService.desvincularCuidador(petId, usuarioId, solicitanteId),
+      email: string;
+    }) => PetService.desvincularCuidador(petId, email),
     onSuccess: (_, { petId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.caregivers(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
@@ -177,17 +167,11 @@ export function useTransferResponsibility() {
   return useMutation({
     mutationFn: ({
       petId,
-      responsavelAtualId,
-      novoResponsavelId,
+      novoResponsavelEmail,
     }: {
       petId: number;
-      responsavelAtualId: number;
-      novoResponsavelId: number;
-    }) =>
-      PetService.transferirResponsabilidade(petId, {
-        responsavelAtualId,
-        novoResponsavelId,
-      }),
+      novoResponsavelEmail: string;
+    }) => PetService.transferirResponsabilidade(petId, novoResponsavelEmail),
     onSuccess: (_, { petId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.caregivers(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
@@ -195,3 +179,4 @@ export function useTransferResponsibility() {
     },
   });
 }
+

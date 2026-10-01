@@ -1,10 +1,9 @@
-import { useQuery, skipToken } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { UserService } from '../services/users';
-import { queryKeys } from '../lib/queryKeys';
 
-export function useRedeCuidado(usuarioId?: number) {
+export function useRedeCuidado() {
   return useQuery({
-    queryKey: queryKeys.users.redeCuidado(usuarioId),
-    queryFn: usuarioId ? () => UserService.getRedeCuidado(usuarioId) : skipToken,
+    queryKey: ['users', 'me', 'rede-cuidado'],
+    queryFn: () => UserService.getMyRedeCuidado(),
   });
 }

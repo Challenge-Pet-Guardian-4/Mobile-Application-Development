@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { CustomInput } from '../../../components/CustomInput';
 import { PasswordInput } from '../../../components/PasswordInput';
 import { CustomButton } from '../../../components/CustomButton';
-import { RoleSelector } from '../../../components/RoleSelector';
 import { shadows } from '../../../utils/shadow';
 import { useRegisterForm } from '../../../hooks/useRegisterForm';
 
@@ -27,12 +26,7 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
 
   return (
     <View style={styles.formContainer}>
-      <RoleSelector
-        value={form.role}
-        onChange={(newRole) => updateField('role', newRole)}
-        variant="cards"
-        label="Escolha seu Perfil de Tutor:"
-      />
+
 
       <CustomInput
         label="Nome Completo"

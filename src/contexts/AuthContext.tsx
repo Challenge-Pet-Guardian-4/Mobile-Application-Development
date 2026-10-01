@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { AuthService } from '../services/auth';
+import { StorageService } from '../services/storage';
 import { setOnUnauthorizedCallback, HttpService } from '../services/http';
 import { AiService } from '../services/ai';
 import { queryClient } from '../lib/queryClient';
@@ -95,9 +96,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+  const handleSetUser = useCallback((newUser: UsuarioResponse | null) => {
+    setUser(newUser);
+    if (newUser) {
+      StorageService.saveUser(newUser).catch(() => {});
+    }
+  }, []);
+
   const setSession = useCallback((session: { user: UsuarioResponse | null; token: string | null }) => {
     setUser(session.user);
     setToken(session.token);
+    if (session.user && session.token) {
+      StorageService.saveAuth(session.token, session.user).catch(() => {});
+    }
   }, []);
 
   const value = useMemo(
@@ -109,10 +120,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       login,
       register,
       logout,
-      setUser,
+      setUser: handleSetUser,
       setSession,
     }),
-    [user, token, isLoading, login, register, logout, setSession]
+    [user, token, isLoading, login, register, logout, handleSetUser, setSession]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
