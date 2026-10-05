@@ -111,7 +111,7 @@ export const TrainingService = {
       const data = await this.concluirAula(numId);
       return { pontosGanhos: data.pontosAula };
     }
-    return { pontosGanhos: 25 };
+    return { pontosGanhos: 0 };
   },
 
   /**

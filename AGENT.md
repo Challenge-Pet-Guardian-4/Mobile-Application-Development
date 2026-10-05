@@ -9,14 +9,14 @@ Este documento serve como referência definitiva e fonte única da verdade para 
 O aplicativo foi construído com foco em **alta performance**, **experiência do usuário moderna (estilo Duolingo/iFood)**, **arquitetura limpa (Clean Code, DRY, SOLID - SRP)** e **sincronização reativa de dados** com a API Java Spring Boot (`Java-Advanced`) e o microsserviço de IA em Python (`FastAPI`).
 
 ### Stack Tecnológica
-- **Framework Base**: React Native 0.83.6 com **Expo SDK 57** (`expo@~57.0.18`, `@expo/metro-runtime@~57.0.14`, `expo-status-bar@~57.0.1`).
-- **Linguagem**: TypeScript 5.3+ (**Tipagem Estrita - Zero `any`**, tipagem explícita de props, rotas e retornos).
-- **Gerenciamento de Estado Assíncrono & Cache**: **TanStack Query v5** (`@tanstack/react-query@^5.90.20`) com mutações declarativas (`mutate` com `onSuccess`/`onError`) e invalidação granular de cache.
+- **Framework Base**: React Native 0.86.3 com **Expo SDK 57** (`expo@~57.0.20`, `@expo/metro-runtime@~57.0.14`, `expo-status-bar@~57.0.1`).
+- **Linguagem**: TypeScript ~6.0.3 (**Tipagem Estrita - Zero `any`**, tipagem explícita de props, rotas e retornos).
+- **Gerenciamento de Estado Assíncrono & Cache**: **TanStack Query v5** (`@tanstack/react-query@^5.102.6`) com mutações declarativas (`mutate` com `onSuccess`/`onError`) e invalidação granular de cache.
 - **Padrão Arquitetural de Dados**: **Domain Hooks** (camada intermediária que encapsula regras de negócio, sanitização de payloads, mutations e diálogos de confirmação, mantendo as telas puramente declarativas).
-- **Cliente HTTP Centralizado**: **Axios** com interceptores para injeção automática de Bearer Token JWT e captura global de status `401 Unauthorized`.
+- **Cliente HTTP Centralizado**: **Axios** (`^1.20.0`) com interceptores para injeção automática de Bearer Token JWT e captura global de status `401 Unauthorized`.
 - **Gerenciamento de Sessão Global**: React Context API (`AuthContext`) integrado com `@react-native-async-storage/async-storage` e `expo-secure-store`.
-- **Navegação Nativa**: `@react-navigation/native`, `@react-navigation/native-stack`, `@react-navigation/bottom-tabs`.
-- **Validação de Formulários**: **Zod** (`zod@^4.3.6`).
+- **Navegação Nativa**: `@react-navigation/native` (^7.2.2), `@react-navigation/native-stack` (^7.14.10), `@react-navigation/bottom-tabs` (^7.15.11).
+- **Validação de Formulários**: **Zod** (`zod@^4.4.3`) e **React Hook Form** (`^7.75.0`).
 - **Ícones**: `@expo/vector-icons` (`MaterialCommunityIcons`, `Ionicons`, `FontAwesome`, `FontAwesome5`).
 
 ---
@@ -51,23 +51,34 @@ Mobile-Application-Development/
     │   ├── RoleSelector/          → Seletor declarativo de plano ('cards' no cadastro e 'compact' em modais)
     │   ├── TaskFormModal/         → Modal para criação e edição de tarefas e rotinas
     │   └── TasksRoutineSection/   → Seção reutilizável de rotina diária com filtros Hoje/Todas e RoutineCard
+    ├── config/
+    │   └── env.ts                 → Configuração de endpoints (API Java no Railway e IA no Render)
     ├── constants/
     │   └── theme.ts               → Design system: paleta de cores (Tailwind slate/blue), espaçamentos, tipografia e raios
     ├── contexts/
     │   └── AuthContext.tsx        → Contexto global de autenticação, login, registro e persistência
     ├── hooks/                     → Custom Hooks & Domain Hooks (Separação de Responsabilidades)
+    │   ├── useActivePet.ts        → Resolução e memorização do pet ativo na sessão
     │   ├── useAiAssistant.ts      → Insights preventivos e chat conversacional com o pet
+    │   ├── useAiAssistantScreen.ts→ Orquestrador de tela do chat com IA, contexto e histórico
     │   ├── useAuthMutations.ts    → Mutações de Login e Registro com TanStack Query
     │   ├── useFamilyCare.ts       → [DOMAIN HOOK] Gestão da rede familiar, pets, tarefas e cuidadores
+    │   ├── useFamilyModals.ts     → Controle de modais da Family, convite e transferência
+    │   ├── useHistoricos.ts       → Queries e mutações do prontuário médico do pet
     │   ├── useHomeData.ts         → [DOMAIN HOOK] Orquestração do pet ativo, pontuação e tarefas da Home
+    │   ├── useLoginForm.ts        → Estado e validação Zod do formulário de login
     │   ├── usePetDetail.ts        → [DOMAIN HOOK] Gestão da ficha clínica, histórico e edição do pet
-    │   ├── usePets.ts             → Queries e mutações básicas de pets (TanStack Query via /pets/me)
+    │   ├── usePetDetailModals.ts  → Controle de modais de edição, histórico e convite do pet
+    │   ├── usePets.ts             → Queries e mutações de pets e cuidadores via /pets/me
     │   ├── useRedeCuidado.ts      → Query da rede de cuidado agregada (GET /usuarios/me/rede-cuidado)
+    │   ├── useRegisterForm.ts     → Estado e validação Zod do formulário de cadastro
     │   ├── useSession.ts          → Hook utilitário para consumir o AuthContext
-    │   ├── useTasks.ts            → Queries e mutações de tarefas e pontos do tutor
+    │   ├── useTaskActions.ts      → Ações reutilizáveis de tarefas (concluir, desmarcar, excluir)
+    │   ├── useTasks.ts            → Queries e mutações de tarefas e pontos do tutor via /tarefas/me
+    │   ├── useTrainingQueries.ts  → Queries especializadas de módulos e aulas
     │   ├── useTrainings.ts        → [DOMAIN HOOK] Trilhas de adestramento gamificadas com TanStack Query
     │   ├── useUserProfile.ts      → [DOMAIN HOOK] Perfil do tutor, sanitização e preferências
-    │   └── useUsers.ts            → Mutações de atualização (PUT) e exclusão (DELETE) de usuário
+    │   └── useUsers.ts            → Mutações de atualização (PUT /usuarios/me) e upgrade
     ├── lib/
     │   ├── queryClient.ts         → Instância singleton configurada do TanStack QueryClient
     │   └── queryKeys.ts           → Fábrica hierárquica e tipada de Query Keys
@@ -81,32 +92,39 @@ Mobile-Application-Development/
     │   ├── Home/                  → Dashboard do pet ativo, score, ofensiva e tarefas do dia
     │   ├── Login/                 → Tela de login com campos limpos e validação Zod
     │   ├── PetDetail/             → Ficha clínica detalhada, histórico e edição com componentes modulares
-    │   ├── Register/              → Cadastro com RoleSelector (default: PREMIUM) e botão verde success
+    │   ├── Register/              → Cadastro com validação Zod, busca automática ViaCEP e botão verde success (perfil nasce como COMUM e pode ser promovido para PREMIUM)
     │   ├── TrainingEducation/     → Trilhas de adestramento gamificadas alimentadas por TanStack Query
     │   ├── UserProfile/           → Perfil do tutor, estatísticas, preferências e exclusão de conta
     │   └── Welcome/               → Onboarding inicial com botão 'Criar conta grátis'
     ├── services/                  → Camada de comunicação HTTP REST com o Backend
     │   ├── ai.ts                  → Microsserviço Python FastAPI (/ai/insights, /ai/chat)
     │   ├── auth.ts                → Registro e login integrados ao StorageService
+    │   ├── historico.ts           → Endpoints REST do prontuário clínico (/historicos)
     │   ├── http.ts                → Instância Axios central com interceptors de Request/Response
-    │   ├── pets.ts                → Endpoints REST do PetController no Java
+    │   ├── pets.ts                → Endpoints REST do PetController no Java (/pets/me)
     │   ├── storage.ts             → Fachada centralizada: SecureStore (JWT) + AsyncStorage (Cache)
-    │   ├── tasks.ts               → Endpoints REST do TarefaController no Java
+    │   ├── tasks.ts               → Endpoints REST do TarefaController no Java (/tarefas/me)
     │   ├── trainings.ts           → Endpoints REST de trilhas, módulos e aulas no Java
-    │   └── users.ts               → Endpoints REST do UsuarioController no Java
+    │   └── users.ts               → Endpoints REST do UsuarioController no Java (/usuarios/me)
     ├── types/                     → Contratos TypeScript espelhando a API Java (100% tipados)
     │   ├── ai.ts                  → Mensagens e insights de IA
     │   ├── api.ts                 → Paginação Spring (Page<T>) e erros de API
     │   ├── auth.ts                → Credenciais de Login e Registro
+    │   ├── historico.ts           → Prontuário médico e eventos clínicos
     │   ├── models.ts              → Re-exportação agregada de todos os tipos
     │   ├── pet.ts                 → PetRequest, PetResponse, PetHistoryResponse, CoCuidadorResponse
-    │   ├── task.ts                → TarefaRequest, TarefaResponse, TarefaConclusaoRequest
-    │   ├── training.ts            → Trilhas, módulos, lições e passos de adestramento
+    │   ├── task.ts                → TarefaRequest, TarefaResponse
+    │   ├── training.ts            → Trilhas, módulos, lições e respostas de API
     │   └── user.ts                → UsuarioRequest, UsuarioResponse, RedeCuidadoResponse, UsuarioRole
     └── utils/
         ├── alert.ts               → Utilitário unificado de alerta multiplataforma
+        ├── apiError.ts            → Normalizador de mensagens de erro HTTP
         ├── petUtils.ts            → Normalização de datas (ISO <-> BR) e cálculo estético de idade
-        └── schemas.ts             → Schemas de validação Zod para Login, Cadastro e Pets
+        ├── schemas.ts             → Schemas de validação Zod para Login, Cadastro e Pets
+        ├── shadow.ts              → Utilitário multiplataforma para sombras nativas
+        ├── streakUtils.ts         → Utilitário para cálculo de ofensiva semanal
+        ├── taskUtils.ts           → Filtros e ordenação de tarefas
+        └── trainingUtils.ts       → Mapeamento de aulas e trilhas para o layout gamificado
 ```
 
 ---
@@ -156,7 +174,7 @@ export type RootStackParamList = {
 ## 📱 4. Mapeamento Detalhado de Telas & Domain Hooks
 
 ### 4.1. `HomeScreen` (`src/screens/Home/HomeScreen.tsx`)
-- **Domain Hook**: [`useHomeData.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge%20Clyvo%203/Mobile-Application-Development/src/hooks/useHomeData.ts).
+- **Domain Hook**: [`useHomeData.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/useHomeData.ts).
 - **Responsabilidade**: Dashboard focado no pet ativo.
 - **Componentes Compositores**:
   - `Header`: Saudação ao tutor logado.
@@ -166,7 +184,7 @@ export type RootStackParamList = {
   - `RoutineCard`: Cards interativos para alternar o status das tarefas (`alternarStatusTarefa`) ou removê-las (`excluirTarefaComConfirmacao`).
 
 ### 4.2. `FamilyPetScreen` (`src/screens/FamilyPet/FamilyPetScreen.tsx`)
-- **Domain Hook**: [`useFamilyCare.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge%20Clyvo%203/Mobile-Application-Development/src/hooks/useFamilyCare.ts).
+- **Domain Hook**: [`useFamilyCare.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/useFamilyCare.ts).
 - **Responsabilidade**: Gestão colaborativa familiar, animais cadastrados, delegação de tarefas e cuidadores.
 - **Componentes Compositores**:
   - `FamilySummaryCard`: Resumo visual escuro com totais de pets, tarefas e XP acumulado da rede.
@@ -176,7 +194,7 @@ export type RootStackParamList = {
   - `PetFormModal`, `TaskFormModal` e `InviteCaregiverModal`: Modais limpos para inserção de dados reais.
 
 ### 4.3. `PetDetailScreen` (`src/screens/PetDetail/PetDetailScreen.tsx`)
-- **Domain Hook**: [`usePetDetail.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge%20Clyvo%203/Mobile-Application-Development/src/hooks/usePetDetail.ts).
+- **Domain Hook**: [`usePetDetail.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/usePetDetail.ts).
 - **Responsabilidade**: Ficha clínica detalhada e prontuário médico.
 - **Componentes Compositores**:
   - `PetAvatarCarousel`: Carrossel horizontal de seleção de pets com mini avatares circulares.
@@ -185,14 +203,14 @@ export type RootStackParamList = {
   - `PetFormModal`: Modal pré-preenchido para atualização cadastral na API Java.
 
 ### 4.4. `TrainingEducationScreen` (`src/screens/TrainingEducation/TrainingEducationScreen.tsx`)
-- **Domain Hook**: [`useTrainings.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge%20Clyvo%203/Mobile-Application-Development/src/hooks/useTrainings.ts).
+- **Domain Hook**: [`useTrainings.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/useTrainings.ts).
 - **Responsabilidade**: Trilhas educativas gamificadas de adestramento alimentadas por TanStack Query.
 - **Regras**:
   - Bloqueio amigável com `PremiumLockCard` para contas comuns (`role === 'COMUM'`).
   - Para `PREMIUM`: nós interativos 3D em zigue-zague, modal prático e mutação `concluirLicao` chamando `PATCH /aulas/{id}/concluir` com invalidação automática de cache de pontos do pet.
 
 ### 4.5. `UserProfileScreen` (`src/screens/UserProfile/UserProfileScreen.tsx`)
-- **Domain Hook**: [`useUserProfile.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge%20Clyvo%203/Mobile-Application-Development/src/hooks/useUserProfile.ts).
+- **Domain Hook**: [`useUserProfile.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/useUserProfile.ts).
 - **Responsabilidade**: Perfil do tutor, estatísticas gamificadas, switches de preferências e exclusão de conta.
 - **Componentes Compositores**:
   - `RoleBadge`: Indicador visual do plano (⭐ Premium).
@@ -283,9 +301,6 @@ export interface PetRequest {
   porte: PetPorte;
   sexo: string; // 'M' | 'F'
   castrado: boolean;
-  usuarioId: number;
-  idade?: number;
-  avatarId?: string;
 }
 
 export interface PetResponse {
@@ -311,7 +326,6 @@ export interface UsuarioRequest {
   senha: string;
   ddd: string;
   numeroTelefone: string;
-  role: UsuarioRole; // Padrão: 'PREMIUM'
   endereco: {
     cep: string;
     numero: string;
@@ -325,7 +339,7 @@ export interface UsuarioResponse {
   role: UsuarioRole;
   ddd: string;
   numeroTelefone: string;
-  enderecos: EnderecoResponse[];
+  endereco: EnderecoResponse;
 }
 ```
 
@@ -335,9 +349,10 @@ export interface UsuarioResponse {
 
 1. **Tipagem Estrita (Zero `any`)**:
    - É estritamente proibido o uso de `any` ou `as any` no TypeScript. Utilize genéricos (`<K extends keyof T>`), tipos derivados de schemas Zod (`z.infer<typeof Schema>`) ou contratos formais de rotas e APIs.
-2. **Role Padrão do Tutor**:
-   - A role padrão é **`PREMIUM`** em todos os formulários e estados iniciais.
-   - **Blindagem da Role ADMIN**: O Mobile **NUNCA** deve conter referências à role `ADMIN`. Apenas o Backend Java conhece o perfil administrador.
+2. **Ciclo de Vida da Role do Tutor & Blindagem da Role ADMIN**:
+   - Todo novo tutor nasce no perfil gratuito **`COMUM`** ao se cadastrar (`POST /usuarios`).
+   - O upgrade para **`PREMIUM`** pode ser acionado sob demanda pelo usuário em seu perfil (`UserProfileScreen`) ou ao interagir com o `PremiumLockCard` nas telas com recursos exclusivos (`TrainingEducationScreen` e `AiAssistantScreen`), disparando a mutação `PATCH /usuarios/me/upgrade-premium`.
+   - **Blindagem da Role ADMIN**: O Mobile **NUNCA** deve conter formulários, inputs ou referências visuais que exponham a role `ADMIN`. Apenas o Backend Java conhece e autoriza o perfil de administrador.
 3. **Formulários Limpos (Sem Mocks em Produção)**:
    - Os formulários e campos de entrada de produção iniciam limpos (`useState('')`), sem mocks hardcoded como `'15'`, `'Cuidado diário da família'`, `'11'` ou `'email@petguardian.com'`. A validação é real e o botão de submissão permanece desabilitado enquanto o formulário for inválido.
 4. **Arquitetura com Hooks de Domínio (SRP / DRY / SOLID)**:

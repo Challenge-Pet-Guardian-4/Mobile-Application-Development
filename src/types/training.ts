@@ -26,6 +26,7 @@ export interface TrilhaApiResponse {
   nome: string;
   descricao: string;
   petId: number;
+  nomePet: string;
 }
 
 export interface ModuloApiResponse {
@@ -34,6 +35,7 @@ export interface ModuloApiResponse {
   tempoConclusao: string;
   descricao: string;
   trilhaId: number;
+  nomeTrilha: string;
 }
 
 export interface AulaApiResponse {
@@ -45,4 +47,5 @@ export interface AulaApiResponse {
   conteudo: string;
   concluida: boolean;
   moduloId: number;
+  nomeModulo: string;
 }

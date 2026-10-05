@@ -9,6 +9,7 @@ export * from './pet';
 export * from './task';
 export * from './training';
 export * from './ai';
+export * from './historico';
 
 // Aliases de conveniência
 export type Pet = PetResponse;

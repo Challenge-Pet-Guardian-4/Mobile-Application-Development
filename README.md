@@ -1,7 +1,7 @@
 # 🐾 PetGuardian — Mobile Application Development
 
 > **Arquitetura Pet-Centric, Governança Familiar Colaborativa & Autenticação JWT Real**  
-> *Aplicativo mobile desenvolvido para a 3ª Sprint do Challenge Clyvo 2026 (2TDSPG - FIAP).*
+> *Aplicativo mobile desenvolvido para a 4ª Sprint do Challenge Clyvo 2026 (2TDSPG - FIAP).*
 
 ---
 
@@ -19,7 +19,7 @@
 
 ## 🔗 Repositório GitHub e Vídeo de Demonstração
 
-[Repositório GitHub Oficial](https://github.com/Challenge-Pet-Guardian-3/Mobile-Application-Development) | [Vídeo de Demonstração](https://youtu.be/BVdYt_QLyCA)
+[Repositório GitHub Oficial](https://github.com/Challenge-Pet-Guardian-4/Mobile-Application-Development) | [Vídeo de Demonstração](https://youtu.be/BVdYt_QLyCA)
 
 ---
 
@@ -89,7 +89,7 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 * **Funcionalidades:**
   * **Seletor de Pet Ativo:** Alternância rápida entre os animais da família cadastrados na API.
   * **`PetScoreBar`:** Barra de progresso animada calculando o bem-estar e o nível gamificado do pet com base na somatória real de tarefas e aulas concluídas (`GET /pets/{id}/pontos`).
-  * **Rotina Diária:** Listagem de tarefas do dia via TanStack Query (`GET /tarefas/by-usuario`), com cards informando título, horário, prazo e pontuação.
+  * **Rotina Diária:** Listagem de tarefas do dia via TanStack Query (`GET /tarefas/me`), com cards informando título, horário, prazo e pontuação.
   * **Conclusão em 1 Toque:** Conclusão de tarefas via `PATCH /tarefas/{id}/concluir`, com vibração tátil, atualização reativa do score e estorno instantâneo via `PATCH /tarefas/{id}/desmarcar`.
   * **`StreakCard`:** Indicador de ofensiva diária incentivando a consistência dos cuidados.
   * **Atalho Rápido:** Acesso direto à Assistente de Inteligência Artificial Preventiva.
@@ -97,7 +97,7 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 #### 5. `FamilyPetScreen` (Gestão Familiar & Care Circle)
 * **Objetivo:** Governança colaborativa de pets e tarefas familiares compartilhadas.
 * **Funcionalidades:**
-  * **Listagem Familiar:** Exibição de todos os pets sob tutela do usuário ou de seus co-cuidadores via `GET /pets/by-usuario`.
+  * **Listagem Familiar:** Exibição de todos os pets sob tutela do usuário ou de seus co-cuidadores via `GET /pets/me`.
   * **Cadastro de Pet (CRUD 1 - Create):** Modal com formulário completo para inclusão de novo animal (`POST /pets`), vinculando automaticamente o usuário criador como Responsável Principal.
   * **Criação de Tarefas da Rotina (CRUD 2 - Create):** Modal de cadastro de novas rotinas (`POST /tarefas`) definindo título, descrição, prazo, pontuação e pet associado.
   * **Care Circle (Convite de Co-cuidadores):** Funcionalidade para convidar familiares por e-mail (`POST /pets/{id}/cuidadores`), permitindo que mais membros acompanhem a rotina do animal.
@@ -134,7 +134,7 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 * **Objetivo:** Gestão cadastral do tutor, consulta de score acumulado e controle de logout seguro.
 * **Funcionalidades:**
   * Exibição dos dados do usuário autenticado (Nome, E-mail, Perfil RBAC, Telefone formatado e Endereço).
-  * **Score Gamificado Real:** Consulta da pontuação total acumulada pelo tutor em toda a sua jornada de cuidados (`GET /tarefas/by-usuario/pontos`).
+  * **Score Gamificado Real:** Consulta da pontuação total acumulada pelo tutor em toda a sua jornada de cuidados (`GET /tarefas/me/pontos`).
   * Suporte com seção de Perguntas Frequentes (FAQ).
   * **Logout Seguro:** Limpeza atômica do Token JWT e e-mail no hardware seguro (`StorageService.clearAuthSession()`), invalidação de todas as consultas em memória do `QueryClient` e redirecionamento instantâneo para a tela inicial.
 
@@ -146,13 +146,13 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
 | `POST` | `/login` | Autenticação com e-mail/senha; emite Token JWT assinado com RSA e perfil do usuário | `AuthService.login` |
-| `GET` | `/usuarios/by-email` | Restaura a sessão ao reabrir o app utilizando o e-mail persistido no hardware seguro | `AuthService.getStoredSession` |
+| `GET` | `/usuarios/me` | Restaura a sessão ao reabrir o app validando o perfil do usuário logado via JWT | `AuthService.getStoredSession` |
 | `POST` | `/usuarios` | Onboarding de novos tutores com integração de CEP ao ViaCEP | `AuthService.register` |
 
 ### Grupo 2: Gestão de Pets & Pontuação de Bem-Estar (CRUD 1)
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/pets/by-usuario` | Listagem dos pets vinculados ao tutor logado (como titular ou co-cuidador) | `PetService.getPetsPorUsuario` |
+| `GET` | `/pets/me` | Listagem dos pets vinculados ao tutor logado (como titular ou co-cuidador) | `PetService.getMyPets` |
 | `GET` | `/pets/{id}` | Busca os detalhes completos de um pet específico | `PetService.getPetById` |
 | `GET` | `/pets/{id}/pontos` | Obtém o score consolidado de bem-estar do pet (rotinas + aulas) para o `PetScoreBar` | `PetService.getPetPontos` |
 | `POST` | `/pets` | **[Create]** Cadastra novo pet e vincula o criador como responsável principal | `PetService.createPet` |
@@ -164,21 +164,21 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 | :---: | :--- | :--- | :--- |
 | `GET` | `/pets/{id}/cuidadores` | Lista todos os co-cuidadores e familiares vinculados ao animal | `PetService.getCuidadores` |
 | `POST` | `/pets/{id}/cuidadores` | Convida um novo membro da família informando seu e-mail cadastrado | `PetService.convidarPorEmail` |
-| `DELETE`| `/pets/{id}/cuidadores/{uId}` | Desvincula um co-cuidador da rede de cuidado do animal | `PetService.desvincularCuidador` |
+| `DELETE`| `/pets/{id}/cuidadores?email=...` | Desvincula um co-cuidador da rede de cuidado do animal via e-mail | `PetService.desvincularCuidador` |
 | `PATCH`| `/pets/{id}/responsavel-principal` | Transfere atomicamente a titularidade principal para outro cuidador | `PetService.transferirResponsabilidade` |
-| `GET` | `/usuarios/{id}/rede-cuidado` | Visão agregada completa da família: pets, co-cuidadores e tarefas | `UserService.getRedeCuidado` |
+| `GET` | `/usuarios/me/rede-cuidado` | Visão agregada completa da família: pets, co-cuidadores e tarefas do usuário logado via JWT | `UserService.getMyRedeCuidado` |
 
 ### Grupo 4: Rotinas, Tarefas & Gamificação (CRUD 2)
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/tarefas/by-usuario` | Lista as tarefas de rotina do usuário com suporte a auto-expiração inteligente | `TaskService.getTarefasPorUsuario` |
+| `GET` | `/tarefas/me` | Lista as tarefas de rotina do usuário logado com suporte a auto-expiração inteligente | `TaskService.getMyTarefas` |
 | `GET` | `/tarefas/by-pet/{petId}` | Lista todas as tarefas ativas associadas a um animal | `TaskService.getTarefasPorPet` |
 | `POST` | `/tarefas` | **[Create]** Agenda nova rotina (alimentar, medicar, passear) para o pet | `TaskService.createTarefa` |
 | `PUT` | `/tarefas/{id}` | **[Update]** Edita parâmetros e prazos de uma tarefa existente | `TaskService.updateTarefa` |
 | `PATCH`| `/tarefas/{id}/concluir` | **[Update]** Conclui a rotina, soma pontos ao tutor e atualiza a pontuação do pet | `TaskService.concluirTarefa` |
 | `PATCH`| `/tarefas/{id}/desmarcar` | **[Update]** Desmarca a conclusão, retorna para `PENDENTE` e estorna os pontos | `TaskService.desmarcarTarefa` |
 | `DELETE`| `/tarefas/{id}` | **[Delete]** Remove uma tarefa da rotina do pet | `TaskService.deleteTarefa` |
-| `GET` | `/tarefas/by-usuario/pontos` | Retorna o total de pontos acumulados pelo cuidador para exibição no perfil | `TaskService.getPontosUsuario` |
+| `GET` | `/tarefas/me/pontos` | Retorna o total de pontos acumulados pelo cuidador logado para exibição no perfil | `TaskService.getMyPontos` |
 
 ### Grupo 5: Prontuário Clínico & Histórico de Saúde
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
@@ -220,16 +220,28 @@ src/
 ├── config/              → Variáveis de ambiente dinâmicas com fallback para localhost e emuladores (env.ts)
 ├── constants/           → Tokens de design system, tipografia e paleta de cores institucional/gamificada (theme.ts com trainingPalette)
 ├── contexts/            → Gestão global de sessão e autenticação de usuários (AuthContext.tsx)
-├── hooks/               → Custom hooks isolando TanStack Query, mutations, invalidações e formulários:
-│   ├── useSession.ts    → Hook para consumo simplificado do estado de autenticação e dados do tutor
-│   ├── usePets.ts       → Queries e mutations reativas de pets, histórico e co-cuidadores
-│   ├── useTasks.ts      → Queries e mutations de tarefas da rotina, conclusão e pontuação
-│   ├── useTrainings.ts  → Queries e mutations de trilhas e aulas educativas
-│   ├── useUsers.ts      → Queries de perfil, dados de contato e visão agregada da rede
-│   ├── useAiAssistant.ts → Hooks de integração com a IA (useAiChat, useAiInsights, useAiWarmup)
-│   ├── useAiAssistantScreen.ts → Hook orquestrador de estado de tela, modal de histórico e pet ativo
-│   ├── useLoginForm.ts  → Gerenciamento do formulário de login com validação Zod
-│   └── useRegisterForm.ts → Gerenciamento do formulário de cadastro com validação Zod
+├── hooks/               → Custom hooks e Domain hooks (Clean Architecture / SRP / TanStack Query):
+│   ├── useActivePet.ts        → Resolução e persistência em memória do pet ativo selecionado
+│   ├── useAiAssistant.ts      → Hooks de IA (useAiChat, useAiInsights, useAiWarmup)
+│   ├── useAiAssistantScreen.ts→ Orquestrador de tela do chat com IA, contexto e histórico
+│   ├── useAuthMutations.ts    → Mutações de Login e Registro encapsuladas no TanStack Query
+│   ├── useFamilyCare.ts       → [DOMAIN HOOK] Gestão da rede familiar, múltiplos pets e tarefas
+│   ├── useFamilyModals.ts     → Controle de modais da FamilyScreen (pet, tarefa, cuidador)
+│   ├── useHistoricos.ts       → Queries e mutações do prontuário médico do pet
+│   ├── useHomeData.ts         → [DOMAIN HOOK] Orquestração do pet ativo, pontuação e rotinas da Home
+│   ├── useLoginForm.ts        → Estado e validação Zod do formulário de login
+│   ├── usePetDetail.ts        → [DOMAIN HOOK] Gestão de ficha clínica, histórico e mutações do pet
+│   ├── usePetDetailModals.ts  → Controle de modais de edição e histórico do pet
+│   ├── usePets.ts             → Queries e mutações de pets e cuidadores via /pets/me
+│   ├── useRedeCuidado.ts      → Query da rede de cuidado agregada (GET /usuarios/me/rede-cuidado)
+│   ├── useRegisterForm.ts     → Estado, busca ViaCEP e validação Zod do cadastro
+│   ├── useSession.ts          → Hook utilitário para consumo direto do AuthContext
+│   ├── useTaskActions.ts      → Ações reutilizáveis de tarefas (concluir, desmarcar, excluir)
+│   ├── useTasks.ts            → Queries e mutações de tarefas e pontos via /tarefas/me
+│   ├── useTrainingQueries.ts  → Queries especializadas de módulos e aulas educativas
+│   ├── useTrainings.ts        → [DOMAIN HOOK] Trilhas de adestramento gamificadas com TanStack Query
+│   ├── useUserProfile.ts      → [DOMAIN HOOK] Perfil do tutor, estatísticas e upgrade Premium
+│   └── useUsers.ts            → Mutações de atualização cadastral e upgrade de plano
 ├── lib/                 → Configurações de infraestrutura local:
 │   ├── queryClient.ts   → Instância centralizada do QueryClient (TanStack Query) com cache padrão
 │   └── queryKeys.ts     → Fábrica de chaves de query hierárquicas para invalidação cirúrgica de cache
@@ -265,7 +277,7 @@ src/
 
 ## 🔐 6. Segurança, Hardware Seguro e Tratamento de Sessão
 
-Em total atendimento aos critérios da Sprint 3:
+A arquitetura de segurança do aplicativo adota padrões corporativos estritos para proteção de credenciais, integridade de dados e conformidade com OWASP:
 * **Zero Dados Mockados:** O aplicativo conecta-se com a API real Spring Boot no Railway (`https://java-advanced-production-35ab.up.railway.app`) ou em `localhost:8080`.
 * **Hardware Seguro (`expo-secure-store`):**
   * O token JWT emitido com criptografia assimétrica RSA e o e-mail identificador são persistidos exclusivamente nas camadas nativas de hardware seguro: **Keychain (iOS)** e **Keystore (Android)**.
