@@ -5,6 +5,7 @@ import {
   TrilhaApiResponse,
   ModuloApiResponse,
   AulaApiResponse,
+  ConteudoAulaApiResponse,
 } from '../types/training';
 import { mapearAulaParaLicao, mapearTrilhaParaTrack } from '../utils/trainingUtils';
 
@@ -12,13 +13,33 @@ import { mapearAulaParaLicao, mapearTrilhaParaTrack } from '../utils/trainingUti
  * Serviço responsável pela comunicação HTTP com os endpoints de Treinamento/Trilhas do backend Java.
  */
 export const TrainingService = {
-  
+
+  /**
+   * Busca todas as trilhas cadastradas para o usuário autenticado via JWT (GET /trilhas/me).
+   */
+  async getTrilhasMe(): Promise<TrilhaApiResponse[]> {
+    const response = await http.get<TrilhaApiResponse[]>('/trilhas/me');
+    return response.data || [];
+  },
+
   /**
    * Busca todas as trilhas cadastradas para um determinado pet (GET /trilhas/pet/{petId}).
    */
   async getTrilhasPorPet(petId: number): Promise<TrilhaApiResponse[]> {
     const response = await http.get<TrilhaApiResponse[]>(`/trilhas/pet/${petId}`);
     return response.data || [];
+  },
+
+  /**
+   * Busca o conteúdo rico NoSQL da aula armazenado no MongoDB (GET /aulas/{aulaId}/conteudo).
+   */
+  async getConteudoAula(aulaId: number): Promise<ConteudoAulaApiResponse | null> {
+    try {
+      const response = await http.get<ConteudoAulaApiResponse>(`/aulas/${aulaId}/conteudo`);
+      return response.data;
+    } catch {
+      return null;
+    }
   },
 
   /**
@@ -60,10 +81,8 @@ export const TrainingService = {
    * os DTOs brutos da API Java nos ViewModels esperados pela interface (TrainingTrack[]).
    */
   async getTrilhas(petId?: number): Promise<TrainingTrack[]> {
-    if (!petId) return [];
-
     try {
-      const trilhas = await this.getTrilhasPorPet(petId);
+      const trilhas = petId ? await this.getTrilhasPorPet(petId) : await this.getTrilhasMe();
       if (!trilhas.length) return [];
 
       return await Promise.all(

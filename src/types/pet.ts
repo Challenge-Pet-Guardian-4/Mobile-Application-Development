@@ -53,6 +53,13 @@ export interface PetPontuacaoResponse {
   pontosTotais: number;
 }
 
+export interface PetPontuacaoAgregadaResponse {
+  pontosTarefas: number;
+  pontosAulas: number;
+  pontosTotais: number;
+  detalhePets: PetPontuacaoResponse[];
+}
+
 export interface PetFormData {
   nome: string;
   raca: string;

@@ -36,8 +36,7 @@ export function useUpdateTask() {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: TarefaRequest }) => TaskService.updateTarefa(id, data),
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(id) });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
     },

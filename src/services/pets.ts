@@ -1,7 +1,14 @@
 import { http } from './http';
 import { Page } from '../types/api';
-import { CoCuidadorResponse, PetHistoryResponse, PetPontuacaoResponse, PetRequest, PetResponse } from '../types/pet';
-
+import {
+  CoCuidadorResponse,
+  PetHistoryResponse,
+  PetPontuacaoAgregadaResponse,
+  PetPontuacaoResponse,
+  PetRequest,
+  PetResponse,
+} from '../types/pet';
+import { TarefaResponse } from '../types/task';
 
 export const PetService = {
   // Lista pets vinculados ao usuário autenticado via JWT (/pets/me)
@@ -12,10 +19,16 @@ export const PetService = {
     return response.data;
   },
 
-  // Busca detalhes de um pet específico por ID
-  async getPetById(id: number): Promise<PetResponse> {
-    const response = await http.get<PetResponse>(`/pets/${id}`);
+  // Consulta a pontuação total agregada de todos os pets do usuário via JWT (/pets/me/pontos)
+  async getMyPetsPontos(): Promise<PetPontuacaoAgregadaResponse> {
+    const response = await http.get<PetPontuacaoAgregadaResponse>('/pets/me/pontos');
     return response.data;
+  },
+
+  // Busca histórico consolidado de tarefas de todos os pets do usuário via JWT (/pets/me/historico)
+  async getMyPetsHistory(): Promise<TarefaResponse[]> {
+    const response = await http.get<TarefaResponse[]>('/pets/me/historico');
+    return response.data || [];
   },
 
   // Busca histórico consolidado de cuidados do pet

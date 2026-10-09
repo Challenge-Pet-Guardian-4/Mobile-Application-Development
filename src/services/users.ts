@@ -25,4 +25,9 @@ export const UserService = {
     const response = await http.patch<UsuarioResponse>('/usuarios/me/upgrade-premium');
     return response.data;
   },
+
+  // Remove a conta do usuário autenticado do sistema (/usuarios/me)
+  async deleteMe(): Promise<void> {
+    await http.delete('/usuarios/me');
+  },
 };

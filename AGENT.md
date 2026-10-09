@@ -64,12 +64,12 @@ Mobile-Application-Development/
     │   ├── useAuthMutations.ts    → Mutações de Login e Registro com TanStack Query
     │   ├── useFamilyCare.ts       → [DOMAIN HOOK] Gestão da rede familiar, pets, tarefas e cuidadores
     │   ├── useFamilyModals.ts     → Controle de modais da Family, convite e transferência
-    │   ├── useHistoricos.ts       → Queries e mutações do prontuário médico do pet
+    │   ├── useHistoricos.ts       → Queries (por pet e batch via /historicos/me) e mutações do prontuário médico do pet
     │   ├── useHomeData.ts         → [DOMAIN HOOK] Orquestração do pet ativo, pontuação e tarefas da Home
     │   ├── useLoginForm.ts        → Estado e validação Zod do formulário de login
-    │   ├── usePetDetail.ts        → [DOMAIN HOOK] Gestão da ficha clínica, histórico e edição do pet
+    │   ├── usePetDetail.ts        → [DOMAIN HOOK] Gestão da ficha clínica, prontuário e histórico consolidado do pet via /me
     │   ├── usePetDetailModals.ts  → Controle de modais de edição, histórico e convite do pet
-    │   ├── usePets.ts             → Queries e mutações de pets e cuidadores via /pets/me
+    │   ├── usePets.ts             → Queries e mutações de pets, pontuação agregada (/pets/me/pontos) e histórico de rotinas (/pets/me/historico)
     │   ├── useRedeCuidado.ts      → Query da rede de cuidado agregada (GET /usuarios/me/rede-cuidado)
     │   ├── useRegisterForm.ts     → Estado e validação Zod do formulário de cadastro
     │   ├── useSession.ts          → Hook utilitário para consumir o AuthContext
@@ -77,8 +77,8 @@ Mobile-Application-Development/
     │   ├── useTasks.ts            → Queries e mutações de tarefas e pontos do tutor via /tarefas/me
     │   ├── useTrainingQueries.ts  → Queries especializadas de módulos e aulas
     │   ├── useTrainings.ts        → [DOMAIN HOOK] Trilhas de adestramento gamificadas com TanStack Query
-    │   ├── useUserProfile.ts      → [DOMAIN HOOK] Perfil do tutor, sanitização e preferências
-    │   └── useUsers.ts            → Mutações de atualização (PUT /usuarios/me) e upgrade
+    │   ├── useUserProfile.ts      → [DOMAIN HOOK] Perfil do tutor, estatísticas, preferências e exclusão de conta
+    │   └── useUsers.ts            → Mutações de atualização (PUT /usuarios/me), upgrade e exclusão definitiva (DELETE /usuarios/me)
     ├── lib/
     │   ├── queryClient.ts         → Instância singleton configurada do TanStack QueryClient
     │   └── queryKeys.ts           → Fábrica hierárquica e tipada de Query Keys
@@ -195,7 +195,10 @@ export type RootStackParamList = {
 
 ### 4.3. `PetDetailScreen` (`src/screens/PetDetail/PetDetailScreen.tsx`)
 - **Domain Hook**: [`usePetDetail.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/usePetDetail.ts).
-- **Responsabilidade**: Ficha clínica detalhada e prontuário médico.
+- **Responsabilidade**: Ficha clínica detalhada, histórico de rotinas e prontuário médico.
+- **Estratégia Batch de Performance**:
+  - Consome `useMyPetsHistory()` (`GET /pets/me/historico`) e `useMyHistoricos()` (`GET /historicos/me`) carregando as rotinas concluídas e eventos clínicos de todos os pets do tutor em viagens HTTP únicas via JWT.
+  - O hook filtra os registros em memória pelo `activePet.id`, permitindo navegação instantânea no carrossel sem novos disparos de rede (Zero N+1).
 - **Componentes Compositores**:
   - `PetAvatarCarousel`: Carrossel horizontal de seleção de pets com mini avatares circulares.
   - `PetHeaderCard`: Card de destaque com tags dinâmicas de porte, idade, sexo e castração, além dos botões "Editar Ficha" e "Excluir".
@@ -232,31 +235,29 @@ export const queryKeys = {
   users: {
     all: ['users'] as const,
     me: ['users', 'me'] as const,
-    detail: (id?: number) => ['users', 'detail', id ?? 0] as const,
-    byEmail: (email: string) => ['users', 'email', email] as const,
     redeCuidado: ['users', 'me', 'rede-cuidado'] as const,
   },
   pets: {
     all: ['pets'] as const,
-    list: (page = 0, size = 20) => ['pets', 'list', { page, size }] as const,
     myPets: (page = 0, size = 20) => ['pets', 'me', page, size] as const,
-    detail: (id?: number) => ['pets', 'detail', id ?? 0] as const,
+    myPontos: ['pets', 'me', 'pontos'] as const,
+    myHistory: ['pets', 'me', 'historico'] as const,
     history: (id?: number) => ['pets', 'history', id ?? 0] as const,
     pontos: (id?: number) => ['pets', 'pontos', id ?? 0] as const,
     caregivers: (id?: number) => ['pets', 'caregivers', id ?? 0] as const,
   },
   tasks: {
     all: ['tasks'] as const,
-    list: (page = 0, size = 50) => ['tasks', 'list', { page, size }] as const,
     myTasks: (status = 'ALL', page = 0, size = 50) => ['tasks', 'me', status, page, size] as const,
-    detail: (id?: number) => ['tasks', 'detail', id ?? 0] as const,
     myPoints: ['tasks', 'me', 'pontos'] as const,
   },
   training: {
     all: ['training'] as const,
     tracks: ['training', 'tracks'] as const,
+    myTracks: ['training', 'me'] as const,
     byPet: (petId?: number) => ['training', 'pet', petId] as const,
     trackDetail: (id: string) => ['training', 'tracks', id] as const,
+    lessonContent: (aulaId: number) => ['training', 'lesson', aulaId, 'content'] as const,
   },
   ai: {
     insights: (petId?: number) => ['ai', 'insights', petId ?? 0] as const,
@@ -265,8 +266,8 @@ export const queryKeys = {
   },
   historicos: {
     all: ['historicos'] as const,
+    myHistoricos: ['historicos', 'me'] as const,
     byPet: (petId?: number) => ['historicos', 'pet', petId ?? 0] as const,
-    detail: (id?: number) => ['historicos', 'detail', id ?? 0] as const,
   },
 };
 ```
@@ -313,6 +314,19 @@ export interface PetResponse {
   sexo: string;
   castrado: boolean;
 }
+
+export interface PetPontuacaoAgregadaResponse {
+  pontosTarefas: number;
+  pontosAulas: number;
+  pontosTotais: number;
+  detalhePets: {
+    petId: number;
+    nomePet: string;
+    pontosTarefas: number;
+    pontosAulas: number;
+    pontosTotais: number;
+  }[];
+}
 ```
 
 ### Tipos de Usuário & Blindagem da Role (`src/types/user.ts`)
@@ -343,6 +357,29 @@ export interface UsuarioResponse {
 }
 ```
 
+### Tipos de Treinamento & Conteúdo NoSQL do MongoDB (`src/types/training.ts`)
+```typescript
+export interface ConteudoAulaApiResponse {
+  id: string;
+  aulaId: number;
+  tipoConteudo: string; // Ex: 'GUIA_PRATICO', 'ARTIGO', 'VIDEO'
+  corpoMarkdown: string;
+  linksRecursos: string[];
+  atualizadoEm?: string;
+}
+
+export interface TrainingLesson {
+  id: string;
+  titulo: string;
+  descricao: string;
+  pontos: number;
+  icone: string;
+  duracaoMin: number;
+  concluido: boolean;
+  passos: string[];
+}
+```
+
 ---
 
 ## 🔒 7. Boas Práticas & Regras Obrigatórias para Agentes
@@ -367,3 +404,11 @@ export interface UsuarioResponse {
    - Toda operação de armazenamento passa exclusivamente pelo `StorageService` (`src/services/storage.ts`). Tokens JWT são gravados via `expo-secure-store` e dados de cache/sessão via `AsyncStorage`.
 8. **Imports no Topo**:
    - Nunca utilizar FQCN ou pacotes inline no corpo dos arquivos. Todos os imports devem constar no topo do arquivo.
+9. **Consumo Agregado Batch via `/me` (Zero Loops N+1 & Cache Otimizado)**:
+   - O aplicativo móvel nunca deve executar loops de chamadas por ID individual (ex: `GET /pets/{id}/pontos` para cada pet em tela).
+   - Deve-se priorizar os endpoints agregados de conveniência:
+     - `GET /pets/me/pontos`: consolida em batch a pontuação de todos os animais para o perfil e home sem N+1.
+     - `GET /pets/me/historico`: consolida em batch as rotinas concluídas de todos os animais do tutor.
+     - `GET /historicos/me`: consolida em batch os eventos clínicos e prontuários médicos de todos os animais.
+     - `GET /usuarios/me/rede-cuidado`: consolida em batch toda a árvore de cuidadores, tarefas e animais.
+   - O cliente (Domain Hooks como `usePetDetail` e `useHomeData`) filtra os dados pré-carregados em memória pelo `activePet.id`, assegurando alternância fluida de animais e consumo otimizado de cache no TanStack Query.

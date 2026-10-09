@@ -1,7 +1,8 @@
-import { useQuery, useQueries, useMutation, useQueryClient, skipToken } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient, skipToken } from '@tanstack/react-query';
 import { PetService } from '../services/pets';
 import { queryKeys } from '../lib/queryKeys';
-import { PetRequest, PetResponse } from '../types/pet';
+import { PetPontuacaoResponse, PetRequest, PetResponse } from '../types/pet';
 import { useSession } from './useSession';
 
 export function usePets(page = 0, size = 20) {
@@ -14,13 +15,6 @@ export function usePets(page = 0, size = 20) {
   });
 }
 
-export function usePet(id?: number) {
-  return useQuery({
-    queryKey: queryKeys.pets.detail(id),
-    queryFn: id ? () => PetService.getPetById(id) : skipToken,
-  });
-}
-
 export function usePetHistory(id?: number) {
   return useQuery({
     queryKey: queryKeys.pets.history(id),
@@ -28,53 +22,57 @@ export function usePetHistory(id?: number) {
   });
 }
 
-export function usePetPontos(id?: number) {
+export function useMyPetsHistory() {
+  const { token } = useSession();
+
   return useQuery({
-    queryKey: queryKeys.pets.pontos(id),
-    queryFn: id ? () => PetService.getPetPontos(id) : skipToken,
+    queryKey: queryKeys.pets.myHistory,
+    queryFn: () => PetService.getMyPetsHistory(),
+    enabled: !!token,
   });
 }
 
-export function usePetsPontosMap(pets: PetResponse[]) {
-  return useQueries({
-    queries: pets.map((p) => ({
-      queryKey: queryKeys.pets.pontos(p.id),
-      queryFn: () => PetService.getPetPontos(p.id),
-      enabled: !!p.id,
-      staleTime: 1000 * 60 * 2,
-    })),
-    combine: (results) => {
-      const map = new Map<number, number>();
-      results.forEach((q) => {
-        if (q.data) {
-          map.set(q.data.petId, q.data.pontosTotais);
-        }
-      });
-      return map;
-    },
+export function usePetPontos(id?: number) {
+  const { data: myPetsPontos, isLoading, isError, refetch } = useMyPetsPontos();
+
+  const data = useMemo<PetPontuacaoResponse | undefined>(() => {
+    if (!id || !myPetsPontos?.detalhePets) return undefined;
+    return myPetsPontos.detalhePets.find((p) => p.petId === id);
+  }, [id, myPetsPontos]);
+
+  return {
+    data,
+    isLoading,
+    isError,
+    refetch,
+  };
+}
+
+export function useMyPetsPontos() {
+  const { token } = useSession();
+
+  return useQuery({
+    queryKey: queryKeys.pets.myPontos,
+    queryFn: () => PetService.getMyPetsPontos(),
+    enabled: !!token,
   });
 }
 
-export function usePetsPontosTotais(pets: PetResponse[]) {
-  return useQueries({
-    queries: pets.map((p) => ({
-      queryKey: queryKeys.pets.pontos(p.id),
-      queryFn: () => PetService.getPetPontos(p.id),
-      enabled: !!p.id,
-      staleTime: 1000 * 60 * 2,
-    })),
-    combine: (results) => {
-      let total = 0;
-      let hasData = false;
-      results.forEach((q) => {
-        if (q.data?.pontosTotais !== undefined) {
-          total += q.data.pontosTotais;
-          hasData = true;
-        }
-      });
-      return hasData ? total : undefined;
-    },
-  });
+export function usePetsPontosMap(_pets?: PetResponse[]) {
+  const { data } = useMyPetsPontos();
+
+  return useMemo(() => {
+    const map = new Map<number, number>();
+    data?.detalhePets.forEach((p) => {
+      map.set(p.petId, p.pontosTotais);
+    });
+    return map;
+  }, [data]);
+}
+
+export function usePetsPontosTotais(_pets?: PetResponse[]) {
+  const { data } = useMyPetsPontos();
+  return data?.pontosTotais;
 }
 
 export function useCreatePet() {
@@ -94,8 +92,7 @@ export function useUpdatePet() {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: PetRequest }) => PetService.updatePet(id, data),
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.pets.detail(id) });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
     },

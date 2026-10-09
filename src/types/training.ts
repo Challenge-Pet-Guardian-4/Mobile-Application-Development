@@ -49,3 +49,12 @@ export interface AulaApiResponse {
   moduloId: number;
   nomeModulo: string;
 }
+
+export interface ConteudoAulaApiResponse {
+  id: string;
+  aulaId: number;
+  tipoConteudo: string;
+  corpoMarkdown: string;
+  linksRecursos: string[];
+  atualizadoEm?: string;
+}

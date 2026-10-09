@@ -2,10 +2,10 @@ import { useMemo, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useSession } from './useSession';
 import { useActivePet } from './useActivePet';
-import { usePets, usePetHistory, usePetPontos, useUpdatePet, useDeletePet, usePetCaregivers, useInviteCaregiver, useRemoveCaregiver, useTransferResponsibility } from './usePets';
-import { usePetHistoricos, useCreateHistorico, useUpdateHistorico, useDeleteHistorico } from './useHistoricos';
+import { usePets, useMyPetsHistory, usePetPontos, useUpdatePet, useDeletePet, usePetCaregivers, useInviteCaregiver, useRemoveCaregiver, useTransferResponsibility } from './usePets';
+import { useMyHistoricos, useCreateHistorico, useUpdateHistorico, useDeleteHistorico } from './useHistoricos';
 import { usePetDetailModals } from './usePetDetailModals';
-import { CoCuidadorResponse, PetResponse, PetFormData } from '../types/pet';
+import { CoCuidadorResponse, PetResponse, PetFormData, PetHistoryResponse } from '../types/pet';
 import { normalizarDataNascParaIso, formatarIsoParaBr } from '../utils/petUtils';
 import { PetSchema, formatZodError } from '../utils/schemas';
 import { createMutationCallbacks, ActionCallbacks } from '../utils/apiError';
@@ -21,18 +21,34 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
 
   const { activePet, selectedPetId, selectPet, setSelectedPetId } = useActivePet(pets, routePetId);
 
-  // Histórico consolidado de rotina do pet na API Java (GET /pets/{id}/historico)
-  const { data: historyData, isLoading: isLoadingHistory, refetch: refetchHistory } = usePetHistory(activePet?.id);
+  // Histórico consolidado de rotina de todos os pets via JWT (GET /pets/me/historico)
+  const { data: allHistoryTarefas = [], isLoading: isLoadingHistory, refetch: refetchHistory } = useMyPetsHistory();
 
   // Pontuação e XP acumulado do pet (GET /pets/{id}/pontos)
   const { data: pontosData, isLoading: isLoadingPontos, refetch: refetchPontos } = usePetPontos(activePet?.id);
 
-  // Prontuário de Saúde e Eventos Clínicos do pet (GET /historicos/pet/{petId})
+  // Prontuário de Saúde e Eventos Clínicos de todos os pets via JWT (GET /historicos/me)
   const {
-    data: historicos = [],
+    data: allHistoricos = [],
     isLoading: isLoadingHistoricos,
     refetch: refetchHistoricos,
-  } = usePetHistoricos(activePet?.id);
+  } = useMyHistoricos();
+
+  // Histórico de tarefas concluídas filtrado em memória pelo pet ativo
+  const historyData = useMemo<PetHistoryResponse | undefined>(() => {
+    if (!activePet) return undefined;
+    return {
+      petId: activePet.id,
+      nomePet: activePet.nome,
+      tarefasConcluidas: allHistoryTarefas.filter((t) => t.petId === activePet.id),
+    };
+  }, [activePet, allHistoryTarefas]);
+
+  // Prontuário clínico filtrado em memória pelo pet ativo
+  const historicos = useMemo(
+    () => (activePet ? allHistoricos.filter((h) => h.petId === activePet.id) : []),
+    [activePet, allHistoricos]
+  );
 
   // Cuidadores vinculados ao pet (GET /pets/{id}/cuidadores)
   const {

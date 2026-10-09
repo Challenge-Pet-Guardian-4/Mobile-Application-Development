@@ -53,11 +53,12 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
         {/* Recursos & Ferramentas do Ecossistema */}
         <RecursosPetGuardian navigation={navigation} />
 
-        {/* Conta, FAQ, Termos e Logout */}
+        {/* Conta, FAQ, Termos, Logout e Exclusão de Conta */}
         <ContaESuporte
           onOpenFaq={() => modals.abrir('faq')}
           onOpenTerms={() => modals.abrir('termos')}
           onLogout={actions.logout}
+          onDeleteAccount={actions.excluirConta}
         />
 
         <View style={{ height: 110 }} />

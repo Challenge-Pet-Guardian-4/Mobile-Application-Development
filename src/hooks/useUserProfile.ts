@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useSession } from './useSession';
-import { useUpdateUser, useUserProfileData, useUpgradePremium } from './useUsers';
+import { useUpdateUser, useUserProfileData, useUpgradePremium, useDeleteAccount } from './useUsers';
 import { EditProfileFormData } from '../types/user';
 import { ProfileEditSchema, formatZodError } from '../utils/schemas';
 import { ActionCallbacks, createMutationCallbacks } from '../utils/apiError';
@@ -125,6 +125,29 @@ export function useUserProfile() {
     };
   }, [redeCuidado]);
 
+  const deleteAccountMutation = useDeleteAccount();
+
+  const excluirContaComConfirmacao = useCallback(() => {
+    Alert.alert(
+      'Excluir Conta Permanentemente',
+      'Tem certeza de que deseja excluir sua conta no PetGuardian? Esta ação é irreversível e todos os seus dados e históricos serão apagados.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir Definitivamente',
+          style: 'destructive',
+          onPress: () => {
+            deleteAccountMutation.mutate(undefined, {
+              onError: () => {
+                Alert.alert('Erro', 'Não foi possível excluir sua conta. Verifique sua conexão e tente novamente.');
+              },
+            });
+          },
+        },
+      ]
+    );
+  }, [deleteAccountMutation]);
+
   return {
     status: {
       isLoading,
@@ -148,8 +171,10 @@ export function useUserProfile() {
       salvarPerfil,
       realizarUpgradePremium,
       logout: logoutComConfirmacao,
+      excluirConta: excluirContaComConfirmacao,
       isUpdating: updateUserMutation.isPending,
       isUpgradingPremium: upgradePremiumMutation.isPending,
+      isDeletingAccount: deleteAccountMutation.isPending,
       refetch: refetchAll,
     },
   };

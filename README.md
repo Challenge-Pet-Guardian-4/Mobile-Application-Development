@@ -134,7 +134,7 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 * **Objetivo:** Gestão cadastral do tutor, consulta de score acumulado e controle de logout seguro.
 * **Funcionalidades:**
   * Exibição dos dados do usuário autenticado (Nome, E-mail, Perfil RBAC, Telefone formatado e Endereço).
-  * **Score Gamificado Real:** Consulta da pontuação total acumulada pelo tutor em toda a sua jornada de cuidados (`GET /tarefas/me/pontos`).
+  * **Score Gamificado Real:** Consulta da pontuação total acumulada pelo tutor em toda a sua jornada de cuidados (`GET /usuarios/me/rede-cuidado`, `GET /pets/me/pontos` e `GET /tarefas/me/pontos`).
   * Suporte com seção de Perguntas Frequentes (FAQ).
   * **Logout Seguro:** Limpeza atômica do Token JWT e e-mail no hardware seguro (`StorageService.clearAuthSession()`), invalidação de todas as consultas em memória do `QueryClient` e redirecionamento instantâneo para a tela inicial.
 
@@ -142,19 +142,22 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 
 ## 📋 4. Catálogo de Endpoints da API Integrados por Grupo
 
-### Grupo 1: Autenticação & Restauração de Sessão
+### Grupo 1: Autenticação, Perfil & Governança da Conta
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
 | `POST` | `/login` | Autenticação com e-mail/senha; emite Token JWT assinado com RSA e perfil do usuário | `AuthService.login` |
-| `GET` | `/usuarios/me` | Restaura a sessão ao reabrir o app validando o perfil do usuário logado via JWT | `AuthService.getStoredSession` |
+| `GET` | `/usuarios/me` | Restaura a sessão e consulta dados cadastrais do próprio usuário logado via JWT | `UserService.getMe` |
+| `PUT` | `/usuarios/me` | Atualiza dados cadastrais e endereço do próprio usuário autenticado via JWT | `UserService.updateMe` |
+| `PATCH`| `/usuarios/me/upgrade-premium` | Realiza upgrade de plano COMUM para PREMIUM via JWT | `UserService.upgradeMyPremium` |
+| `DELETE`| `/usuarios/me` | Exclui permanentemente a conta e dados do usuário via JWT (LGPD) | `UserService.deleteMe` |
 | `POST` | `/usuarios` | Onboarding de novos tutores com integração de CEP ao ViaCEP | `AuthService.register` |
 
 ### Grupo 2: Gestão de Pets & Pontuação de Bem-Estar (CRUD 1)
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
 | `GET` | `/pets/me` | Listagem dos pets vinculados ao tutor logado (como titular ou co-cuidador) | `PetService.getMyPets` |
-| `GET` | `/pets/{id}` | Busca os detalhes completos de um pet específico | `PetService.getPetById` |
-| `GET` | `/pets/{id}/pontos` | Obtém o score consolidado de bem-estar do pet (rotinas + aulas) para o `PetScoreBar` | `PetService.getPetPontos` |
+| `GET` | `/pets/me/pontos` | Score consolidado em lote de todos os pets (rotinas + aulas) para Home, Perfil e Treino (Zero N+1) | `PetService.getMyPetsPontos` |
+| `GET` | `/pets/me/historico` | Histórico consolidado de tarefas concluídas de todos os pets do tutor | `PetService.getMyPetsHistory` |
 | `POST` | `/pets` | **[Create]** Cadastra novo pet e vincula o criador como responsável principal | `PetService.createPet` |
 | `PUT` | `/pets/{id}` | **[Update]** Atualiza dados cadastrais do pet (porte, data de nascimento, castração) | `PetService.updatePet` |
 | `DELETE`| `/pets/{id}` | **[Delete]** Exclui o pet do sistema (operação autorizada apenas ao titular) | `PetService.deletePet` |
@@ -172,7 +175,6 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
 | `GET` | `/tarefas/me` | Lista as tarefas de rotina do usuário logado com suporte a auto-expiração inteligente | `TaskService.getMyTarefas` |
-| `GET` | `/tarefas/by-pet/{petId}` | Lista todas as tarefas ativas associadas a um animal | `TaskService.getTarefasPorPet` |
 | `POST` | `/tarefas` | **[Create]** Agenda nova rotina (alimentar, medicar, passear) para o pet | `TaskService.createTarefa` |
 | `PUT` | `/tarefas/{id}` | **[Update]** Edita parâmetros e prazos de uma tarefa existente | `TaskService.updateTarefa` |
 | `PATCH`| `/tarefas/{id}/concluir` | **[Update]** Conclui a rotina, soma pontos ao tutor e atualiza a pontuação do pet | `TaskService.concluirTarefa` |
@@ -183,20 +185,23 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 ### Grupo 5: Prontuário Clínico & Histórico de Saúde
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
+| `GET` | `/historicos/me` | Prontuário médico consolidado de todos os pets vinculados ao tutor via JWT | `HistoricoService.getHistoricosMe` |
 | `GET` | `/pets/{id}/historico` | Histórico consolidado de tarefas cumpridas e marcos de saúde | `PetService.getPetHistory` |
 | `GET` | `/historicos/pet/{petId}` | Prontuário médico com registros clínicos de vacinas, exames e consultas | `HistoricoService.getHistoricosByPetId` |
 | `POST` | `/historicos` | Cadastra novo evento de saúde no prontuário do animal | `HistoricoService.createHistorico` |
 | `PUT` | `/historicos/{id}` | Atualiza informações de um registro clínico prévio | `HistoricoService.updateHistorico` |
 | `DELETE`| `/historicos/{id}` | Remove um evento do prontuário médico | `HistoricoService.deleteHistorico` |
 
-### Grupo 6: Trilhas Educativas de Adestramento
+### Grupo 6: Trilhas Educativas & Conteúdo Rico NoSQL (MongoDB)
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/trilhas/pet/{petId}` | Lista as trilhas de treinamento ativas atribuídas ao pet | `TrainingService.getTrilhas` |
-| `GET` | `/modulos/trilha/{trilhaId}`| Carrega os módulos temáticos de uma trilha educativa | `TrainingService.getTrilhas` |
-| `GET` | `/aulas/modulo/{moduloId}` | Carrega as lições práticas de adestramento do módulo | `TrainingService.getTrilhas` |
-| `PATCH`| `/aulas/{id}/concluir` | Conclui lição educativa e soma pontos educacionais ao score do pet | `TrainingService.concluirLicao` |
-| `PATCH`| `/aulas/{id}/desmarcar` | Desmarca lição e estorna os pontos de aprendizado do animal | `TrainingService.desmarcarLicao` |
+| `GET` | `/trilhas/me` | Lista todas as trilhas cadastradas para todos os pets do usuário logado via JWT | `TrainingService.getTrilhasMe` |
+| `GET` | `/trilhas/pet/{petId}` | Lista as trilhas de treinamento ativas atribuídas ao pet | `TrainingService.getTrilhasPorPet` |
+| `GET` | `/modulos/trilha/{trilhaId}`| Carrega os módulos temáticos de uma trilha educativa | `TrainingService.getModulosPorTrilha` |
+| `GET` | `/aulas/modulo/{moduloId}` | Carrega as lições práticas de adestramento do módulo | `TrainingService.getAulasPorModulo` |
+| `GET` | `/aulas/{aulaId}/conteudo` | **[NoSQL MongoDB]** Busca conteúdo pedagógico detalhado (Markdown e links) | `TrainingService.getConteudoAula` |
+| `PATCH`| `/aulas/{id}/concluir` | Conclui lição educativa e soma pontos educacionais ao score do pet | `TrainingService.concluirAula` |
+| `PATCH`| `/aulas/{id}/desmarcar` | Desmarca lição e estorna os pontos de aprendizado do animal | `TrainingService.desmarcarAula` |
 
 ### Grupo 7: Inteligência Artificial Preventiva & Sessões SQLite (Guardian AI / FastAPI Render)
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |

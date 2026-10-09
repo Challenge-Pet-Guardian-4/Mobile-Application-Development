@@ -11,6 +11,13 @@ export function usePetHistoricos(petId?: number) {
   });
 }
 
+export function useMyHistoricos() {
+  return useQuery({
+    queryKey: queryKeys.historicos.myHistoricos,
+    queryFn: () => HistoricoService.getHistoricosMe(),
+  });
+}
+
 export function useCreateHistorico() {
   const queryClient = useQueryClient();
 
@@ -31,7 +38,6 @@ export function useUpdateHistorico() {
       HistoricoService.updateHistorico(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.historicos.byPet(variables.data.petId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.historicos.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.historicos.all });
     },
   });

@@ -7,9 +7,10 @@ interface ContaESuporteProps {
   onOpenFaq: () => void;
   onOpenTerms: () => void;
   onLogout: () => void;
+  onDeleteAccount: () => void;
 }
 
-export function ContaESuporte({ onOpenFaq, onOpenTerms, onLogout }: ContaESuporteProps) {
+export function ContaESuporte({ onOpenFaq, onOpenTerms, onLogout, onDeleteAccount }: ContaESuporteProps) {
   return (
     <View style={styles.menuBox}>
       <Text style={styles.menuSectionTitle}>Conta & Suporte</Text>
@@ -36,13 +37,23 @@ export function ContaESuporte({ onOpenFaq, onOpenTerms, onLogout }: ContaESuport
         <Ionicons name="chevron-forward" size={16} color="#CBD5E1" />
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={onLogout} activeOpacity={0.7}>
+      <TouchableOpacity style={styles.menuItem} onPress={onLogout} activeOpacity={0.7}>
         <View style={[styles.menuIconWrapper, { backgroundColor: '#FEF2F2' }]}>
           <Ionicons name="log-out-outline" size={20} color="#EF4444" />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={[styles.menuText, { color: '#EF4444' }]}>Encerrar Sessão (Logout)</Text>
           <Text style={styles.menuSubText}>Desconectar deste dispositivo</Text>
+        </View>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={onDeleteAccount} activeOpacity={0.7}>
+        <View style={[styles.menuIconWrapper, { backgroundColor: '#FFF1F2' }]}>
+          <Ionicons name="trash-outline" size={20} color="#BE123C" />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.menuText, { color: '#BE123C' }]}>Excluir Minha Conta</Text>
+          <Text style={styles.menuSubText}>Remover cadastro e dados permanentemente</Text>
         </View>
       </TouchableOpacity>
     </View>

@@ -86,6 +86,7 @@ export function useTrainings() {
     status: {
       isUserComum,
       isLoadingTrilhas,
+      isFetchingTrilhas,
       isFetching: isFetchingTrilhas,
       isConcluindo: concluirLicaoMutation.isPending || desmarcarLicaoMutation.isPending,
     },
