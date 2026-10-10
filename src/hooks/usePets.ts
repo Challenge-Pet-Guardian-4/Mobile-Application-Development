@@ -15,20 +15,10 @@ export function usePets(page = 0, size = 20) {
   });
 }
 
-export function usePetHistory(id?: number) {
+export function usePetDetailData(id?: number) {
   return useQuery({
-    queryKey: queryKeys.pets.history(id),
-    queryFn: id ? () => PetService.getPetHistory(id) : skipToken,
-  });
-}
-
-export function useMyPetsHistory() {
-  const { token } = useSession();
-
-  return useQuery({
-    queryKey: queryKeys.pets.myHistory,
-    queryFn: () => PetService.getMyPetsHistory(),
-    enabled: !!token,
+    queryKey: queryKeys.pets.detail(id),
+    queryFn: id ? () => PetService.getPetDetail(id) : skipToken,
   });
 }
 
@@ -124,18 +114,11 @@ export function useInviteCaregiver() {
       email: string;
     }) => PetService.convidarPorEmail(petId, email),
     onSuccess: (_, { petId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.pets.detail(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.caregivers(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
     },
-  });
-}
-
-export function usePetCaregivers(petId?: number) {
-  return useQuery({
-    queryKey: queryKeys.pets.caregivers(petId),
-    queryFn: () => (petId ? PetService.getCuidadores(petId) : Promise.resolve([])),
-    enabled: !!petId,
   });
 }
 
@@ -151,6 +134,7 @@ export function useRemoveCaregiver() {
       email: string;
     }) => PetService.desvincularCuidador(petId, email),
     onSuccess: (_, { petId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.pets.detail(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.caregivers(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
@@ -170,6 +154,7 @@ export function useTransferResponsibility() {
       novoResponsavelEmail: string;
     }) => PetService.transferirResponsabilidade(petId, novoResponsavelEmail),
     onSuccess: (_, { petId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.pets.detail(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.caregivers(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });

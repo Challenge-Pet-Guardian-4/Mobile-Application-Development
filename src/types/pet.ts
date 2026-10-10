@@ -1,4 +1,5 @@
 import { TarefaResponse } from './task';
+import { HistoricoResponse } from './historico';
 
 export type PetPorte = 'PEQUENO' | 'MEDIO' | 'GRANDE';
 
@@ -21,10 +22,12 @@ export interface PetResponse {
   castrado: boolean;
 }
 
-export interface PetHistoryResponse {
-  petId: number;
-  nomePet: string;
+export interface PetDetailResponse {
+  pet: PetResponse;
+  pontos: PetPontuacaoResponse;
+  cuidadores: CoCuidadorResponse[];
   tarefasConcluidas: TarefaResponse[];
+  historicos: HistoricoResponse[];
 }
 
 export interface CoCuidadorResponse {
@@ -68,3 +71,10 @@ export interface PetFormData {
   sexo: string;
   castrado: boolean;
 }
+
+export interface PetComMetadados extends PetResponse {
+  isResponsavelPrincipal: boolean;
+  tarefasCount?: number;
+  pontosTotais?: number;
+}
+

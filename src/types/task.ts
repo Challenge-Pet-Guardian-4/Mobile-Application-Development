@@ -34,3 +34,16 @@ export interface TaskFormData {
   status?: EnumStatus;
   conclusao?: string | null;
 }
+
+export interface RotinaHomeView {
+  tarefas: TarefaResponse[];
+  concluidas: number;
+  ativas: number;
+  expiradas: number;
+  total: number;
+  title: string;
+  subtitle: string;
+  emptyTitle: string;
+  emptyDesc: string;
+}
+

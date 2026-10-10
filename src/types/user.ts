@@ -56,6 +56,21 @@ export interface CuidadorFamiliarItem extends CuidadorResumo {
   roleText: string;
 }
 
+export interface CurrentUserCaregiver {
+  nome: string;
+  email: string;
+  isPrincipal: boolean;
+  roleText: string;
+}
+
+export interface FamilySummary {
+  tutorNome?: string;
+  petsCount: number;
+  tarefasPendentes: number;
+  tarefasConcluidas: number;
+  pontosAcumulados: number;
+}
+
 export interface RedeCuidadoResponse {
   emailUsuario: string;
   nomeUsuario: string;

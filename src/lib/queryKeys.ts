@@ -19,6 +19,7 @@ export const queryKeys = {
     history: (id?: number) => ['pets', 'history', id ?? 0] as const,
     pontos: (id?: number) => ['pets', 'pontos', id ?? 0] as const,
     caregivers: (id?: number) => ['pets', 'caregivers', id ?? 0] as const,
+    detail: (id?: number) => ['pets', 'detail', id ?? 0] as const,
   },
 
   // Tarefas

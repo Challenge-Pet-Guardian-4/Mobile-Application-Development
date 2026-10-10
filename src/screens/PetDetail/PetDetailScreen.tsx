@@ -88,7 +88,7 @@ export default function PetDetailScreen({ route, navigation }: PetDetailScreenPr
             {/* Histórico Consolidado de Rotina e Cuidados */}
             <PetHistorySection
               type="routine"
-              items={pet?.historyData?.tarefasConcluidas ?? []}
+              items={pet?.tarefasConcluidas ?? []}
               isLoading={status.isLoadingHistory}
             />
           </View>

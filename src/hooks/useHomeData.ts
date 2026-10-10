@@ -9,10 +9,12 @@ import { categorizarTarefas, filtrarTarefasHoje, ordenarTarefasRotina } from '..
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../routes/types';
 import { calcularDiasSemanaAtual, calcularTotalOfensiva, formatarDataIsoYmd } from '../utils/streakUtils';
+import { formatarDadosIniciaisTarefa, construirRotinaHome } from '../utils/homeUtils';
 
 export function useHomeData(navigation?: NativeStackNavigationProp<RootStackParamList>) {
   const taskActions = useTaskActions();
 
+  // Consultas de Pets e Tarefas
   const {
     data: petsData,
     isLoading: isLoadingPets,
@@ -25,166 +27,94 @@ export function useHomeData(navigation?: NativeStackNavigationProp<RootStackPara
   const pets: PetResponse[] = petsData?.content || [];
   const { activePet, selectedPetId, selectPet } = useActivePet(pets);
 
-  // Busca tarefas vinculadas aos pets do usuário com status completo
   const {
     data: userTasksData,
-    isLoading: isLoadingUserTasks,
-    isFetching: isFetchingUserTasks,
-    isError: isErrorUserTasks,
-    error: userTasksError,
+    isLoading: isLoadingTasks,
+    isFetching: isFetchingTasks,
+    isError: isErrorTasks,
+    error: tasksError,
     refetch: refetchUserTasks,
   } = useUserTasks(0, 100, 'ALL');
 
-  const isLoadingTasks = isLoadingUserTasks;
-  const isFetchingTasks = isFetchingUserTasks;
-  const isErrorTasks = isErrorUserTasks;
-  const tasksError = userTasksError;
-
   const allTasks: TarefaResponse[] = userTasksData?.content || [];
-
   const { data: pontosPetData, refetch: refetchPontos } = usePetPontos(activePet?.id);
 
-  const tarefasDoPet = useMemo(() => {
-    if (!activePet) return [];
-    return allTasks.filter((t) => t.petId === activePet.id);
-  }, [allTasks, activePet]);
-
+  // Derivações da Rotina do Pet Ativo
+  const tarefasDoPet = useMemo(
+    () => (activePet ? allTasks.filter((t) => t.petId === activePet.id) : []),
+    [allTasks, activePet]
+  );
   const metricasPet = useMemo(() => categorizarTarefas(tarefasDoPet), [tarefasDoPet]);
 
   const hojeYmd = useMemo(() => formatarDataIsoYmd(new Date()), []);
-
-  // Tarefas da rotina do dia (hoje) para o pet ativo, com ordenação prioritária (expiradas ao final)
-  const tarefasDoPetHoje = useMemo(() => {
-    if (!activePet) return [];
-    return ordenarTarefasRotina(filtrarTarefasHoje(tarefasDoPet, hojeYmd));
-  }, [tarefasDoPet, activePet, hojeYmd]);
-
+  const tarefasDoPetHoje = useMemo(
+    () => (activePet ? ordenarTarefasRotina(filtrarTarefasHoje(tarefasDoPet, hojeYmd)) : []),
+    [tarefasDoPet, activePet, hojeYmd]
+  );
   const metricasPetHoje = useMemo(() => categorizarTarefas(tarefasDoPetHoje), [tarefasDoPetHoje]);
 
+  // Pontuação do Pet (prioriza Stored Procedure Oracle)
   const petScore = useMemo(() => {
-    if (pontosPetData?.pontosTotais !== undefined) {
-      return pontosPetData.pontosTotais;
-    }
+    if (pontosPetData?.pontosTotais !== undefined) return pontosPetData.pontosTotais;
     return metricasPet.concluidas.reduce((acc, t) => acc + t.pontosTarefa, 0);
   }, [pontosPetData, metricasPet.concluidas]);
 
-  const ofensivaFamiliar = useMemo(() => {
-    return {
+  const ofensivaFamiliar = useMemo(
+    () => ({
       streakDays: calcularDiasSemanaAtual(allTasks),
       totalStreak: calcularTotalOfensiva(allTasks),
-    };
-  }, [allTasks]);
+    }),
+    [allTasks]
+  );
 
   const refetch = useCallback(async () => {
-    await Promise.all([
-      refetchPets(),
-      refetchUserTasks(),
-      refetchPontos(),
-    ]);
+    await Promise.all([refetchPets(), refetchUserTasks(), refetchPontos()]);
   }, [refetchPets, refetchUserTasks, refetchPontos]);
-
 
   // Controle de Visualização da Rotina (Hoje vs Todas)
   const [filtroRotina, setFiltroRotina] = useState<'HOJE' | 'TODAS'>('HOJE');
-
-  // Controle de Modal de Edição de Tarefas
   const [tarefaEmEdicao, setTarefaEmEdicao] = useState<TarefaResponse | undefined>(undefined);
 
   const handleToggleTarefa = useCallback(
     (taskId: number) => {
-      taskActions.alternarStatus(taskId, tarefasDoPet, {
-        onEdit: setTarefaEmEdicao,
-      });
+      taskActions.alternarStatus(taskId, tarefasDoPet, { onEdit: setTarefaEmEdicao });
     },
     [taskActions, tarefasDoPet]
   );
 
-  const initialTaskData = useMemo(() => {
-    if (!tarefaEmEdicao) return undefined;
-    return {
-      petId: tarefaEmEdicao.petId,
-      titulo: tarefaEmEdicao.titulo,
-      descricao: tarefaEmEdicao.descricao,
-      pontos: String(tarefaEmEdicao.pontosTarefa),
-      prazo: tarefaEmEdicao.prazo,
-      status: tarefaEmEdicao.status,
-      conclusao: tarefaEmEdicao.conclusao,
-    };
-  }, [tarefaEmEdicao]);
+  const initialTaskData = useMemo(() => formatarDadosIniciaisTarefa(tarefaEmEdicao), [tarefaEmEdicao]);
 
-  const rotinaAtual = useMemo(() => {
-    const isHoje = filtroRotina === 'HOJE';
-    const tarefasFiltradas = isHoje ? tarefasDoPetHoje : ordenarTarefasRotina(tarefasDoPet);
-    const m = isHoje ? metricasPetHoje : metricasPet;
-    const c = m.concluidas.length;
-    const e = m.expiradas.length;
-    const total = tarefasFiltradas.length;
+  const rotinaAtual = useMemo(
+    () => construirRotinaHome(filtroRotina, tarefasDoPetHoje, tarefasDoPet, metricasPetHoje, metricasPet),
+    [filtroRotina, tarefasDoPetHoje, tarefasDoPet, metricasPetHoje, metricasPet]
+  );
 
-    return {
-      tarefas: tarefasFiltradas,
-      concluidas: c,
-      ativas: m.ativas.length,
-      expiradas: e,
-      total,
-      title: isHoje ? 'Rotina de Hoje' : 'Todas as Tarefas',
-      subtitle: `${c} de ${total} concluídas ${isHoje ? 'hoje' : 'no total'}${e > 0 ? ` • ${e} expirada${e > 1 ? 's' : ''}` : ''}`,
-      emptyTitle: isHoje ? 'Nenhuma tarefa agendada para hoje' : 'Nenhuma tarefa cadastrada',
-      emptyDesc: isHoje
-        ? 'Crie novas tarefas para seu pet na aba Family Pet.'
-        : 'Crie novas tarefas para seu pet na aba Family Pet.',
-    };
-  }, [filtroRotina, tarefasDoPetHoje, tarefasDoPet, metricasPetHoje, metricasPet]);
+  const sectionData = useMemo(
+    () => ({
+      title: rotinaAtual.title,
+      subtitle: rotinaAtual.subtitle,
+      filter: filtroRotina,
+      onFilterChange: setFiltroRotina,
+      countHoje: tarefasDoPetHoje.length,
+      countTodas: tarefasDoPet.length,
+      tasks: rotinaAtual.tarefas,
+      onToggleTask: handleToggleTarefa,
+      onEditTask: setTarefaEmEdicao,
+      onDeleteTask: taskActions.excluirComConfirmacao,
+    }),
+    [rotinaAtual.title, rotinaAtual.subtitle, rotinaAtual.tarefas, filtroRotina, tarefasDoPetHoje.length, tarefasDoPet.length, handleToggleTarefa, taskActions.excluirComConfirmacao]
+  );
 
-  const sectionData = useMemo(() => ({
-    title: rotinaAtual.title,
-    subtitle: rotinaAtual.subtitle,
-    filter: filtroRotina,
-    onFilterChange: setFiltroRotina,
-    countHoje: tarefasDoPetHoje.length,
-    countTodas: tarefasDoPet.length,
-    tasks: rotinaAtual.tarefas,
-    onToggleTask: handleToggleTarefa,
-    onEditTask: setTarefaEmEdicao,
-    onDeleteTask: taskActions.excluirComConfirmacao,
-  }), [
-    rotinaAtual.title,
-    rotinaAtual.subtitle,
-    rotinaAtual.tarefas,
-    filtroRotina,
-    setFiltroRotina,
-    tarefasDoPetHoje.length,
-    tarefasDoPet.length,
-    handleToggleTarefa,
-    taskActions.excluirComConfirmacao,
-  ]);
-
-  const handleCloseEditModal = useCallback(() => {
-    setTarefaEmEdicao(undefined);
-  }, []);
+  const handleCloseEditModal = useCallback(() => setTarefaEmEdicao(undefined), []);
 
   const handleSubmitEditModal = useCallback(
     (data: TaskFormData) => {
       if (tarefaEmEdicao) {
-        taskActions.atualizar(tarefaEmEdicao.id, data, {
-          onSuccess: handleCloseEditModal,
-        });
+        taskActions.atualizar(tarefaEmEdicao.id, data, { onSuccess: handleCloseEditModal });
       }
     },
     [tarefaEmEdicao, taskActions, handleCloseEditModal]
   );
-
-  // Handlers de Navegação
-  const handleNavigateToFamily = useCallback(() => {
-    navigation?.navigate('Family');
-  }, [navigation]);
-
-  const handleNavigateToPetDetail = useCallback(() => {
-    navigation?.navigate('Family', { screen: 'PetDetail', params: { petId: activePet?.id } });
-  }, [navigation, activePet]);
-
-  const handleNavigateToAi = useCallback(() => {
-    navigation?.navigate('IA');
-  }, [navigation]);
 
   return {
     status: {
@@ -226,9 +156,9 @@ export function useHomeData(navigation?: NativeStackNavigationProp<RootStackPara
       remove: taskActions.excluirComConfirmacao,
     },
     navigation: {
-      toFamily: handleNavigateToFamily,
-      toPetDetail: handleNavigateToPetDetail,
-      toAi: handleNavigateToAi,
+      toFamily: useCallback(() => navigation?.navigate('Family'), [navigation]),
+      toPetDetail: useCallback(() => navigation?.navigate('Family', { screen: 'PetDetail', params: { petId: activePet?.id } }), [navigation, activePet]),
+      toAi: useCallback(() => navigation?.navigate('IA'), [navigation]),
     },
   };
 }

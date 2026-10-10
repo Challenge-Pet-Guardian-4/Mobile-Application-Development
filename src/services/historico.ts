@@ -2,17 +2,6 @@ import { http } from './http';
 import { HistoricoRequest, HistoricoResponse } from '../types/historico';
 
 export const HistoricoService = {
-  // Lista eventos de histórico consolidado de todos os pets do tutor autenticado (GET /historicos/me)
-  async getHistoricosMe(): Promise<HistoricoResponse[]> {
-    const response = await http.get<HistoricoResponse[]>('/historicos/me');
-    return response.data || [];
-  },
-
-  // Lista eventos de histórico do pet ordenados por data mais recente (GET /historicos/pet/{petId})
-  async getHistoricosByPetId(petId: number): Promise<HistoricoResponse[]> {
-    const response = await http.get<HistoricoResponse[]>(`/historicos/pet/${petId}`);
-    return response.data;
-  },
 
   // Cria um novo registro de histórico para um pet (POST /historicos)
   async createHistorico(data: HistoricoRequest): Promise<HistoricoResponse> {

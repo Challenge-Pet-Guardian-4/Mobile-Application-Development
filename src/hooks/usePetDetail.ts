@@ -1,63 +1,30 @@
-import { useMemo, useCallback } from 'react';
-import { Alert } from 'react-native';
+import { useMemo } from 'react';
 import { useSession } from './useSession';
 import { useActivePet } from './useActivePet';
-import { usePets, useMyPetsHistory, usePetPontos, useUpdatePet, useDeletePet, usePetCaregivers, useInviteCaregiver, useRemoveCaregiver, useTransferResponsibility } from './usePets';
-import { useMyHistoricos, useCreateHistorico, useUpdateHistorico, useDeleteHistorico } from './useHistoricos';
+import { usePets, usePetDetailData } from './usePets';
 import { usePetDetailModals } from './usePetDetailModals';
-import { CoCuidadorResponse, PetResponse, PetFormData, PetHistoryResponse } from '../types/pet';
-import { normalizarDataNascParaIso, formatarIsoParaBr } from '../utils/petUtils';
-import { PetSchema, formatZodError } from '../utils/schemas';
-import { createMutationCallbacks, ActionCallbacks } from '../utils/apiError';
+import { usePetDetailActions } from './usePetDetailActions';
+import { CoCuidadorResponse, PetResponse } from '../types/pet';
+import { formatarIsoParaBr } from '../utils/petUtils';
+import { ActionCallbacks } from '../utils/apiError';
 
 export type { ActionCallbacks };
 
 export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
   const { user } = useSession();
 
-  // Lista de todos os pets do usuário
+  // Lista de animais para o seletor da tela
   const { data: petsData, isLoading: isLoadingPets, refetch: refetchPets } = usePets();
   const pets: PetResponse[] = petsData?.content || [];
-
   const { activePet, selectedPetId, selectPet, setSelectedPetId } = useActivePet(pets, routePetId);
 
-  // Histórico consolidado de rotina de todos os pets via JWT (GET /pets/me/historico)
-  const { data: allHistoryTarefas = [], isLoading: isLoadingHistory, refetch: refetchHistory } = useMyPetsHistory();
+  // Consulta atômica única consolidada pelo Java (GET /pets/{id}/detalhe)
+  const { data: detailData, isLoading: isLoadingDetail, refetch: refetchDetail } = usePetDetailData(activePet?.id);
 
-  // Pontuação e XP acumulado do pet (GET /pets/{id}/pontos)
-  const { data: pontosData, isLoading: isLoadingPontos, refetch: refetchPontos } = usePetPontos(activePet?.id);
+  const caregivers = detailData?.cuidadores || [];
+  const historicos = detailData?.historicos || [];
 
-  // Prontuário de Saúde e Eventos Clínicos de todos os pets via JWT (GET /historicos/me)
-  const {
-    data: allHistoricos = [],
-    isLoading: isLoadingHistoricos,
-    refetch: refetchHistoricos,
-  } = useMyHistoricos();
-
-  // Histórico de tarefas concluídas filtrado em memória pelo pet ativo
-  const historyData = useMemo<PetHistoryResponse | undefined>(() => {
-    if (!activePet) return undefined;
-    return {
-      petId: activePet.id,
-      nomePet: activePet.nome,
-      tarefasConcluidas: allHistoryTarefas.filter((t) => t.petId === activePet.id),
-    };
-  }, [activePet, allHistoryTarefas]);
-
-  // Prontuário clínico filtrado em memória pelo pet ativo
-  const historicos = useMemo(
-    () => (activePet ? allHistoricos.filter((h) => h.petId === activePet.id) : []),
-    [activePet, allHistoricos]
-  );
-
-  // Cuidadores vinculados ao pet (GET /pets/{id}/cuidadores)
-  const {
-    data: caregivers = [],
-    isLoading: isLoadingCaregivers,
-    refetch: refetchCaregivers,
-  } = usePetCaregivers(activePet?.id);
-
-  // Verifica se o usuário autenticado é o responsável principal deste pet
+  // Verificação de titularidade do usuário no pet ativo
   const isResponsavelPrincipal = useMemo(() => {
     if (!user) return false;
     if (caregivers.length > 0) {
@@ -67,19 +34,14 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
     return true;
   }, [user, caregivers]);
 
-  // Mutações de Pet e Caregivers
-  const updatePetMutation = useUpdatePet();
-  const deletePetMutation = useDeletePet();
-  const inviteCaregiverMutation = useInviteCaregiver();
-  const removeCaregiverMutation = useRemoveCaregiver();
-  const transferResponsibilityMutation = useTransferResponsibility();
+  // Hook isolado para todas as mutações e confirmações
+  const actions = usePetDetailActions({
+    activePet,
+    user,
+    isResponsavelPrincipal,
+    onPetDeleted: () => setSelectedPetId(undefined),
+  });
 
-  // Mutações de Histórico Clínico (/historicos)
-  const createHistoricoMutation = useCreateHistorico();
-  const updateHistoricoMutation = useUpdateHistorico();
-  const deleteHistoricoMutation = useDeleteHistorico();
-
-  // Dados iniciais formatados para o modal de edição
   const initialPetData = useMemo(() => {
     if (!activePet) return undefined;
     return {
@@ -92,265 +54,44 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
     };
   }, [activePet]);
 
-  // Salvar edição do pet na API Java (PUT /pets/{id})
-  const salvarEdicaoPet = useCallback(
-    (formData: PetFormData, callbacks?: ActionCallbacks) => {
-      if (!activePet || !user) {
-        Alert.alert('Erro', 'Sessão inválida ou nenhum pet selecionado.');
-        return;
-      }
-      if (!isResponsavelPrincipal) {
-        Alert.alert('Acesso Negado', 'Somente o tutor principal pode editar as informações cadastrais deste pet.');
-        return;
-      }
-
-      const validacao = PetSchema.safeParse(formData);
-      if (!validacao.success) {
-        Alert.alert('Dados do Pet', formatZodError(validacao.error));
-        return;
-      }
-
-      const dataNasc = normalizarDataNascParaIso(formData.dataNasc);
-
-      updatePetMutation.mutate(
-        {
-          id: activePet.id,
-          data: {
-            nome: formData.nome.trim(),
-            dataNasc,
-            raca: formData.raca.trim(),
-            porte: formData.porte,
-            sexo: formData.sexo,
-            castrado: formData.castrado,
-          },
-        },
-        createMutationCallbacks('Erro ao Atualizar Pet', 'Não foi possível atualizar o pet na API.', callbacks)
-      );
-    },
-    [activePet, isResponsavelPrincipal, updatePetMutation]
-  );
-
-  // Excluir pet com confirmação (DELETE /pets/{id})
-  const excluirPet = useCallback(
-    (callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
-      if (!isResponsavelPrincipal) {
-        Alert.alert('Acesso Negado', 'Somente o tutor principal tem permissão para excluir a ficha deste pet.');
-        return;
-      }
-
-      Alert.alert(
-        'Remover Pet',
-        `Deseja realmente excluir a ficha de ${activePet.nome}?`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Excluir',
-            style: 'destructive',
-            onPress: () => {
-              deletePetMutation.mutate(
-                activePet.id,
-                createMutationCallbacks('Erro ao Excluir Pet', 'Não foi possível excluir o pet.', {
-                  onSuccess: () => {
-                    setSelectedPetId(undefined);
-                    callbacks?.onSuccess?.();
-                  },
-                  onError: callbacks?.onError,
-                })
-              );
-            },
-          },
-        ]
-      );
-    },
-    [activePet, isResponsavelPrincipal, deletePetMutation, setSelectedPetId]
-  );
-
-  // Convidar co-cuidador para o pet ativo
-  const convidarCuidador = useCallback(
-    (email: string, callbacks?: ActionCallbacks) => {
-      if (!activePet || !user) return;
-      if (!isResponsavelPrincipal) {
-        Alert.alert('Acesso Negado', 'Somente o tutor principal tem permissão para convidar novos cuidadores para este pet.');
-        return;
-      }
-
-      inviteCaregiverMutation.mutate(
-        {
-          petId: activePet.id,
-          email: email.trim().toLowerCase(),
-        },
-        createMutationCallbacks('Erro ao Convidar Cuidador', 'Não foi possível enviar o convite. Verifique se o e-mail está cadastrado.', callbacks)
-      );
-    },
-    [activePet, user, isResponsavelPrincipal, inviteCaregiverMutation]
-  );
-
-  // Desvincular co-cuidador por e-mail
-  const removerCuidador = useCallback(
-    (cuidadorEmail: string, nomeCuidador: string, callbacks?: ActionCallbacks) => {
-      if (!activePet || !user) return;
-
-      const isSelf = cuidadorEmail.toLowerCase() === user.email.toLowerCase();
-      const title = isSelf ? 'Sair do Cuidado' : 'Remover Cuidador';
-      const msg = isSelf
-        ? `Deseja deixar de cuidar de ${activePet.nome}?`
-        : `Deseja desvincular ${nomeCuidador} dos cuidados de ${activePet.nome}?`;
-
-      Alert.alert(title, msg, [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: isSelf ? 'Sair' : 'Remover',
-          style: 'destructive',
-          onPress: () => {
-            removeCaregiverMutation.mutate(
-              {
-                petId: activePet.id,
-                email: cuidadorEmail,
-              },
-              createMutationCallbacks('Erro ao Desvincular Cuidador', 'Não foi possível desvincular o cuidador.', callbacks)
-            );
-          },
-        },
-      ]);
-    },
-    [activePet, user, removeCaregiverMutation]
-  );
-
-  // Transferir titularidade de responsável principal por e-mail
-  const transferirResponsabilidade = useCallback(
-    (novoResponsavelEmail: string, nomeNovoResponsavel: string, callbacks?: ActionCallbacks) => {
-      if (!activePet || !user) return;
-
-      Alert.alert(
-        'Transferir Titularidade',
-        `Deseja transferir a responsabilidade principal de ${activePet.nome} para ${nomeNovoResponsavel}? Você passará a ser um co-cuidador.`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Transferir',
-            style: 'default',
-            onPress: () => {
-              transferResponsibilityMutation.mutate(
-                {
-                  petId: activePet.id,
-                  novoResponsavelEmail,
-                },
-                createMutationCallbacks('Erro na Transferência', 'Não foi possível transferir a responsabilidade principal.', callbacks)
-              );
-            },
-          },
-        ]
-      );
-    },
-    [activePet, user, transferResponsibilityMutation]
-  );
-
-
-  // Criar Registro de Histórico Clínico (POST /historicos)
-  const criarHistorico = useCallback(
-    (data: { tipoHist: string; dataHist: string }, callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
-
-      createHistoricoMutation.mutate(
-        {
-          tipoHist: data.tipoHist,
-          dataHist: data.dataHist,
-          petId: activePet.id,
-        },
-        createMutationCallbacks('Erro no Prontuário', 'Não foi possível registrar o histórico de saúde.', callbacks)
-      );
-    },
-    [activePet, createHistoricoMutation]
-  );
-
-  // Atualizar Registro de Histórico Clínico (PUT /historicos/{id})
-  const atualizarHistorico = useCallback(
-    (id: number, data: { tipoHist: string; dataHist: string }, callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
-
-      updateHistoricoMutation.mutate(
-        {
-          id,
-          data: {
-            tipoHist: data.tipoHist,
-            dataHist: data.dataHist,
-            petId: activePet.id,
-          },
-        },
-        createMutationCallbacks('Erro no Prontuário', 'Não foi possível atualizar o registro.', callbacks)
-      );
-    },
-    [activePet, updateHistoricoMutation]
-  );
-
-  // Excluir Registro de Histórico Clínico (DELETE /historicos/{id})
-  const excluirHistorico = useCallback(
-    (id: number, tipoHist: string, callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
-
-      Alert.alert(
-        'Excluir Registro',
-        `Deseja realmente remover o registro "${tipoHist}" do prontuário?`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Excluir',
-            style: 'destructive',
-            onPress: () => {
-              deleteHistoricoMutation.mutate(
-                { id, petId: activePet.id },
-                createMutationCallbacks('Erro ao Excluir Registro', 'Não foi possível excluir o registro.', callbacks)
-              );
-            },
-          },
-        ]
-      );
-    },
-    [activePet, deleteHistoricoMutation]
-  );
-
-  // Gestão Unificada de Modais da Tela de Detalhes do Pet via usePetDetailModals
-  const modals = usePetDetailModals({
-    activePet,
-    isResponsavelPrincipal,
-    salvarEdicaoPet,
-    excluirPet,
-    convidarCuidador,
-    criarHistorico,
-    atualizarHistorico,
-    excluirHistorico,
-    onGoBack,
-  });
-
   const editTitle = activePet ? `Editar Ficha de ${activePet.nome}` : 'Editar Ficha do Pet';
 
   const caregiversWithActions = useMemo(
-    () => caregivers.map((c: CoCuidadorResponse) => {
-      const isMe = c.email.toLowerCase() === user?.email?.toLowerCase();
-      return {
-        ...c,
-        isCurrentUser: isMe,
-        onTransfer: isResponsavelPrincipal && !isMe ? () => transferirResponsabilidade(c.email, c.nome) : undefined,
-        onRemove: isResponsavelPrincipal || isMe ? () => removerCuidador(c.email, c.nome) : undefined,
-      };
-    }),
-    [caregivers, user?.email, isResponsavelPrincipal, transferirResponsabilidade, removerCuidador]
+    () =>
+      caregivers.map((c: CoCuidadorResponse) => {
+        const isMe = c.email.toLowerCase() === user?.email?.toLowerCase();
+        return {
+          ...c,
+          isCurrentUser: isMe,
+          onTransfer: isResponsavelPrincipal && !isMe ? () => actions.transferirResponsabilidade(c.email, c.nome) : undefined,
+          onRemove: isResponsavelPrincipal || isMe ? () => actions.removerCuidador(c.email, c.nome) : undefined,
+        };
+      }),
+    [caregivers, user?.email, isResponsavelPrincipal, actions]
   );
+
+  const modals = usePetDetailModals({
+    activePet,
+    isResponsavelPrincipal,
+    salvarEdicaoPet: actions.salvarEdicaoPet,
+    excluirPet: actions.excluirPet,
+    convidarCuidador: actions.convidarCuidador,
+    criarHistorico: actions.criarHistorico,
+    atualizarHistorico: actions.atualizarHistorico,
+    excluirHistorico: actions.excluirHistorico,
+    onGoBack,
+  });
 
   return {
     status: {
-      isLoading: isLoadingPets && pets.length === 0,
-      isLoadingHistory,
-      isLoadingHistoricos,
-      isLoadingCaregivers,
-      isLoadingPontos,
+      isLoading: (isLoadingPets && pets.length === 0) || (isLoadingDetail && !detailData),
+      isLoadingHistory: isLoadingDetail,
+      isLoadingHistoricos: isLoadingDetail,
+      isLoadingCaregivers: isLoadingDetail,
+      isLoadingPontos: isLoadingDetail,
       refetchAll: () => {
         refetchPets();
-        refetchHistory();
-        refetchHistoricos();
-        refetchCaregivers();
-        refetchPontos();
+        refetchDetail();
       },
     },
     pet: {
@@ -364,22 +105,20 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
       caregivers: caregiversWithActions,
       caregiversCount: caregivers.length,
       historicos,
-      historyData,
-      pontos: pontosData,
+      tarefasConcluidas: detailData?.tarefasConcluidas ?? [],
+      pontos: detailData?.pontos,
     },
     modals,
     actions: {
       excluirPet: modals.excluirPet,
-      removerCuidador,
-      transferirResponsabilidade,
-      isUpdatingPet: updatePetMutation.isPending,
-      isDeletingPet: deletePetMutation.isPending,
-      isInvitingCaregiver: inviteCaregiverMutation.isPending,
-      isRemovingCaregiver: removeCaregiverMutation.isPending,
-      isTransferringResponsibility: transferResponsibilityMutation.isPending,
-      isSavingHistorico: createHistoricoMutation.isPending || updateHistoricoMutation.isPending,
+      removerCuidador: actions.removerCuidador,
+      transferirResponsabilidade: actions.transferirResponsabilidade,
+      isUpdatingPet: actions.isUpdatingPet,
+      isDeletingPet: actions.isDeletingPet,
+      isInvitingCaregiver: actions.isInvitingCaregiver,
+      isRemovingCaregiver: actions.isRemovingCaregiver,
+      isTransferringResponsibility: actions.isTransferringResponsibility,
+      isSavingHistorico: actions.isSavingHistorico,
     },
   };
 }
-
-

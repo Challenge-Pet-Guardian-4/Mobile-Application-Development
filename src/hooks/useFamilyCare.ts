@@ -3,11 +3,10 @@ import { Alert } from 'react-native';
 import { useSession } from './useSession';
 import { usePets, usePetsPontosMap, useCreatePet, useInviteCaregiver } from './usePets';
 import { useUserTasks, useCreateTask } from './useTasks';
-
 import { useTaskActions } from './useTaskActions';
 import { useRedeCuidado } from './useRedeCuidado';
 import { useFamilyModals } from './useFamilyModals';
-import { normalizarDataNascParaIso, normalizarPrazoParaIso, formatarPapelCuidador } from '../utils/petUtils';
+import { normalizarDataNascParaIso, normalizarPrazoParaIso } from '../utils/petUtils';
 import { PetResponse, PetFormData } from '../types/pet';
 import { TarefaResponse, TaskFormData } from '../types/task';
 import { RedeCuidadoResponse, InviteCaregiverData } from '../types/user';
@@ -15,13 +14,19 @@ import { PetSchema, TaskSchema, InviteCaregiverSchema, formatZodError } from '..
 import { createMutationCallbacks, ActionCallbacks } from '../utils/apiError';
 import { formatarDataIsoYmd } from '../utils/streakUtils';
 import { filtrarTarefasHoje, ordenarTarefasRotina } from '../utils/taskUtils';
+import {
+  mesclarPetsComMetadados,
+  formatarListaCoCuidadores,
+  construirCuidadorUsuarioLogado,
+  construirResumoFamiliar,
+} from '../utils/familyCareUtils';
 
 export type { ActionCallbacks };
 
 export function useFamilyCare() {
   const { user } = useSession();
 
-  // Queries de dados da família e dos pets
+  // Queries TanStack de dados da família e pets
   const { data: petsData, isLoading: isLoadingPets, isFetching: isFetchingPets, refetch: refetchPets } = usePets();
   const {
     data: userTasksData,
@@ -29,38 +34,41 @@ export function useFamilyCare() {
     isFetching: isFetchingTasks,
     refetch: refetchTasks,
   } = useUserTasks(0, 100, 'ALL');
-
   const { data: redeCuidadoData, isLoading: isLoadingRede, isFetching: isFetchingRede, refetch: refetchRede } = useRedeCuidado();
 
   const pets: PetResponse[] = petsData?.content || [];
+  const allTasks: TarefaResponse[] = userTasksData?.content || [];
+  const redeCuidado: RedeCuidadoResponse | undefined = redeCuidadoData;
 
-  // Busca pontuação individual de cada pet da família via hook dedicado do TanStack (usePetsPontosMap)
+  // Pontuação individual dos animais calculada pelas procedures Oracle
   const pontosMap = usePetsPontosMap(pets);
 
   // Mutations
   const createPetMutation = useCreatePet();
   const createTaskMutation = useCreateTask();
   const inviteMutation = useInviteCaregiver();
-
   const taskActions = useTaskActions();
 
-  const allTasks: TarefaResponse[] = userTasksData?.content || [];
-  const redeCuidado: RedeCuidadoResponse | undefined = redeCuidadoData;
-
-
+  // Rotina do dia e filtragem
   const hojeYmd = useMemo(() => formatarDataIsoYmd(new Date()), []);
-
-  const tasksHoje = useMemo(() => {
-    return ordenarTarefasRotina(filtrarTarefasHoje(allTasks, hojeYmd));
-  }, [allTasks, hojeYmd]);
-
+  const tasksHoje = useMemo(() => ordenarTarefasRotina(filtrarTarefasHoje(allTasks, hojeYmd)), [allTasks, hojeYmd]);
   const [filtroRotina, setFiltroRotina] = useState<'HOJE' | 'TODAS'>('HOJE');
+  const tasksExibidas = useMemo(
+    () => (filtroRotina === 'HOJE' ? tasksHoje : ordenarTarefasRotina(allTasks)),
+    [filtroRotina, tasksHoje, allTasks]
+  );
 
-  const tasksExibidas = useMemo(() => {
-    return filtroRotina === 'HOJE' ? tasksHoje : ordenarTarefasRotina(allTasks);
-  }, [filtroRotina, tasksHoje, allTasks]);
+  // Mapeamento de titularidade
+  const petsResumoMap = useMemo(
+    () => new Map((redeCuidado?.pets || []).map((p) => [p.id, p])),
+    [redeCuidado?.pets]
+  );
+  const petsOndeSouPrincipal = useMemo(
+    () => pets.filter((p) => petsResumoMap.get(p.id)?.responsavelPrincipal ?? true),
+    [pets, petsResumoMap]
+  );
 
-  // Cadastrar novo animal na família (POST /pets)
+  // Ações de formulários e modais
   const cadastrarPet = useCallback(
     (data: PetFormData, callbacks?: ActionCallbacks) => {
       if (!user) return Alert.alert('Sessão expirada', 'Faça login novamente para cadastrar um pet.');
@@ -122,19 +130,6 @@ export function useFamilyCare() {
     [user, inviteMutation]
   );
 
-
-  // Mapeamento e estruturas pré-processadas (KISS & DRY)
-  const petsResumoMap = useMemo(
-    () => new Map((redeCuidado?.pets || []).map((p) => [p.id, p])),
-    [redeCuidado?.pets]
-  );
-
-  const petsOndeSouPrincipal = useMemo(
-    () => pets.filter((p) => petsResumoMap.get(p.id)?.responsavelPrincipal ?? true),
-    [pets, petsResumoMap]
-  );
-
-  // Controle Unificado de Modais da Tela Family via useFamilyModals
   const modals = useFamilyModals({
     user,
     petsOndeSouPrincipal,
@@ -144,14 +139,11 @@ export function useFamilyCare() {
 
   const alternarStatusTarefa = useCallback(
     (taskId: number) => {
-      taskActions.alternarStatus(taskId, allTasks, {
-        onEdit: modals.abrirEdicaoTarefa,
-      });
+      taskActions.alternarStatus(taskId, allTasks, { onEdit: modals.abrirEdicaoTarefa });
     },
     [taskActions, allTasks, modals.abrirEdicaoTarefa]
   );
 
-  // Remover tarefa da rotina do pet (DELETE /tarefas/{id})
   const removerTarefa = useCallback(
     (taskId: number, callbacks?: ActionCallbacks) => {
       taskActions.excluirComConfirmacao(taskId, callbacks);
@@ -159,20 +151,10 @@ export function useFamilyCare() {
     [taskActions]
   );
 
-  // Co-cuidadores da rede de cuidado
-  const coCuidadores = redeCuidado?.coCuidadores || [];
-
+  // Processamento e formatação de entidades
   const petsComMetadados = useMemo(
-    () => pets.map((p) => {
-      const resumo = petsResumoMap.get(p.id);
-      return {
-        ...p,
-        isResponsavelPrincipal: resumo?.responsavelPrincipal ?? true,
-        tarefasCount: resumo?.tarefaIds.length,
-        pontosTotais: pontosMap.get(p.id),
-      };
-    }),
-    [pets, petsResumoMap, pontosMap]
+    () => mesclarPetsComMetadados(pets, redeCuidado, pontosMap),
+    [pets, redeCuidado, pontosMap]
   );
 
   // Paginação dos animais da família (4 pets por página)
@@ -180,97 +162,42 @@ export function useFamilyCare() {
   const [petsPage, setPetsPage] = useState(0);
   const petsTotalPages = Math.max(1, Math.ceil(petsComMetadados.length / PETS_PAGE_SIZE));
   const safePetsPage = Math.min(petsPage, Math.max(0, petsTotalPages - 1));
-
-  const petsExibidos = useMemo(() => {
-    return petsComMetadados.slice(safePetsPage * PETS_PAGE_SIZE, (safePetsPage + 1) * PETS_PAGE_SIZE);
-  }, [petsComMetadados, safePetsPage]);
-
-  const coCuidadoresFormatados = useMemo(
-    () => coCuidadores.map((c) => {
-      let principalNomes = c.petsPrincipalNomes;
-      let ajudaNomes = c.petsAjudaNomes;
-
-      if (!principalNomes || !ajudaNomes) {
-        const principalIdsSet = new Set(petsOndeSouPrincipal.map((p) => p.id));
-        const cPetIds = c.petIds ?? [];
-        const cPrincipal: string[] = [];
-        const cAjuda: string[] = [];
-
-        cPetIds.forEach((id) => {
-          const petObj = pets.find((p) => p.id === id);
-          if (!petObj) return;
-          if (principalIdsSet.has(id)) {
-            cAjuda.push(petObj.nome);
-          } else {
-            cPrincipal.push(petObj.nome);
-          }
-        });
-
-        principalNomes = principalNomes ?? cPrincipal;
-        ajudaNomes = ajudaNomes ?? cAjuda;
-      }
-
-      const isPrincipal = (principalNomes?.length ?? 0) > 0 || Boolean(c.responsavelPrincipal);
-
-      return {
-        ...c,
-        responsavelPrincipal: isPrincipal,
-        roleText: formatarPapelCuidador(isPrincipal, principalNomes, ajudaNomes),
-      };
-    }),
-    [coCuidadores, pets, petsOndeSouPrincipal]
+  const petsExibidos = useMemo(
+    () => petsComMetadados.slice(safePetsPage * PETS_PAGE_SIZE, (safePetsPage + 1) * PETS_PAGE_SIZE),
+    [petsComMetadados, safePetsPage]
   );
 
-  const currentUserCaregiver = useMemo(() => {
-    if (!user) return null;
-    const petsPrincipalNomes = petsOndeSouPrincipal.map((p) => p.nome).filter(Boolean);
-    const petsAjudaNomes = pets
-      .filter((p) => !petsOndeSouPrincipal.some((op) => op.id === p.id))
-      .map((p) => p.nome)
-      .filter(Boolean);
-    const isPrincipal = petsPrincipalNomes.length > 0;
+  const coCuidadoresFormatados = useMemo(
+    () => formatarListaCoCuidadores(redeCuidado?.coCuidadores || [], pets, petsOndeSouPrincipal),
+    [redeCuidado?.coCuidadores, pets, petsOndeSouPrincipal]
+  );
 
-    return {
-      nome: user.nome || 'Tutor',
-      email: user.email,
-      isPrincipal,
-      roleText: formatarPapelCuidador(isPrincipal, petsPrincipalNomes, petsAjudaNomes),
-    };
-  }, [user, pets, petsOndeSouPrincipal]);
+  const currentUserCaregiver = useMemo(
+    () => construirCuidadorUsuarioLogado(user, pets, petsOndeSouPrincipal),
+    [user, pets, petsOndeSouPrincipal]
+  );
 
   const isHoje = filtroRotina === 'HOJE';
+  const routineData = useMemo(
+    () => ({
+      title: isHoje ? 'Rotina de Hoje' : 'Rotina & Tarefas',
+      subtitle: `${tasksExibidas.length} tarefa${tasksExibidas.length === 1 ? '' : 's'} ${isHoje ? 'hoje' : 'no total'}`,
+      filter: filtroRotina,
+      onFilterChange: setFiltroRotina,
+      countHoje: tasksHoje.length,
+      countTodas: allTasks.length,
+      tasks: tasksExibidas,
+      onToggleTask: alternarStatusTarefa,
+      onEditTask: modals.abrirEdicaoTarefa,
+      onDeleteTask: removerTarefa,
+    }),
+    [isHoje, tasksExibidas, filtroRotina, tasksHoje.length, allTasks.length, alternarStatusTarefa, modals.abrirEdicaoTarefa, removerTarefa]
+  );
 
-  const routineData = useMemo(() => ({
-    title: isHoje ? 'Rotina de Hoje' : 'Rotina & Tarefas',
-    subtitle: `${tasksExibidas.length} tarefa${tasksExibidas.length === 1 ? '' : 's'} ${isHoje ? 'hoje' : 'no total'}`,
-    filter: filtroRotina,
-    onFilterChange: setFiltroRotina,
-    countHoje: tasksHoje.length,
-    countTodas: allTasks.length,
-    tasks: tasksExibidas,
-    onToggleTask: alternarStatusTarefa,
-    onEditTask: modals.abrirEdicaoTarefa,
-    onDeleteTask: removerTarefa,
-  }), [
-    isHoje,
-    tasksExibidas.length,
-    filtroRotina,
-    setFiltroRotina,
-    tasksHoje.length,
-    allTasks.length,
-    tasksExibidas,
-    alternarStatusTarefa,
-    modals.abrirEdicaoTarefa,
-    removerTarefa,
-  ]);
-
-  const familySummary = {
-    tutorNome: user?.nome,
-    petsCount: pets.length,
-    tarefasPendentes: redeCuidado?.totalTarefasPendentes ?? allTasks.filter((t) => t.status === 'PENDENTE').length,
-    tarefasConcluidas: redeCuidado?.totalTarefasConcluidas ?? 0,
-    pontosAcumulados: redeCuidado?.pontosAcumulados ?? 0,
-  };
+  const familySummary = useMemo(
+    () => construirResumoFamiliar(user, pets.length, redeCuidado, allTasks),
+    [user, pets.length, redeCuidado, allTasks]
+  );
 
   return {
     status: {
