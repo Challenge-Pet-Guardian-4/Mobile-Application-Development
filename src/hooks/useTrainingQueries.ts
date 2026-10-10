@@ -2,18 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TrainingService } from '../services/trainings';
 import { queryKeys } from '../lib/queryKeys';
 
-export function useTrilhas(petId?: number, enabled = true) {
-  return useQuery({
-    queryKey: petId ? queryKeys.training.byPet(petId) : queryKeys.training.myTracks,
-    queryFn: () => TrainingService.getTrilhas(petId),
-    enabled,
-  });
-}
-
-export function useMyTrilhas(enabled = true) {
+export function useTrilhas(enabled = true) {
   return useQuery({
     queryKey: queryKeys.training.myTracks,
-    queryFn: () => TrainingService.getTrilhasMe(),
+    queryFn: () => TrainingService.getTrilhas(),
     enabled,
   });
 }

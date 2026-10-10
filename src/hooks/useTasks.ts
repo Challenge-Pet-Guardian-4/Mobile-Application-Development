@@ -6,15 +6,8 @@ import { TarefaRequest, TarefaResponse } from '../types/task';
 
 export function useUserTasks(page = 0, size = 50, status = 'ALL') {
   return useQuery({
-    queryKey: ['tasks', 'me', status, page, size],
+    queryKey: queryKeys.tasks.myTasks(status, page, size),
     queryFn: () => TaskService.getMyTarefas(page, size, status),
-  });
-}
-
-export function useUserPoints() {
-  return useQuery({
-    queryKey: ['tasks', 'me', 'pontos'],
-    queryFn: () => TaskService.getMyPontos(),
   });
 }
 

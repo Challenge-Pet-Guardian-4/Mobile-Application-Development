@@ -13,6 +13,7 @@ export interface TrainingLesson {
 
 export interface TrainingTrack {
   id: string;
+  petId?: number;
   categoria: string;
   titulo: string;
   descricao: string;
@@ -21,24 +22,7 @@ export interface TrainingTrack {
   licoes: TrainingLesson[];
 }
 
-export interface TrilhaApiResponse {
-  id: number;
-  nome: string;
-  descricao: string;
-  petId: number;
-  nomePet: string;
-}
-
-export interface ModuloApiResponse {
-  id: number;
-  nome: string;
-  tempoConclusao: string;
-  descricao: string;
-  trilhaId: number;
-  nomeTrilha: string;
-}
-
-export interface AulaApiResponse {
+export interface AulaCompletaResponse {
   id: number;
   nome: string;
   descricao: string;
@@ -46,8 +30,25 @@ export interface AulaApiResponse {
   dificuldade: string;
   conteudo: string;
   concluida: boolean;
-  moduloId: number;
-  nomeModulo: string;
+  moduloId?: number;
+  nomeModulo?: string;
+}
+
+export interface ModuloCompletoResponse {
+  id: number;
+  nome: string;
+  tempoConclusao: string;
+  descricao: string;
+  aulas: AulaCompletaResponse[];
+}
+
+export interface TrilhaCompletaResponse {
+  id: number;
+  nome: string;
+  descricao: string;
+  petId: number;
+  nomePet: string;
+  modulos: ModuloCompletoResponse[];
 }
 
 export interface ConteudoAulaApiResponse {

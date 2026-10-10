@@ -155,7 +155,7 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 ### Grupo 2: Gestão de Pets & Pontuação de Bem-Estar (CRUD 1)
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/pets/me` | Listagem dos pets vinculados ao tutor logado (como titular ou co-cuidador) | `PetService.getMyPets` |
+| `GET` | `/pets/me` | Listagem dos pets vinculados ao tutor logado (como titular ou co-cuidador, com paginação server-side de 4 pets por página) | `PetService.getMyPets` |
 | `GET` | `/pets/me/pontos` | Score consolidado em lote de todos os pets (rotinas + aulas) para Home, Perfil e Treino (Zero N+1) | `PetService.getMyPetsPontos` |
 | `GET` | `/pets/me/historico` | Histórico consolidado de tarefas concluídas de todos os pets do tutor | `PetService.getMyPetsHistory` |
 | `POST` | `/pets` | **[Create]** Cadastra novo pet e vincula o criador como responsável principal | `PetService.createPet` |
@@ -175,20 +175,17 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 ### Grupo 4: Rotinas, Tarefas & Gamificação (CRUD 2)
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/tarefas/me` | Lista as tarefas de rotina do usuário logado com suporte a auto-expiração inteligente | `TaskService.getMyTarefas` |
+| `GET` | `/tarefas/me` | Lista as tarefas de rotina do usuário logado com auto-expiração de tarefas atrasadas no banco via Spring Data | `TaskService.getMyTarefas` |
 | `POST` | `/tarefas` | **[Create]** Agenda nova rotina (alimentar, medicar, passear) para o pet | `TaskService.createTarefa` |
 | `PUT` | `/tarefas/{id}` | **[Update]** Edita parâmetros e prazos de uma tarefa existente | `TaskService.updateTarefa` |
 | `PATCH`| `/tarefas/{id}/concluir` | **[Update]** Conclui a rotina, soma pontos ao tutor e atualiza a pontuação do pet | `TaskService.concluirTarefa` |
 | `PATCH`| `/tarefas/{id}/desmarcar` | **[Update]** Desmarca a conclusão, retorna para `PENDENTE` e estorna os pontos | `TaskService.desmarcarTarefa` |
 | `DELETE`| `/tarefas/{id}` | **[Delete]** Remove uma tarefa da rotina do pet | `TaskService.deleteTarefa` |
-| `GET` | `/tarefas/me/pontos` | Retorna o total de pontos acumulados pelo cuidador logado para exibição no perfil | `TaskService.getMyPontos` |
 
 ### Grupo 5: Prontuário Clínico & Histórico de Saúde
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/historicos/me` | Prontuário médico consolidado de todos os pets vinculados ao tutor via JWT | `HistoricoService.getHistoricosMe` |
-| `GET` | `/pets/{id}/historico` | Histórico consolidado de tarefas cumpridas e marcos de saúde | `PetService.getPetHistory` |
-| `GET` | `/historicos/pet/{petId}` | Prontuário médico com registros clínicos de vacinas, exames e consultas | `HistoricoService.getHistoricosByPetId` |
+| `GET` | `/pets/{id}/detalhe` | Ficha consolidada do pet com pontuação Oracle, cuidadores, tarefas e histórico clínico | `PetService.getPetDetail` |
 | `POST` | `/historicos` | Cadastra novo evento de saúde no prontuário do animal | `HistoricoService.createHistorico` |
 | `PUT` | `/historicos/{id}` | Atualiza informações de um registro clínico prévio | `HistoricoService.updateHistorico` |
 | `DELETE`| `/historicos/{id}` | Remove um evento do prontuário médico | `HistoricoService.deleteHistorico` |
@@ -196,10 +193,7 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 ### Grupo 6: Trilhas Educativas & Conteúdo Rico NoSQL (MongoDB)
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/trilhas/me` | Lista todas as trilhas cadastradas para todos os pets do usuário logado via JWT | `TrainingService.getTrilhasMe` |
-| `GET` | `/trilhas/pet/{petId}` | Lista as trilhas de treinamento ativas atribuídas ao pet | `TrainingService.getTrilhasPorPet` |
-| `GET` | `/modulos/trilha/{trilhaId}`| Carrega os módulos temáticos de uma trilha educativa | `TrainingService.getModulosPorTrilha` |
-| `GET` | `/aulas/modulo/{moduloId}` | Carrega as lições práticas de adestramento do módulo | `TrainingService.getAulasPorModulo` |
+| `GET` | `/trilhas/me` | **[Árvore Completa Unificada]** Lista todas as trilhas, módulos e aulas completas dos pets do tutor em 1 única requisição via JWT | `TrainingService.getTrilhas` |
 | `GET` | `/aulas/{aulaId}/conteudo` | **[NoSQL MongoDB]** Busca conteúdo pedagógico detalhado (Markdown e links) | `TrainingService.getConteudoAula` |
 | `PATCH`| `/aulas/{id}/concluir` | Conclui lição educativa e soma pontos educacionais ao score do pet | `TrainingService.concluirAula` |
 | `PATCH`| `/aulas/{id}/desmarcar` | Desmarca lição e estorna os pontos de aprendizado do animal | `TrainingService.desmarcarAula` |

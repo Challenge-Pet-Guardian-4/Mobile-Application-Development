@@ -21,11 +21,11 @@ export function useTrainings() {
     isLoading: isLoadingTrilhas,
     isFetching: isFetchingTrilhas,
     refetch: refetchTrilhas,
-  } = useTrilhas(
-    petAtivo?.id,
-    !isUserComum
-  );
-  const trilhas: TrainingTrack[] = trilhasData || [];
+  } = useTrilhas(!isUserComum);
+  const todasTrilhas: TrainingTrack[] = trilhasData || [];
+  const trilhas: TrainingTrack[] = petAtivo
+    ? todasTrilhas.filter((t) => t.petId === petAtivo.id)
+    : todasTrilhas;
 
   const { data: pontosPetData, refetch: refetchPontos } = usePetPontos(petAtivo?.id);
   const totalXpGanho = pontosPetData?.pontosTotais ?? 0;

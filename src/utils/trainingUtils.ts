@@ -1,4 +1,4 @@
-import { TrainingLesson, TrainingTrack, TrilhaApiResponse, AulaApiResponse } from '../types/training';
+import { TrainingLesson, TrainingTrack, TrilhaCompletaResponse, AulaCompletaResponse, } from '../types/training';
 import { trainingPalette } from '../constants/theme';
 
 /**
@@ -33,7 +33,10 @@ export function extrairMinutosDuracao(tempoConclusao?: string): number {
 /**
  * Mapeia o DTO de aula da API Java para o modelo de exibição da UI (TrainingLesson).
  */
-export function mapearAulaParaLicao(aula: AulaApiResponse, tempoConclusao?: string): TrainingLesson {
+export function mapearAulaParaLicao(
+  aula: AulaCompletaResponse,
+  tempoConclusao?: string
+): TrainingLesson {
   return {
     id: String(aula.id),
     titulo: aula.nome,
@@ -52,7 +55,7 @@ export function mapearAulaParaLicao(aula: AulaApiResponse, tempoConclusao?: stri
  * Mapeia a trilha e suas respectivas lições para o modelo de nó da UI (TrainingTrack).
  */
 export function mapearTrilhaParaTrack(
-  trilha: TrilhaApiResponse,
+  trilha: TrilhaCompletaResponse,
   licoes: TrainingLesson[],
   index: number
 ): TrainingTrack {
@@ -61,6 +64,7 @@ export function mapearTrilhaParaTrack(
 
   return {
     id: String(trilha.id),
+    petId: trilha.petId,
     categoria,
     titulo: trilha.nome,
     descricao: trilha.descricao,

@@ -13,12 +13,6 @@ export const TaskService = {
     return response.data;
   },
 
-  // Consulta o total de pontos acumulados pelo usuário autenticado via JWT (/tarefas/me/pontos)
-  async getMyPontos(): Promise<number> {
-    const response = await http.get<number>('/tarefas/me/pontos');
-    return response.data;
-  },
-
   // Cria uma nova tarefa na API Java
   async createTarefa(tarefaRequest: TarefaRequest): Promise<TarefaResponse> {
     const response = await http.post<TarefaResponse>('/tarefas', tarefaRequest);

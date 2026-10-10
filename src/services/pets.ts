@@ -5,7 +5,6 @@ import {
   CoCuidadorResponse,
   PetDetailResponse,
   PetPontuacaoAgregadaResponse,
-  PetPontuacaoResponse,
   PetRequest,
   PetResponse,
 } from '../types/pet';
@@ -30,12 +29,6 @@ export const PetService = {
     return response.data;
   },
 
-  // Consulta a pontuação total acumulada pelo pet (tarefas + aulas)
-  async getPetPontos(id: number): Promise<PetPontuacaoResponse> {
-    const response = await http.get<PetPontuacaoResponse>(`/pets/${id}/pontos`);
-    return response.data;
-  },
-
   // Cria um novo pet vinculado ao usuário
   async createPet(petRequest: PetRequest): Promise<PetResponse> {
     const response = await http.post<PetResponse>('/pets', petRequest);
@@ -53,23 +46,12 @@ export const PetService = {
     await http.delete(`/pets/${id}`);
   },
 
-  // Care Circle: Lista cuidadores vinculados ao pet (GET /pets/{id}/cuidadores)
-  async getCuidadores(petId: number): Promise<CoCuidadorResponse[]> {
-    const response = await http.get<CoCuidadorResponse[]>(`/pets/${petId}/cuidadores`);
-    return response.data;
-  },
-
   // Care Circle: Convida co-cuidador por e-mail (POST /pets/{id}/cuidadores)
   async convidarPorEmail(petId: number, email: string): Promise<CoCuidadorResponse> {
     const response = await http.post<CoCuidadorResponse>(`/pets/${petId}/cuidadores`, {
       email: email.trim().toLowerCase(),
     });
     return response.data;
-  },
-
-  // Care Circle: Desvincula o próprio usuário autenticado do pet via JWT (DELETE /pets/{id}/cuidadores/me)
-  async sairDoCareCircle(petId: number): Promise<void> {
-    await http.delete(`/pets/${petId}/cuidadores/me`);
   },
 
   // Care Circle: Desvincula um cuidador por e-mail (DELETE /pets/{id}/cuidadores?email=...) ou a si próprio via /me

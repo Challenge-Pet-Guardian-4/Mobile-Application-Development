@@ -71,7 +71,7 @@ src/
 - `GET /usuarios/me/rede-cuidado`: Visão agregada completa da rede familiar e pontuação acumulada via Stored Procedure Oracle.
 
 ### Pets & Care Circle (`/pets`)
-- `GET /pets/me`: Lista todos os pets sob tutela do usuário (como titular ou co-cuidador).
+- `GET /pets/me`: Lista todos os pets sob tutela do usuário (paginação server-side de 4 pets por página via `usePets(petsPage)`).
 - `GET /pets/me/pontos`: Pontuação agregada de todos os pets do tutor via Stored Procedure Oracle (Zero N+1).
 - `GET /pets/me/historico`: Tarefas concluídas de todos os pets do usuário logado.
 - `POST /pets`: Criação de novo pet, vinculando o criador automaticamente como responsável principal.
@@ -86,7 +86,7 @@ src/
 - `PATCH /pets/{petId}/responsavel-principal`: Transferência atômica de titularidade principal via Stored Procedure Oracle.
 
 ### Tarefas da Rotina (`/tarefas`)
-- `GET /tarefas/me`: Tarefas do cuidador logado com auto-expiração dinâmica de vencidas.
+- `GET /tarefas/me`: Tarefas do cuidador logado com auto-expiração de tarefas atrasadas no banco via Spring Data.
 - `POST /tarefas`: Criação de nova tarefa de cuidado vinculada a um pet.
 - `PUT /tarefas/{id}`: Edição de parâmetros e prazos de uma rotina existente.
 - `PATCH /tarefas/{id}/concluir`: Conclusão em 1 toque, creditando pontos ao score do pet e disparando trigger de auditoria no Oracle.
@@ -102,8 +102,7 @@ src/
 - `DELETE /historicos/{id}`: Remoção de registro do prontuário médico.
 
 ### Trilhas Educativas & Conteúdo NoSQL (`/trilhas`, `/modulos`, `/aulas`)
-- `GET /trilhas/me`: Lista todas as trilhas cadastradas para o usuário logado via JWT.
-- `GET /trilhas/pet/{petId}`: Trilhas de treinamento ativas associadas ao perfil do pet.
+- `GET /trilhas/me`: Lista todas as trilhas, módulos e aulas completas dos pets do tutor via JWT em payload consolidado único (Zero Waterfalls).
 - `GET /modulos/trilha/{trilhaId}`: Módulos didáticos da trilha selecionada.
 - `GET /aulas/modulo/{moduloId}`: Lições práticas de adestramento do módulo.
 - `GET /aulas/{aulaId}/conteudo`: Conteúdo rico NoSQL armazenado no MongoDB (Markdown e links).

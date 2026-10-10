@@ -1,39 +1,21 @@
-import { useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserService } from '../services/users';
 import { queryKeys } from '../lib/queryKeys';
 import { UsuarioRequest } from '../types/user';
-import { PetResponse } from '../types/pet';
 import { useSession } from './useSession';
-import { usePets, useMyPetsPontos } from './usePets';
-import { useUserPoints } from './useTasks';
 import { useRedeCuidado } from './useRedeCuidado';
 
 export function useUserProfileData() {
-  const { data: petsData, isLoading: isLoadingPets, isFetching: isFetchingPets, refetch: refetchPets } = usePets();
-  const { data: pontosTarefas, refetch: refetchPoints } = useUserPoints();
-  const { data: redeCuidado, isLoading: isLoadingRede, isFetching: isFetchingRede, refetch: refetchRede } = useRedeCuidado();
-  const { data: myPetsPontos, refetch: refetchMyPetsPontos } = useMyPetsPontos();
+  const { data: redeCuidado, isLoading, isFetching, refetch: refetchRede } = useRedeCuidado();
 
-  const pets: PetResponse[] = petsData?.content || [];
-
-  const pontosTotais = useMemo(() => {
-    if (redeCuidado?.pontosAcumulados !== undefined) return redeCuidado.pontosAcumulados;
-    if (myPetsPontos?.pontosTotais !== undefined) return myPetsPontos.pontosTotais;
-    return pontosTarefas ?? 0;
-  }, [redeCuidado?.pontosAcumulados, myPetsPontos?.pontosTotais, pontosTarefas]);
-
-  const refetchAll = async () => {
-    await Promise.all([refetchPets(), refetchPoints(), refetchRede(), refetchMyPetsPontos()]);
-  };
+  const pontosTotais = redeCuidado?.pontosAcumulados ?? 0;
 
   return {
-    pets,
     redeCuidado,
     pontosTotais,
-    isLoading: isLoadingPets || isLoadingRede,
-    isFetching: isFetchingPets || isFetchingRede,
-    refetchAll,
+    isLoading,
+    isFetching,
+    refetchAll: refetchRede,
   };
 }
 
@@ -49,8 +31,8 @@ export function useUpdateUser() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
-      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
-      queryClient.invalidateQueries({ queryKey: ['users', 'me', 'rede-cuidado'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.redeCuidado });
     },
   });
 }
@@ -67,8 +49,8 @@ export function useUpgradePremium() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
-      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
-      queryClient.invalidateQueries({ queryKey: ['users', 'me', 'rede-cuidado'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.redeCuidado });
     },
   });
 }

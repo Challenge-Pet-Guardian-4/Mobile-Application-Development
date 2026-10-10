@@ -26,8 +26,10 @@ export type { ActionCallbacks };
 export function useFamilyCare() {
   const { user } = useSession();
 
-  // Queries TanStack de dados da família e pets
-  const { data: petsData, isLoading: isLoadingPets, isFetching: isFetchingPets, refetch: refetchPets } = usePets();
+  const [petsPage, setPetsPage] = useState(0);
+
+  // Queries TanStack de dados da família e pets (paginação server-side de 4 por vez)
+  const { data: petsData, isLoading: isLoadingPets, isFetching: isFetchingPets, refetch: refetchPets } = usePets(petsPage);
   const {
     data: userTasksData,
     isLoading: isLoadingTasks,
@@ -157,16 +159,6 @@ export function useFamilyCare() {
     [pets, redeCuidado, pontosMap]
   );
 
-  // Paginação dos animais da família (4 pets por página)
-  const PETS_PAGE_SIZE = 4;
-  const [petsPage, setPetsPage] = useState(0);
-  const petsTotalPages = Math.max(1, Math.ceil(petsComMetadados.length / PETS_PAGE_SIZE));
-  const safePetsPage = Math.min(petsPage, Math.max(0, petsTotalPages - 1));
-  const petsExibidos = useMemo(
-    () => petsComMetadados.slice(safePetsPage * PETS_PAGE_SIZE, (safePetsPage + 1) * PETS_PAGE_SIZE),
-    [petsComMetadados, safePetsPage]
-  );
-
   const coCuidadoresFormatados = useMemo(
     () => formatarListaCoCuidadores(redeCuidado?.coCuidadores || [], pets, petsOndeSouPrincipal),
     [redeCuidado?.coCuidadores, pets, petsOndeSouPrincipal]
@@ -195,8 +187,8 @@ export function useFamilyCare() {
   );
 
   const familySummary = useMemo(
-    () => construirResumoFamiliar(user, pets.length, redeCuidado, allTasks),
-    [user, pets.length, redeCuidado, allTasks]
+    () => construirResumoFamiliar(user, petsData?.totalElements ?? pets.length, redeCuidado, allTasks),
+    [user, petsData?.totalElements, pets.length, redeCuidado, allTasks]
   );
 
   return {
@@ -215,11 +207,11 @@ export function useFamilyCare() {
       currentUserCaregiver,
       pets,
       petsComMetadados,
-      petsExibidos,
+      petsExibidos: petsComMetadados,
       petsPagination: {
-        currentPage: safePetsPage,
-        totalPages: petsTotalPages,
-        totalElements: petsComMetadados.length,
+        currentPage: petsPage,
+        totalPages: petsData?.totalPages ?? 1,
+        totalElements: petsData?.totalElements ?? pets.length,
         onPageChange: setPetsPage,
       },
       summary: familySummary,

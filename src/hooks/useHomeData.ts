@@ -27,6 +27,9 @@ export function useHomeData(navigation?: NativeStackNavigationProp<RootStackPara
   const pets: PetResponse[] = petsData?.content || [];
   const { activePet, selectedPetId, selectPet } = useActivePet(pets);
 
+  const [filtroRotina, setFiltroRotina] = useState<'HOJE' | 'TODAS'>('HOJE');
+  const hojeYmd = useMemo(() => formatarDataIsoYmd(new Date()) || undefined, []);
+
   const {
     data: userTasksData,
     isLoading: isLoadingTasks,
@@ -34,21 +37,19 @@ export function useHomeData(navigation?: NativeStackNavigationProp<RootStackPara
     isError: isErrorTasks,
     error: tasksError,
     refetch: refetchUserTasks,
-  } = useUserTasks(0, 100, 'ALL');
+  } = useUserTasks(0, 50, 'ALL');
 
-  const allTasks: TarefaResponse[] = userTasksData?.content || [];
+  const tarefasDoPet: TarefaResponse[] = useMemo(() => {
+    const list = userTasksData?.content || [];
+    return activePet ? list.filter((t) => t.petId === activePet.id) : [];
+  }, [userTasksData, activePet]);
   const { data: pontosPetData, refetch: refetchPontos } = usePetPontos(activePet?.id);
 
   // Derivações da Rotina do Pet Ativo
-  const tarefasDoPet = useMemo(
-    () => (activePet ? allTasks.filter((t) => t.petId === activePet.id) : []),
-    [allTasks, activePet]
-  );
   const metricasPet = useMemo(() => categorizarTarefas(tarefasDoPet), [tarefasDoPet]);
 
-  const hojeYmd = useMemo(() => formatarDataIsoYmd(new Date()), []);
   const tarefasDoPetHoje = useMemo(
-    () => (activePet ? ordenarTarefasRotina(filtrarTarefasHoje(tarefasDoPet, hojeYmd)) : []),
+    () => (activePet ? ordenarTarefasRotina(filtrarTarefasHoje(tarefasDoPet, hojeYmd || '')) : []),
     [tarefasDoPet, activePet, hojeYmd]
   );
   const metricasPetHoje = useMemo(() => categorizarTarefas(tarefasDoPetHoje), [tarefasDoPetHoje]);
@@ -61,18 +62,17 @@ export function useHomeData(navigation?: NativeStackNavigationProp<RootStackPara
 
   const ofensivaFamiliar = useMemo(
     () => ({
-      streakDays: calcularDiasSemanaAtual(allTasks),
-      totalStreak: calcularTotalOfensiva(allTasks),
+      streakDays: calcularDiasSemanaAtual(tarefasDoPet),
+      totalStreak: calcularTotalOfensiva(tarefasDoPet),
     }),
-    [allTasks]
+    [tarefasDoPet]
   );
 
   const refetch = useCallback(async () => {
     await Promise.all([refetchPets(), refetchUserTasks(), refetchPontos()]);
   }, [refetchPets, refetchUserTasks, refetchPontos]);
 
-  // Controle de Visualização da Rotina (Hoje vs Todas)
-  const [filtroRotina, setFiltroRotina] = useState<'HOJE' | 'TODAS'>('HOJE');
+  // Controle de Edição da Rotina
   const [tarefaEmEdicao, setTarefaEmEdicao] = useState<TarefaResponse | undefined>(undefined);
 
   const handleToggleTarefa = useCallback(

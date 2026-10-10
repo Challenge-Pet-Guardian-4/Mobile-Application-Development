@@ -1,12 +1,5 @@
 import { http } from './http';
-import {
-  TrainingLesson,
-  TrainingTrack,
-  TrilhaApiResponse,
-  ModuloApiResponse,
-  AulaApiResponse,
-  ConteudoAulaApiResponse,
-} from '../types/training';
+import { TrainingTrack, AulaCompletaResponse, ConteudoAulaApiResponse, TrilhaCompletaResponse, } from '../types/training';
 import { mapearAulaParaLicao, mapearTrilhaParaTrack } from '../utils/trainingUtils';
 
 /**
@@ -15,19 +8,24 @@ import { mapearAulaParaLicao, mapearTrilhaParaTrack } from '../utils/trainingUti
 export const TrainingService = {
 
   /**
-   * Busca todas as trilhas cadastradas para o usuário autenticado via JWT (GET /trilhas/me).
+   * Busca a árvore completa de trilhas, módulos e aulas dos pets do tutor (GET /trilhas/me)
+   * em 1 única requisição HTTP consolidada, transformando os DTOs nos ViewModels da UI (TrainingTrack[]).
    */
-  async getTrilhasMe(): Promise<TrilhaApiResponse[]> {
-    const response = await http.get<TrilhaApiResponse[]>('/trilhas/me');
-    return response.data || [];
-  },
+  async getTrilhas(): Promise<TrainingTrack[]> {
+    try {
+      const response = await http.get<TrilhaCompletaResponse[]>('/trilhas/me');
+      const trilhas = response.data || [];
+      if (!trilhas.length) return [];
 
-  /**
-   * Busca todas as trilhas cadastradas para um determinado pet (GET /trilhas/pet/{petId}).
-   */
-  async getTrilhasPorPet(petId: number): Promise<TrilhaApiResponse[]> {
-    const response = await http.get<TrilhaApiResponse[]>(`/trilhas/pet/${petId}`);
-    return response.data || [];
+      return trilhas.map((trilha, index) => {
+        const licoes = (trilha.modulos || []).flatMap((modulo) =>
+          (modulo.aulas || []).map((aula) => mapearAulaParaLicao(aula, modulo.tempoConclusao))
+        );
+        return mapearTrilhaParaTrack(trilha, licoes, index);
+      });
+    } catch {
+      return [];
+    }
   },
 
   /**
@@ -43,82 +41,19 @@ export const TrainingService = {
   },
 
   /**
-   * Busca os módulos pertencentes a uma trilha (GET /modulos/trilha/{trilhaId}).
-   */
-  async getModulosPorTrilha(trilhaId: number): Promise<ModuloApiResponse[]> {
-    const response = await http.get<ModuloApiResponse[]>(`/modulos/trilha/${trilhaId}`);
-    return response.data || [];
-  },
-
-  /**
-   * Busca as aulas pertencentes a um módulo (GET /aulas/modulo/{moduloId}).
-   */
-  async getAulasPorModulo(moduloId: number): Promise<AulaApiResponse[]> {
-    const response = await http.get<AulaApiResponse[]>(`/aulas/modulo/${moduloId}`);
-    return response.data || [];
-  },
-
-  /**
    * Conclui uma aula específica atribuindo seus pontos ao pet (PATCH /aulas/{id}/concluir).
    */
-  async concluirAula(aulaId: number): Promise<AulaApiResponse> {
-    const response = await http.patch<AulaApiResponse>(`/aulas/${aulaId}/concluir`);
+  async concluirAula(aulaId: number): Promise<AulaCompletaResponse> {
+    const response = await http.patch<AulaCompletaResponse>(`/aulas/${aulaId}/concluir`);
     return response.data;
   },
 
   /**
    * Desmarca a conclusão de uma aula (PATCH /aulas/{id}/desmarcar).
    */
-  async desmarcarAula(aulaId: number): Promise<AulaApiResponse> {
-    const response = await http.patch<AulaApiResponse>(`/aulas/${aulaId}/desmarcar`);
+  async desmarcarAula(aulaId: number): Promise<AulaCompletaResponse> {
+    const response = await http.patch<AulaCompletaResponse>(`/aulas/${aulaId}/desmarcar`);
     return response.data;
-  },
-
-  // === Métodos Compostos para Consumo da UI / Hooks ===
-
-  /**
-   * Busca a árvore completa de trilhas, módulos e aulas de um pet, transformando
-   * os DTOs brutos da API Java nos ViewModels esperados pela interface (TrainingTrack[]).
-   */
-  async getTrilhas(petId?: number): Promise<TrainingTrack[]> {
-    try {
-      const trilhas = petId ? await this.getTrilhasPorPet(petId) : await this.getTrilhasMe();
-      if (!trilhas.length) return [];
-
-      return await Promise.all(
-        trilhas.map(async (trilha, index) => {
-          try {
-            const modulos = await this.getModulosPorTrilha(trilha.id);
-
-            const modulosComAulas = await Promise.all(
-              modulos.map(async (modulo) => {
-                try {
-                  const aulas = await this.getAulasPorModulo(modulo.id);
-                  return aulas.map((aula) => mapearAulaParaLicao(aula, modulo.tempoConclusao));
-                } catch {
-                  return [] as TrainingLesson[];
-                }
-              })
-            );
-
-            const licoes = modulosComAulas.flat();
-            return mapearTrilhaParaTrack(trilha, licoes, index);
-          } catch {
-            return mapearTrilhaParaTrack(trilha, [], index);
-          }
-        })
-      );
-    } catch {
-      return [];
-    }
-  },
-
-  /**
-   * Busca uma trilha específica por ID para exibição de detalhes.
-   */
-  async getTrilhaById(id: string, petId?: number): Promise<TrainingTrack | undefined> {
-    const trilhas = await this.getTrilhas(petId);
-    return trilhas.find((t) => t.id === id);
   },
 
   /**

@@ -5,11 +5,11 @@ import { queryKeys } from '../lib/queryKeys';
 import { PetPontuacaoResponse, PetRequest, PetResponse } from '../types/pet';
 import { useSession } from './useSession';
 
-export function usePets(page = 0, size = 20) {
+export function usePets(page = 0, size = 4) {
   const { token } = useSession();
 
   return useQuery({
-    queryKey: ['pets', 'me', page, size],
+    queryKey: queryKeys.pets.myPets(page, size),
     queryFn: () => PetService.getMyPets(page, size),
     enabled: !!token,
   });
@@ -58,11 +58,6 @@ export function usePetsPontosMap(_pets?: PetResponse[]) {
     });
     return map;
   }, [data]);
-}
-
-export function usePetsPontosTotais(_pets?: PetResponse[]) {
-  const { data } = useMyPetsPontos();
-  return data?.pontosTotais;
 }
 
 export function useCreatePet() {
@@ -115,7 +110,6 @@ export function useInviteCaregiver() {
     }) => PetService.convidarPorEmail(petId, email),
     onSuccess: (_, { petId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.detail(petId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.pets.caregivers(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
     },
@@ -135,7 +129,6 @@ export function useRemoveCaregiver() {
     }) => PetService.desvincularCuidador(petId, email),
     onSuccess: (_, { petId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.detail(petId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.pets.caregivers(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
     },
@@ -155,7 +148,6 @@ export function useTransferResponsibility() {
     }) => PetService.transferirResponsabilidade(petId, novoResponsavelEmail),
     onSuccess: (_, { petId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.detail(petId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.pets.caregivers(petId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
     },
