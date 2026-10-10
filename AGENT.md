@@ -1,414 +1,142 @@
-# 🤖 AGENT.md — Guia Arquitetural & Especificação Técnica Completa (Mobile-Application-Development)
+# 🤖 AGENT.md — Guia Arquitetural & Especificação Técnica (Mobile-Application-Development)
 
-Este documento serve como referência definitiva e fonte única da verdade para agentes de IA e desenvolvedores sobre toda a arquitetura, telas, contratos de API, gerenciamento de estado, rotas, tipagens TypeScript e fluxos do aplicativo móvel **PetGuardian** (Ecossistema Clyvo).
+Este documento é a referência definitiva para agentes de IA e desenvolvedores sobre a arquitetura, telas, contratos de API, gerenciamento de estado, rotas e fluxos do aplicativo móvel **PetGuardian** (Ecossistema Clyvo).
 
 ---
 
-## 🏛️ 1. Visão Geral da Arquitetura
+## 🏛️ 1. Stack Tecnológica & Arquitetura Base
 
-O aplicativo foi construído com foco em **alta performance**, **experiência do usuário moderna (estilo Duolingo/iFood)**, **arquitetura limpa (Clean Code, DRY, SOLID - SRP)** e **sincronização reativa de dados** com a API Java Spring Boot (`Java-Advanced`) e o microsserviço de IA em Python (`FastAPI`).
-
-### Stack Tecnológica
-- **Framework Base**: React Native 0.86.3 com **Expo SDK 57** (`expo@~57.0.20`, `@expo/metro-runtime@~57.0.14`, `expo-status-bar@~57.0.1`).
-- **Linguagem**: TypeScript ~6.0.3 (**Tipagem Estrita - Zero `any`**, tipagem explícita de props, rotas e retornos).
-- **Gerenciamento de Estado Assíncrono & Cache**: **TanStack Query v5** (`@tanstack/react-query@^5.102.6`) com mutações declarativas (`mutate` com `onSuccess`/`onError`) e invalidação granular de cache.
-- **Padrão Arquitetural de Dados**: **Domain Hooks** (camada intermediária que encapsula regras de negócio, sanitização de payloads, mutations e diálogos de confirmação, mantendo as telas puramente declarativas).
-- **Cliente HTTP Centralizado**: **Axios** (`^1.20.0`) com interceptores para injeção automática de Bearer Token JWT e captura global de status `401 Unauthorized`.
-- **Gerenciamento de Sessão Global**: React Context API (`AuthContext`) integrado com `@react-native-async-storage/async-storage` e `expo-secure-store`.
-- **Navegação Nativa**: `@react-navigation/native` (^7.2.2), `@react-navigation/native-stack` (^7.14.10), `@react-navigation/bottom-tabs` (^7.15.11).
-- **Validação de Formulários**: **Zod** (`zod@^4.4.3`) e **React Hook Form** (`^7.75.0`).
-- **Ícones**: `@expo/vector-icons` (`MaterialCommunityIcons`, `Ionicons`, `FontAwesome`, `FontAwesome5`).
+- **Framework & Runtime:** React Native 0.86.3 com **Expo SDK 57** (`expo@~57.0.20`, Metro Runtime, Expo Status Bar).
+- **Linguagem & Tipagem:** TypeScript ~6.0.3 (**Tipagem Estrita — Zero `any`**, tipagem estrita de rotas, props e payloads).
+- **Gerenciamento de Estado Assíncrono:** **TanStack Query v5** (`@tanstack/react-query@^5.102.6`) com mutações declarativas (`mutate` com `onSuccess`/`onError`) e invalidação granular de cache.
+- **Padrão de Dados:** **Domain Hooks** (camada intermediária que isola queries, mutations e lógica de negócio, mantendo telas puramente declarativas).
+- **Cliente HTTP Centralizado:** **Axios** (`^1.20.0`) com interceptores para injeção automática de Bearer Token JWT e captura global de status `401 Unauthorized`.
+- **Hardware Seguro & Persistência:** `expo-secure-store` (Keychain iOS / Keystore Android para JWT) + `@react-native-async-storage/async-storage` (cache e preferências).
+- **Navegação Nativa:** React Navigation v7 (`@react-navigation/native`, `native-stack`, `bottom-tabs`).
+- **Validação de Formulários:** **Zod** (`zod@^4.4.3`) + **React Hook Form** (`^7.75.0`).
+- **Design System & Ícones:** `@expo/vector-icons`, tokens em `theme.ts` (Tailwind slate/blue, raios e tipografia).
 
 ---
 
 ## 📁 2. Estrutura de Diretórios
 
 ```text
-Mobile-Application-Development/
-├── AGENT.md                       → Este documento mestre de arquitetura
-├── README.md                      → Documentação de inicialização e rotas
-├── App.tsx                        → Root com QueryClientProvider e AuthProvider
-├── package.json                   → Dependências alinhadas ao Expo SDK 57
-└── src/
-    ├── components/                → Componentes visuais atômicos e modulares (DRY / SOLID / SRP)
-    │   ├── AuthHeader/            → Cabeçalho temático com botão voltar para fluxos de autenticação
-    │   ├── BaseModal/             → Modal acessível com backdrop, título, subtítulo, botão fechar e ScrollView
-    │   ├── CaregiverCard/         → Card de cuidador familiar com status de responsável principal
-    │   ├── CustomButton/          → Botão tátil com variantes: primary, success (verde #10B981), secondary, outline, danger
-    │   ├── CustomDateInput/       → Input com formatação automática de data (DD/MM/AAAA) e hora
-    │   ├── CustomInput/           → Input com suporte a ícones esquerdo/direito, erro flutuante e foco
-    │   ├── EditProfileModal/      → Modal tipado para edição cadastral do tutor
-    │   ├── Header/                → Cabeçalho limpo com título, subtítulo e avatar com iniciais
-    │   ├── HistoricoFormModal/    → Modal para criação e edição de registros clínicos
-    │   ├── InviteCaregiverModal/  → Modal de convite de co-cuidadores por e-mail
-    │   ├── LoadingSpinner/        → Indicador de carregamento com mensagem contextual
-    │   ├── PaginationControls/    → Controles padronizados de paginação (anterior/próxima)
-    │   ├── PasswordInput/         → Input de senha com alternância de visibilidade (olho)
-    │   ├── PetFormModal/          → Modal reutilizável para criação e edição da ficha do animal
-    │   ├── PetSelector/           → Seletor tátil de pets para formulários
-    │   ├── PremiumLockCard/       → Card informativo de bloqueio e upgrade para recursos exclusivos Premium
-    │   ├── RoleBadge/             → Badge visual de perfil (⭐ Tutor Premium ou 🐾 Tutor Comum)
-    │   ├── RoleSelector/          → Seletor declarativo de plano ('cards' no cadastro e 'compact' em modais)
-    │   ├── TaskFormModal/         → Modal para criação e edição de tarefas e rotinas
-    │   └── TasksRoutineSection/   → Seção reutilizável de rotina diária com filtros Hoje/Todas e RoutineCard
-    ├── config/
-    │   └── env.ts                 → Configuração de endpoints (API Java no Railway e IA no Render)
-    ├── constants/
-    │   └── theme.ts               → Design system: paleta de cores (Tailwind slate/blue), espaçamentos, tipografia e raios
-    ├── contexts/
-    │   └── AuthContext.tsx        → Contexto global de autenticação, login, registro e persistência
-    ├── hooks/                     → Custom Hooks & Domain Hooks (Separação de Responsabilidades)
-    │   ├── useActivePet.ts        → Resolução e memorização do pet ativo na sessão
-    │   ├── useAiAssistant.ts      → Insights preventivos e chat conversacional com o pet
-    │   ├── useAiAssistantScreen.ts→ Orquestrador de tela do chat com IA, contexto e histórico
-    │   ├── useAuthMutations.ts    → Mutações de Login e Registro com TanStack Query
-    │   ├── useFamilyCare.ts       → [DOMAIN HOOK] Gestão da rede familiar, pets, tarefas e cuidadores
-    │   ├── useFamilyModals.ts     → Controle de modais da Family, convite e transferência
-    │   ├── useHistoricos.ts       → Queries (por pet e batch via /historicos/me) e mutações do prontuário médico do pet
-    │   ├── useHomeData.ts         → [DOMAIN HOOK] Orquestração do pet ativo, pontuação e tarefas da Home
-    │   ├── useLoginForm.ts        → Estado e validação Zod do formulário de login
-    │   ├── usePetDetail.ts        → [DOMAIN HOOK] Gestão da ficha clínica, prontuário e histórico consolidado do pet via /me
-    │   ├── usePetDetailModals.ts  → Controle de modais de edição, histórico e convite do pet
-    │   ├── usePets.ts             → Queries e mutações de pets, pontuação agregada (/pets/me/pontos) e histórico de rotinas (/pets/me/historico)
-    │   ├── useRedeCuidado.ts      → Query da rede de cuidado agregada (GET /usuarios/me/rede-cuidado)
-    │   ├── useRegisterForm.ts     → Estado e validação Zod do formulário de cadastro
-    │   ├── useSession.ts          → Hook utilitário para consumir o AuthContext
-    │   ├── useTaskActions.ts      → Ações reutilizáveis de tarefas (concluir, desmarcar, excluir)
-    │   ├── useTasks.ts            → Queries e mutações de tarefas e pontos do tutor via /tarefas/me
-    │   ├── useTrainingQueries.ts  → Queries especializadas de módulos e aulas
-    │   ├── useTrainings.ts        → [DOMAIN HOOK] Trilhas de adestramento gamificadas com TanStack Query
-    │   ├── useUserProfile.ts      → [DOMAIN HOOK] Perfil do tutor, estatísticas, preferências e exclusão de conta
-    │   └── useUsers.ts            → Mutações de atualização (PUT /usuarios/me), upgrade e exclusão definitiva (DELETE /usuarios/me)
-    ├── lib/
-    │   ├── queryClient.ts         → Instância singleton configurada do TanStack QueryClient
-    │   └── queryKeys.ts           → Fábrica hierárquica e tipada de Query Keys
-    ├── routes/
-    │   ├── MainStack.tsx          → Alternador de fluxo (AuthStack vs AppTabs) baseado no token
-    │   ├── tabs.tsx               → Barra de abas inferior com botão central elevado da IA
-    │   └── types.ts               → Tipagem estrita de parâmetros de todas as rotas e stacks
-    ├── screens/
-    │   ├── AiAssistant/           → Chat com IA preventiva e bloqueio com PremiumLockCard
-    │   ├── FamilyPet/             → Gestão de pets da família, criação de tarefas e co-cuidadores
-    │   ├── Home/                  → Dashboard do pet ativo, score, ofensiva e tarefas do dia
-    │   ├── Login/                 → Tela de login com campos limpos e validação Zod
-    │   ├── PetDetail/             → Ficha clínica detalhada, histórico e edição com componentes modulares
-    │   ├── Register/              → Cadastro com validação Zod, busca automática ViaCEP e botão verde success (perfil nasce como COMUM e pode ser promovido para PREMIUM)
-    │   ├── TrainingEducation/     → Trilhas de adestramento gamificadas alimentadas por TanStack Query
-    │   ├── UserProfile/           → Perfil do tutor, estatísticas, preferências e exclusão de conta
-    │   └── Welcome/               → Onboarding inicial com botão 'Criar conta grátis'
-    ├── services/                  → Camada de comunicação HTTP REST com o Backend
-    │   ├── ai.ts                  → Microsserviço Python FastAPI (/ai/insights, /ai/chat)
-    │   ├── auth.ts                → Registro e login integrados ao StorageService
-    │   ├── historico.ts           → Endpoints REST do prontuário clínico (/historicos)
-    │   ├── http.ts                → Instância Axios central com interceptors de Request/Response
-    │   ├── pets.ts                → Endpoints REST do PetController no Java (/pets/me)
-    │   ├── storage.ts             → Fachada centralizada: SecureStore (JWT) + AsyncStorage (Cache)
-    │   ├── tasks.ts               → Endpoints REST do TarefaController no Java (/tarefas/me)
-    │   ├── trainings.ts           → Endpoints REST de trilhas, módulos e aulas no Java
-    │   └── users.ts               → Endpoints REST do UsuarioController no Java (/usuarios/me)
-    ├── types/                     → Contratos TypeScript espelhando a API Java (100% tipados)
-    │   ├── ai.ts                  → Mensagens e insights de IA
-    │   ├── api.ts                 → Paginação Spring (Page<T>) e erros de API
-    │   ├── auth.ts                → Credenciais de Login e Registro
-    │   ├── historico.ts           → Prontuário médico e eventos clínicos
-    │   ├── models.ts              → Re-exportação agregada de todos os tipos
-    │   ├── pet.ts                 → PetRequest, PetResponse, PetHistoryResponse, CoCuidadorResponse
-    │   ├── task.ts                → TarefaRequest, TarefaResponse
-    │   ├── training.ts            → Trilhas, módulos, lições e respostas de API
-    │   └── user.ts                → UsuarioRequest, UsuarioResponse, RedeCuidadoResponse, UsuarioRole
-    └── utils/
-        ├── alert.ts               → Utilitário unificado de alerta multiplataforma
-        ├── apiError.ts            → Normalizador de mensagens de erro HTTP
-        ├── petUtils.ts            → Normalização de datas (ISO <-> BR) e cálculo estético de idade
-        ├── schemas.ts             → Schemas de validação Zod para Login, Cadastro e Pets
-        ├── shadow.ts              → Utilitário multiplataforma para sombras nativas
-        ├── streakUtils.ts         → Utilitário para cálculo de ofensiva semanal
-        ├── taskUtils.ts           → Filtros e ordenação de tarefas
-        └── trainingUtils.ts       → Mapeamento de aulas e trilhas para o layout gamificado
+src/
+├── components/          → Componentes visuais atômicos e modulares (PetScoreBar, RoutineCard, StreakCard, Header, Modais)
+├── config/              → Configurações de ambiente (env.ts com Railway e Render)
+├── constants/           → Tokens de design system, tipografia e paleta de cores (theme.ts)
+├── contexts/            → Gestão global de autenticação e sessão segura (AuthContext.tsx)
+├── hooks/               → Custom hooks e Domain hooks (Clean Architecture / SRP / TanStack Query):
+│   ├── useHomeData.ts         → Dashboard do pet ativo, pontuação e rotinas da Home
+│   ├── useFamilyCare.ts       → Gestão colaborativa familiar, pets, tarefas e co-cuidadores
+│   ├── usePetDetail.ts        → Ficha clínica, prontuário, histórico e cuidadores do pet
+│   ├── useTrainings.ts        → Trilhas de adestramento gamificadas com TanStack Query
+│   ├── useUserProfile.ts      → Perfil do tutor, estatísticas, pontuação agregada e exclusão de conta
+│   ├── useAiAssistantScreen.ts→ Orquestrador do chat conversacional com IA preventiva e histórico
+│   ├── usePets.ts / useTasks.ts / useHistoricos.ts → Queries e mutações especializadas por domínio
+│   └── useSession.ts / useActivePet.ts → Hooks utilitários de sessão e pet ativo
+├── lib/                 → queryClient.ts (singleton) e queryKeys.ts (fábrica tipada de chaves)
+├── routes/              → MainStack.tsx (AuthStack vs AppTabs), tabs.tsx e types.ts (rotas tipadas)
+├── screens/             → Telas da aplicação (Welcome, Login, Register, Home, FamilyPet, PetDetail, Training, AI, Profile)
+├── services/            → Camada de comunicação HTTP REST (auth, pets, tasks, users, historico, trainings, ai, storage)
+├── types/               → Contratos TypeScript espelhando a API Java (zero any)
+└── utils/               → Schemas Zod (schemas.ts), normalização de datas (petUtils.ts) e helpers
 ```
 
 ---
 
-## 🧭 3. Sistema de Navegação & Rotas Tipadas
+## 🔐 3. Segurança, Sessão & Blindagem da Role ADMIN
 
-A navegação é estritamente tipada em `src/routes/types.ts` sem nenhum uso de `any`:
-
-```typescript
-export type AuthStackParamList = {
-  Welcome: undefined;
-  Login: undefined;
-  Register: undefined;
-};
-
-export type FamilyStackParamList = {
-  FamilyMain: undefined;
-  PetDetail: { petId?: number } | undefined;
-};
-
-export type ProfileStackParamList = {
-  ProfileMain: undefined;
-  PetDetail: { petId?: number } | undefined;
-};
-
-export type AppTabParamList = {
-  Home: undefined;
-  Family: { screen?: keyof FamilyStackParamList; params?: FamilyStackParamList[keyof FamilyStackParamList] } | undefined;
-  IA: { petId?: number } | undefined;
-  Treino: undefined;
-  Perfil: { screen?: keyof ProfileStackParamList; params?: ProfileStackParamList[keyof ProfileStackParamList] } | undefined;
-};
-
-export type RootStackParamList = {
-  Auth: undefined;
-  App: undefined;
-  Tabs: undefined;
-  PetDetail: { petId?: number } | undefined;
-  IA: { petId?: number } | undefined;
-  Family: { screen?: string; params?: { petId?: number } } | undefined;
-  Perfil: { screen?: string; params?: Record<string, unknown> } | undefined;
-};
-```
+1. **Hardware Seguro:** O token JWT emitido com criptografia assimétrica RSA e o e-mail identificador são persistidos exclusivamente nas camadas nativas de hardware seguro (`expo-secure-store`). O app não utiliza AsyncStorage para tokens.
+2. **Ciclo de Vida de Sessão & Expiração 401:**
+   - O interceptor em `src/services/http.ts` injeta `Authorization: Bearer <token>` em todas as requisições autenticadas.
+   - Ao receber `401 Unauthorized`, a sessão é limpa de forma atômica no hardware seguro (`StorageService.clearAuthSession()`), o estado global do `AuthContext` é resetado para `null`, invalidando o cache do `QueryClient` e redirecionando o usuário à tela de login.
+3. **Ciclo de Vida da Role do Tutor:**
+   - Todo tutor nasce no perfil gratuito **`COMUM`** (`POST /usuarios`).
+   - O upgrade para **`PREMIUM`** pode ser acionado sob demanda no perfil ou nos cards de bloqueio (`PATCH /usuarios/me/upgrade-premium`).
+4. **Blindagem Absoluta da Role ADMIN:**
+   - O aplicativo móvel **NUNCA** deve conter campos, selectors ou referências à role `ADMIN`. Apenas o backend conhece e autoriza administradores.
 
 ---
 
-## 📱 4. Mapeamento Detalhado de Telas & Domain Hooks
+## 🌐 4. Mapa Canônico de Integração HTTP com a API Java
 
-### 4.1. `HomeScreen` (`src/screens/Home/HomeScreen.tsx`)
-- **Domain Hook**: [`useHomeData.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/useHomeData.ts).
-- **Responsabilidade**: Dashboard focado no pet ativo.
-- **Componentes Compositores**:
-  - `Header`: Saudação ao tutor logado.
-  - **Seletor de Pets Horizontal**: Pílulas compactas para alternar o pet ativo.
-  - `PetScoreBar`: Barra de progresso orgânica com cálculo de nível de bem-estar.
-  - `StreakCard`: Ofensiva de dias consecutivos com tarefas concluídas.
-  - `RoutineCard`: Cards interativos para alternar o status das tarefas (`alternarStatusTarefa`) ou removê-las (`excluirTarefaComConfirmacao`).
+### Autenticação & Usuários (`/login`, `/usuarios`)
+- `POST /login`: Autenticação e obtenção do Bearer Token JWT assinado com RSA.
+- `POST /usuarios`: Onboarding de tutor com validação de CEP via ViaCEP.
+- `GET /usuarios/me`: Restaura perfil e sessão do usuário logado via JWT.
+- `PUT /usuarios/me`: Atualização cadastral do próprio tutor via JWT.
+- `DELETE /usuarios/me`: Exclusão permanente da conta e dados (LGPD).
+- `PATCH /usuarios/me/upgrade-premium`: Upgrade de perfil de `COMUM` para `PREMIUM`.
+- `GET /usuarios/me/rede-cuidado`: Visão agregada completa da rede familiar e pontuação acumulada via Stored Procedure Oracle.
 
-### 4.2. `FamilyPetScreen` (`src/screens/FamilyPet/FamilyPetScreen.tsx`)
-- **Domain Hook**: [`useFamilyCare.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/useFamilyCare.ts).
-- **Responsabilidade**: Gestão colaborativa familiar, animais cadastrados, delegação de tarefas e cuidadores.
-- **Componentes Compositores**:
-  - `FamilySummaryCard`: Resumo visual escuro com totais de pets, tarefas e XP acumulado da rede.
-  - `PetCard`: Grid de animais com tag *"Tutor Princ."* via `RedeCuidadoMapper`.
-  - `FamilyTaskItem`: Itens da lista de tarefas com confirmação integrada de remoção.
-  - `CaregiverCard`: Co-cuidadores vinculados e seus animais associados.
-  - `PetFormModal`, `TaskFormModal` e `InviteCaregiverModal`: Modais limpos para inserção de dados reais.
+### Pets & Care Circle (`/pets`)
+- `GET /pets/me`: Lista todos os pets sob tutela do usuário (como titular ou co-cuidador).
+- `GET /pets/me/pontos`: Pontuação agregada de todos os pets do tutor via Stored Procedure Oracle (Zero N+1).
+- `GET /pets/me/historico`: Tarefas concluídas de todos os pets do usuário logado.
+- `POST /pets`: Criação de novo pet, vinculando o criador automaticamente como responsável principal.
+- `GET /pets/{id}/pontos`: Pontuação total do pet (tarefas + aulas) via Stored Procedure Oracle `pr_calcular_pontuacao_pet`.
+- `GET /pets/{id}/historico`: Histórico consolidado de rotina de cuidados do pet individual.
+- `PUT /pets/{id}`: Atualização cadastral do pet (porte, sexo, data de nascimento, castração).
+- `DELETE /pets/{id}`: Remoção do pet (restrito ao responsável principal).
+- `GET /pets/{petId}/cuidadores`: Lista todos os co-cuidadores vinculados ao animal com seus papéis.
+- `POST /pets/{petId}/cuidadores`: Envio de convite de co-cuidador por e-mail.
+- `DELETE /pets/{petId}/cuidadores/me`: Desvinculação do próprio cuidador autenticado do pet via JWT (`sairDoCareCircle`).
+- `DELETE /pets/{petId}/cuidadores?email=...`: Desvinculação de co-cuidador por e-mail (responsável principal ou o próprio cuidador).
+- `PATCH /pets/{petId}/responsavel-principal`: Transferência atômica de titularidade principal via Stored Procedure Oracle.
 
-### 4.3. `PetDetailScreen` (`src/screens/PetDetail/PetDetailScreen.tsx`)
-- **Domain Hook**: [`usePetDetail.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/usePetDetail.ts).
-- **Responsabilidade**: Ficha clínica detalhada, histórico de rotinas e prontuário médico.
-- **Estratégia Batch de Performance**:
-  - Consome `useMyPetsHistory()` (`GET /pets/me/historico`) e `useMyHistoricos()` (`GET /historicos/me`) carregando as rotinas concluídas e eventos clínicos de todos os pets do tutor em viagens HTTP únicas via JWT.
-  - O hook filtra os registros em memória pelo `activePet.id`, permitindo navegação instantânea no carrossel sem novos disparos de rede (Zero N+1).
-- **Componentes Compositores**:
-  - `PetAvatarCarousel`: Carrossel horizontal de seleção de pets com mini avatares circulares.
-  - `PetHeaderCard`: Card de destaque com tags dinâmicas de porte, idade, sexo e castração, além dos botões "Editar Ficha" e "Excluir".
-  - `PetHistoryList`: Timeline de cuidados concluídos com pontuação e formatação segura de datas.
-  - `PetFormModal`: Modal pré-preenchido para atualização cadastral na API Java.
+### Tarefas da Rotina (`/tarefas`)
+- `GET /tarefas/me`: Tarefas do cuidador logado com auto-expiração dinâmica de vencidas.
+- `POST /tarefas`: Criação de nova tarefa de cuidado vinculada a um pet.
+- `PUT /tarefas/{id}`: Edição de parâmetros e prazos de uma rotina existente.
+- `PATCH /tarefas/{id}/concluir`: Conclusão em 1 toque, creditando pontos ao score do pet e disparando trigger de auditoria no Oracle.
+- `PATCH /tarefas/{id}/desmarcar`: Estorno de tarefa concluída para `PENDENTE` e reversão dos pontos.
+- `DELETE /tarefas/{id}`: Exclusão de rotina de cuidado.
+- `GET /tarefas/me/pontos`: Consulta de pontos totais de tarefas do tutor.
 
-### 4.4. `TrainingEducationScreen` (`src/screens/TrainingEducation/TrainingEducationScreen.tsx`)
-- **Domain Hook**: [`useTrainings.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/useTrainings.ts).
-- **Responsabilidade**: Trilhas educativas gamificadas de adestramento alimentadas por TanStack Query.
-- **Regras**:
-  - Bloqueio amigável com `PremiumLockCard` para contas comuns (`role === 'COMUM'`).
-  - Para `PREMIUM`: nós interativos 3D em zigue-zague, modal prático e mutação `concluirLicao` chamando `PATCH /aulas/{id}/concluir` com invalidação automática de cache de pontos do pet.
+### Prontuário Clínico & Histórico de Saúde (`/historicos`)
+- `GET /historicos/me`: Prontuário médico consolidado de todos os pets do tutor via JWT (batch).
+- `GET /historicos/pet/{petId}`: Prontuário médico do pet ordenado por data mais recente.
+- `POST /historicos`: Registro de evento clínico (vacina, consulta, exame, cirurgia).
+- `PUT /historicos/{id}`: Edição de registro de saúde prévio.
+- `DELETE /historicos/{id}`: Remoção de registro do prontuário médico.
 
-### 4.5. `UserProfileScreen` (`src/screens/UserProfile/UserProfileScreen.tsx`)
-- **Domain Hook**: [`useUserProfile.ts`](file:///c:/Users/Enzo/new_backup/FIAP/_Projetos/Challenge_Clyvo_4/Mobile-Application-Development/src/hooks/useUserProfile.ts).
-- **Responsabilidade**: Perfil do tutor, estatísticas gamificadas, switches de preferências e exclusão de conta.
-- **Componentes Compositores**:
-  - `RoleBadge`: Indicador visual do plano (⭐ Premium).
-  - `StatCard`: XP acumulado, contagem de pets e tarefas concluídas.
-  - `EditProfileModal`: Modal com campos de DDD, telefone, CEP e senha.
-  - Ações com diálogos nativos: `logoutComConfirmacao` e `excluirContaComConfirmacao`.
+### Trilhas Educativas & Conteúdo NoSQL (`/trilhas`, `/modulos`, `/aulas`)
+- `GET /trilhas/me`: Lista todas as trilhas cadastradas para o usuário logado via JWT.
+- `GET /trilhas/pet/{petId}`: Trilhas de treinamento ativas associadas ao perfil do pet.
+- `GET /modulos/trilha/{trilhaId}`: Módulos didáticos da trilha selecionada.
+- `GET /aulas/modulo/{moduloId}`: Lições práticas de adestramento do módulo.
+- `GET /aulas/{aulaId}/conteudo`: Conteúdo rico NoSQL armazenado no MongoDB (Markdown e links).
+- `PATCH /aulas/{id}/concluir`: Conclusão de lição educativa, creditando pontos ao score do pet.
+- `PATCH /aulas/{id}/desmarcar`: Estorno de lição e reversão de pontos didáticos.
+
+### Microsserviço de IA Preventiva (Python FastAPI no Render)
+- `POST /ai/chat`: Chat conversacional com Google Gemini recebendo o contexto clínico do pet.
+- `POST /ai/insights`: Recomendações preventivas de saúde e bem-estar por porte e idade.
+- `GET /ai/sessions`: Sessões de conversa anteriores do pet no formato ChatGPT/Claude.
+- `GET /ai/history`: Mensagens completas de uma sessão selecionada.
+- `DELETE /ai/sessions/{id}`: Remoção permanente de uma conversa do histórico.
+- `GET /`: Ping/warm-up para redução de cold-start na nuvem.
 
 ---
 
 ## ⚡ 5. Gerenciamento de Estado & TanStack Query
 
-### 5.1. Fábrica de Query Keys (`src/lib/queryKeys.ts`)
-```typescript
-export const queryKeys = {
-  auth: {
-    me: ['auth', 'me'] as const,
-    session: ['auth', 'session'] as const,
-  },
-  users: {
-    all: ['users'] as const,
-    me: ['users', 'me'] as const,
-    redeCuidado: ['users', 'me', 'rede-cuidado'] as const,
-  },
-  pets: {
-    all: ['pets'] as const,
-    myPets: (page = 0, size = 20) => ['pets', 'me', page, size] as const,
-    myPontos: ['pets', 'me', 'pontos'] as const,
-    myHistory: ['pets', 'me', 'historico'] as const,
-    history: (id?: number) => ['pets', 'history', id ?? 0] as const,
-    pontos: (id?: number) => ['pets', 'pontos', id ?? 0] as const,
-    caregivers: (id?: number) => ['pets', 'caregivers', id ?? 0] as const,
-  },
-  tasks: {
-    all: ['tasks'] as const,
-    myTasks: (status = 'ALL', page = 0, size = 50) => ['tasks', 'me', status, page, size] as const,
-    myPoints: ['tasks', 'me', 'pontos'] as const,
-  },
-  training: {
-    all: ['training'] as const,
-    tracks: ['training', 'tracks'] as const,
-    myTracks: ['training', 'me'] as const,
-    byPet: (petId?: number) => ['training', 'pet', petId] as const,
-    trackDetail: (id: string) => ['training', 'tracks', id] as const,
-    lessonContent: (aulaId: number) => ['training', 'lesson', aulaId, 'content'] as const,
-  },
-  ai: {
-    insights: (petId?: number) => ['ai', 'insights', petId ?? 0] as const,
-    messages: (petId?: number) => ['ai', 'messages', petId ?? 0] as const,
-    sessions: (petId?: number) => ['ai', 'sessions', petId ?? 0] as const,
-  },
-  historicos: {
-    all: ['historicos'] as const,
-    myHistoricos: ['historicos', 'me'] as const,
-    byPet: (petId?: number) => ['historicos', 'pet', petId ?? 0] as const,
-  },
-};
-```
-
-### 5.2. Padrão Declarativo de Mutações (Sem `mutateAsync`)
-- **Regra**: Não utilizar `mutateAsync` envolto em blocos imperativos de `try / catch / finally` nas telas.
-- **Padrão Oficial**: Utilizar `mutate` com os callbacks nativos `onSuccess` e `onError`:
-  ```typescript
-  updatePetMutation.mutate(payload, {
-    onSuccess: () => {
-      Alert.alert('Sucesso!', 'Dados atualizados com sucesso.');
-      callbacks?.onSuccess?.();
-    },
-    onError: () => {
-      Alert.alert('Erro', 'Não foi possível salvar na API Java.');
-    },
-  });
-  ```
+1. **Mutações Declarativas (Sem `mutateAsync` nas Telas):**
+   - Não utilizar `mutateAsync` com blocos imperativos `try / catch` nas telas.
+   - Utilizar `mutate` com callbacks nativos `onSuccess` e `onError`.
+2. **Invalidação Granular de Cache:**
+   - Conclusão de tarefa/aula invalida apenas chaves de tarefas, usuários e pontos do pet afetado.
+   - Convites ou remoções de cuidadores invalidam apenas `['pets', 'caregivers']`.
+3. **Consumo Agregado Batch via `/me` (Zero Loops N+1):**
+   - O app nunca executa loops de consultas por ID individual para carregar listas.
+   - Carrega em batch via `/pets/me`, `/pets/me/pontos`, `/pets/me/historico`, `/historicos/me` e filtra em memória no cliente pelo `activePet.id`.
 
 ---
 
-## 📐 6. Contratos TypeScript Principais (`src/types/`)
+## 🔒 6. Regras Obrigatórias de Código (Clean Code / SOLID)
 
-### Tipos de Pet (`src/types/pet.ts`)
-```typescript
-export type PetPorte = 'PEQUENO' | 'MEDIO' | 'GRANDE';
-
-export interface PetRequest {
-  nome: string;
-  dataNasc: string; // ISO 8601 'YYYY-MM-DD'
-  raca: string;
-  porte: PetPorte;
-  sexo: string; // 'M' | 'F'
-  castrado: boolean;
-}
-
-export interface PetResponse {
-  id: number;
-  nome: string;
-  dataNasc: string; // ISO 8601 'YYYY-MM-DD'
-  idade?: number;   // Calculado dinamicamente para exibição estética
-  raca: string;
-  porte: PetPorte;
-  sexo: string;
-  castrado: boolean;
-}
-
-export interface PetPontuacaoAgregadaResponse {
-  pontosTarefas: number;
-  pontosAulas: number;
-  pontosTotais: number;
-  detalhePets: {
-    petId: number;
-    nomePet: string;
-    pontosTarefas: number;
-    pontosAulas: number;
-    pontosTotais: number;
-  }[];
-}
-```
-
-### Tipos de Usuário & Blindagem da Role (`src/types/user.ts`)
-```typescript
-// O aplicativo mobile NUNCA deve saber da existência da role ADMIN
-export type UsuarioRole = 'COMUM' | 'PREMIUM';
-
-export interface UsuarioRequest {
-  nome: string;
-  email: string;
-  senha: string;
-  ddd: string;
-  numeroTelefone: string;
-  endereco: {
-    cep: string;
-    numero: string;
-  };
-}
-
-export interface UsuarioResponse {
-  id: number;
-  nome: string;
-  email: string;
-  role: UsuarioRole;
-  ddd: string;
-  numeroTelefone: string;
-  endereco: EnderecoResponse;
-}
-```
-
-### Tipos de Treinamento & Conteúdo NoSQL do MongoDB (`src/types/training.ts`)
-```typescript
-export interface ConteudoAulaApiResponse {
-  id: string;
-  aulaId: number;
-  tipoConteudo: string; // Ex: 'GUIA_PRATICO', 'ARTIGO', 'VIDEO'
-  corpoMarkdown: string;
-  linksRecursos: string[];
-  atualizadoEm?: string;
-}
-
-export interface TrainingLesson {
-  id: string;
-  titulo: string;
-  descricao: string;
-  pontos: number;
-  icone: string;
-  duracaoMin: number;
-  concluido: boolean;
-  passos: string[];
-}
-```
-
----
-
-## 🔒 7. Boas Práticas & Regras Obrigatórias para Agentes
-
-1. **Tipagem Estrita (Zero `any`)**:
-   - É estritamente proibido o uso de `any` ou `as any` no TypeScript. Utilize genéricos (`<K extends keyof T>`), tipos derivados de schemas Zod (`z.infer<typeof Schema>`) ou contratos formais de rotas e APIs.
-2. **Ciclo de Vida da Role do Tutor & Blindagem da Role ADMIN**:
-   - Todo novo tutor nasce no perfil gratuito **`COMUM`** ao se cadastrar (`POST /usuarios`).
-   - O upgrade para **`PREMIUM`** pode ser acionado sob demanda pelo usuário em seu perfil (`UserProfileScreen`) ou ao interagir com o `PremiumLockCard` nas telas com recursos exclusivos (`TrainingEducationScreen` e `AiAssistantScreen`), disparando a mutação `PATCH /usuarios/me/upgrade-premium`.
-   - **Blindagem da Role ADMIN**: O Mobile **NUNCA** deve conter formulários, inputs ou referências visuais que exponham a role `ADMIN`. Apenas o Backend Java conhece e autoriza o perfil de administrador.
-3. **Formulários Limpos (Sem Mocks em Produção)**:
-   - Os formulários e campos de entrada de produção iniciam limpos (`useState('')`), sem mocks hardcoded como `'15'`, `'Cuidado diário da família'`, `'11'` ou `'email@petguardian.com'`. A validação é real e o botão de submissão permanece desabilitado enquanto o formulário for inválido.
-4. **Arquitetura com Hooks de Domínio (SRP / DRY / SOLID)**:
-   - Não acumular múltiplas queries, mutations, sanitizações e lógica de persistência nas telas (Views).
-   - Extraia a lógica para um **Domain Hook** (ex: `useFamilyCare`, `useHomeData`, `usePetDetail`, `useTrainings`, `useUserProfile`) e mantenha a tela responsável puramente pela orquestração visual e renderização de componentes.
-5. **Componentização Modular**:
-   - Trechos visuais com responsabilidade definida devem ser componentizados em `src/components/<NomeComponente>/index.tsx`.
-   - Exemplos: `PetAvatarCarousel`, `PetHeaderCard`, `PetHistoryList`, `FamilySummaryCard`, `FamilyTaskItem`.
-6. **Data de Nascimento nos Pets (`dataNasc`)**:
-   - O cadastro e edição operam exclusivamente com `dataNasc` (`DD/MM/AAAA` no input, normalizado para `YYYY-MM-DD` via `normalizarDataNascParaIso`). A idade é calculada dinamicamente via `calcularIdadePet()` e formatada para exibição estética via `formatarIdadePet()`.
-7. **Persistência Centralizada no `StorageService`**:
-   - Toda operação de armazenamento passa exclusivamente pelo `StorageService` (`src/services/storage.ts`). Tokens JWT são gravados via `expo-secure-store` e dados de cache/sessão via `AsyncStorage`.
-8. **Imports no Topo**:
-   - Nunca utilizar FQCN ou pacotes inline no corpo dos arquivos. Todos os imports devem constar no topo do arquivo.
-9. **Consumo Agregado Batch via `/me` (Zero Loops N+1 & Cache Otimizado)**:
-   - O aplicativo móvel nunca deve executar loops de chamadas por ID individual (ex: `GET /pets/{id}/pontos` para cada pet em tela).
-   - Deve-se priorizar os endpoints agregados de conveniência:
-     - `GET /pets/me/pontos`: consolida em batch a pontuação de todos os animais para o perfil e home sem N+1.
-     - `GET /pets/me/historico`: consolida em batch as rotinas concluídas de todos os animais do tutor.
-     - `GET /historicos/me`: consolida em batch os eventos clínicos e prontuários médicos de todos os animais.
-     - `GET /usuarios/me/rede-cuidado`: consolida em batch toda a árvore de cuidadores, tarefas e animais.
-   - O cliente (Domain Hooks como `usePetDetail` e `useHomeData`) filtra os dados pré-carregados em memória pelo `activePet.id`, assegurando alternância fluida de animais e consumo otimizado de cache no TanStack Query.
+1. **Strict Typing (Zero `any`):** Proibido o uso de `any` ou `as any`. Utilizar genéricos, inferência Zod ou interfaces de domínio.
+2. **Clean Forms (Sem Mocks em Produção):** Formulários iniciam vazios com validação real Zod.
+3. **Arquitetura com Domain Hooks (SRP / DRY):** Toda lógica de dados, mutações e sanitizações deve residir em um Domain Hook (`useHomeData`, `useFamilyCare`, `usePetDetail`, `useTrainings`, `useUserProfile`). A tela é estritamente declarativa.
+4. **Data de Nascimento nos Pets (`dataNasc`):** O cadastro opera exclusivamente com `dataNasc` (`DD/MM/AAAA` no input, ISO `YYYY-MM-DD` na API). Idade é calculada e formatada dinamicamente via `petUtils.ts`.

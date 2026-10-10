@@ -1,4 +1,5 @@
 import { http } from './http';
+import { StorageService } from './storage';
 import { Page } from '../types/api';
 import {
   CoCuidadorResponse,
@@ -74,8 +75,18 @@ export const PetService = {
     return response.data;
   },
 
-  // Care Circle: Desvincula um cuidador por e-mail (DELETE /pets/{id}/cuidadores?email=...)
-  async desvincularCuidador(petId: number, email: string): Promise<void> {
+  // Care Circle: Desvincula o próprio usuário autenticado do pet via JWT (DELETE /pets/{id}/cuidadores/me)
+  async sairDoCareCircle(petId: number): Promise<void> {
+    await http.delete(`/pets/${petId}/cuidadores/me`);
+  },
+
+  // Care Circle: Desvincula um cuidador por e-mail (DELETE /pets/{id}/cuidadores?email=...) ou a si próprio via /me
+  async desvincularCuidador(petId: number, email?: string): Promise<void> {
+    const user = await StorageService.getUser();
+    if (!email || (user?.email && email.trim().toLowerCase() === user.email.toLowerCase())) {
+      await http.delete(`/pets/${petId}/cuidadores/me`);
+      return;
+    }
     await http.delete(`/pets/${petId}/cuidadores`, {
       params: { email: email.trim().toLowerCase() },
     });

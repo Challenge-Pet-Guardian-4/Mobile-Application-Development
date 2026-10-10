@@ -167,6 +167,7 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 | :---: | :--- | :--- | :--- |
 | `GET` | `/pets/{id}/cuidadores` | Lista todos os co-cuidadores e familiares vinculados ao animal | `PetService.getCuidadores` |
 | `POST` | `/pets/{id}/cuidadores` | Convida um novo membro da família informando seu e-mail cadastrado | `PetService.convidarPorEmail` |
+| `DELETE`| `/pets/{id}/cuidadores/me` | Desvincula o próprio cuidador autenticado do animal via JWT | `PetService.sairDoCareCircle` |
 | `DELETE`| `/pets/{id}/cuidadores?email=...` | Desvincula um co-cuidador da rede de cuidado do animal via e-mail | `PetService.desvincularCuidador` |
 | `PATCH`| `/pets/{id}/responsavel-principal` | Transfere atomicamente a titularidade principal para outro cuidador | `PetService.transferirResponsabilidade` |
 | `GET` | `/usuarios/me/rede-cuidado` | Visão agregada completa da família: pets, co-cuidadores e tarefas do usuário logado via JWT | `UserService.getMyRedeCuidado` |
