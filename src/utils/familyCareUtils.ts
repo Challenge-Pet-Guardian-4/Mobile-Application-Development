@@ -21,7 +21,7 @@ export function mesclarPetsComMetadados(
     return {
       ...p,
       isResponsavelPrincipal: resumo?.responsavelPrincipal ?? true,
-      tarefasCount: resumo?.tarefaIds.length,
+      tarefasCount: resumo?.totalTarefas,
       pontosTotais: pontosMap?.get(p.id),
     };
   });
@@ -33,8 +33,8 @@ export function mesclarPetsComMetadados(
  */
 export function formatarListaCoCuidadores(
   coCuidadores: CuidadorResumo[],
-  pets: PetResponse[],
-  petsOndeSouPrincipal: PetResponse[]
+  pets: Array<Pick<PetResponse, 'id' | 'nome'>>,
+  petsOndeSouPrincipal: Array<Pick<PetResponse, 'id' | 'nome'>>
 ): CuidadorFamiliarItem[] {
   const principalIdsSet = new Set(petsOndeSouPrincipal.map((p) => p.id));
 
@@ -76,8 +76,8 @@ export function formatarListaCoCuidadores(
  */
 export function construirCuidadorUsuarioLogado(
   user: UsuarioResponse | null,
-  pets: PetResponse[],
-  petsOndeSouPrincipal: PetResponse[]
+  pets: Array<Pick<PetResponse, 'id' | 'nome'>>,
+  petsOndeSouPrincipal: Array<Pick<PetResponse, 'id' | 'nome'>>
 ): CurrentUserCaregiver | null {
   if (!user) return null;
 

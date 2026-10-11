@@ -39,7 +39,7 @@ export interface PetResumo {
   nome: string;
   raca: string;
   responsavelPrincipal: boolean;
-  tarefaIds: number[];
+  totalTarefas: number;
 }
 
 export interface CuidadorResumo {

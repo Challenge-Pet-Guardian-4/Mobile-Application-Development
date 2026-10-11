@@ -1,8 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useSession } from './useSession';
-import { usePets, usePetsPontosMap, useCreatePet, useInviteCaregiver } from './usePets';
-import { useUserTasks, useCreateTask } from './useTasks';
+import { usePets, usePetsPontosMap, useCreatePet, useInviteCaregiver, PETS_PAGE_SIZE } from './usePets';
+import { useUserTasks, useCreateTask, DEFAULT_TASKS_PAGE_SIZE } from './useTasks';
 import { useTaskActions } from './useTaskActions';
 import { useRedeCuidado } from './useRedeCuidado';
 import { useFamilyModals } from './useFamilyModals';
@@ -29,13 +29,13 @@ export function useFamilyCare() {
   const [petsPage, setPetsPage] = useState(0);
 
   // Queries TanStack de dados da família e pets (paginação server-side de 4 por vez)
-  const { data: petsData, isLoading: isLoadingPets, isFetching: isFetchingPets, refetch: refetchPets } = usePets(petsPage);
+  const { data: petsData, isLoading: isLoadingPets, isFetching: isFetchingPets, refetch: refetchPets } = usePets(petsPage, PETS_PAGE_SIZE);
   const {
     data: userTasksData,
     isLoading: isLoadingTasks,
     isFetching: isFetchingTasks,
     refetch: refetchTasks,
-  } = useUserTasks(0, 100, 'ALL');
+  } = useUserTasks(0, DEFAULT_TASKS_PAGE_SIZE, 'ALL');
   const { data: redeCuidadoData, isLoading: isLoadingRede, isFetching: isFetchingRede, refetch: refetchRede } = useRedeCuidado();
 
   const pets: PetResponse[] = petsData?.content || [];
@@ -43,7 +43,7 @@ export function useFamilyCare() {
   const redeCuidado: RedeCuidadoResponse | undefined = redeCuidadoData;
 
   // Pontuação individual dos animais calculada pelas procedures Oracle
-  const pontosMap = usePetsPontosMap(pets);
+  const pontosMap = usePetsPontosMap();
 
   // Mutations
   const createPetMutation = useCreatePet();
@@ -60,14 +60,17 @@ export function useFamilyCare() {
     [filtroRotina, tasksHoje, allTasks]
   );
 
-  // Mapeamento de titularidade
-  const petsResumoMap = useMemo(
-    () => new Map((redeCuidado?.pets || []).map((p) => [p.id, p])),
+  // Mapeamento de titularidade e lista completa de pets da família
+  const todosOsPets = useMemo(
+    () => (redeCuidado?.pets || []).map((p) => ({ id: p.id, nome: p.nome } as PetResponse)),
     [redeCuidado?.pets]
   );
   const petsOndeSouPrincipal = useMemo(
-    () => pets.filter((p) => petsResumoMap.get(p.id)?.responsavelPrincipal ?? true),
-    [pets, petsResumoMap]
+    () =>
+      (redeCuidado?.pets || [])
+        .filter((p) => p.responsavelPrincipal)
+        .map((p) => ({ id: p.id, nome: p.nome } as PetResponse)),
+    [redeCuidado?.pets]
   );
 
   // Ações de formulários e modais
@@ -160,13 +163,13 @@ export function useFamilyCare() {
   );
 
   const coCuidadoresFormatados = useMemo(
-    () => formatarListaCoCuidadores(redeCuidado?.coCuidadores || [], pets, petsOndeSouPrincipal),
-    [redeCuidado?.coCuidadores, pets, petsOndeSouPrincipal]
+    () => formatarListaCoCuidadores(redeCuidado?.coCuidadores || [], todosOsPets, petsOndeSouPrincipal),
+    [redeCuidado?.coCuidadores, todosOsPets, petsOndeSouPrincipal]
   );
 
   const currentUserCaregiver = useMemo(
-    () => construirCuidadorUsuarioLogado(user, pets, petsOndeSouPrincipal),
-    [user, pets, petsOndeSouPrincipal]
+    () => construirCuidadorUsuarioLogado(user, todosOsPets, petsOndeSouPrincipal),
+    [user, todosOsPets, petsOndeSouPrincipal]
   );
 
   const isHoje = filtroRotina === 'HOJE';

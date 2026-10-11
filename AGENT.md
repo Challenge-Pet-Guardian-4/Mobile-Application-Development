@@ -71,13 +71,12 @@ src/
 - `GET /usuarios/me/rede-cuidado`: Visão agregada completa da rede familiar e pontuação acumulada via Stored Procedure Oracle.
 
 ### Pets & Care Circle (`/pets`)
-- `GET /pets/me`: Lista todos os pets sob tutela do usuário (paginação server-side de 4 pets por página via `usePets(petsPage)`).
+- `GET /pets/me`: Lista todos os pets sob tutela do usuário (paginação padrão de 20 pets para seletores e 4 por página no FamilyPet via `usePets(petsPage, PETS_PAGE_SIZE)`).
 - `GET /pets/me/pontos`: Pontuação agregada de todos os pets do tutor via Stored Procedure Oracle (Zero N+1).
-- `GET /pets/me/historico`: Tarefas concluídas de todos os pets do usuário logado.
+- `GET /pets/{id}/detalhe`: Ficha consolidada do pet com pontuação, cuidadores, tarefas concluídas e prontuário clínico.
 - `POST /pets`: Criação de novo pet, vinculando o criador automaticamente como responsável principal.
 - `GET /pets/{id}/pontos`: Pontuação total do pet (tarefas + aulas) via Stored Procedure Oracle `pr_calcular_pontuacao_pet`.
-- `GET /pets/{id}/historico`: Histórico consolidado de rotina de cuidados do pet individual.
-- `PUT /pets/{id}`: Atualização cadastral do pet (porte, sexo, data de nascimento, castração).
+- `PUT /pets/{id}`: Atualização cadastral do pet (restrito ao responsável principal ou `ADMIN`).
 - `DELETE /pets/{id}`: Remoção do pet (restrito ao responsável principal).
 - `GET /pets/{petId}/cuidadores`: Lista todos os co-cuidadores vinculados ao animal com seus papéis.
 - `POST /pets/{petId}/cuidadores`: Envio de convite de co-cuidador por e-mail.
@@ -129,7 +128,7 @@ src/
    - Convites ou remoções de cuidadores invalidam apenas `['pets', 'caregivers']`.
 3. **Consumo Agregado Batch via `/me` (Zero Loops N+1):**
    - O app nunca executa loops de consultas por ID individual para carregar listas.
-   - Carrega em batch via `/pets/me`, `/pets/me/pontos`, `/pets/me/historico`, `/historicos/me` e filtra em memória no cliente pelo `activePet.id`.
+   - Carrega em batch via `/pets/me`, `/pets/me/pontos` e `/usuarios/me/rede-cuidado` e filtra em memória no cliente pelo `activePet.id`.
 
 ---
 

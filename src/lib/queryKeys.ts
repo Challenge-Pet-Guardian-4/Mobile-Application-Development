@@ -21,7 +21,7 @@ export const queryKeys = {
   // Tarefas
   tasks: {
     all: ['tasks'] as const,
-    myTasks: (status = 'ALL', page = 0, size = 50) => ['tasks', 'me', status, page, size] as const,
+    myTasks: (status = 'ALL', page = 0, size = 100) => ['tasks', 'me', status, page, size] as const,
   },
 
   // Treinamentos

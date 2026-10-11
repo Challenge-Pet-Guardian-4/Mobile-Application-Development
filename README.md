@@ -108,13 +108,13 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
   * **Ficha Cadastral Completa:** Exibição de nome, raça, porte, sexo, castração e idade calculada dinamicamente com base na data de nascimento.
   * **Edição de Dados (CRUD 1 - Update):** Atualização dos dados do pet via `PUT /pets/{id}` com formulário modal e validação.
   * **Exclusão de Pet (CRUD 1 - Delete):** Remoção definitiva do animal via `DELETE /pets/{id}`, com confirmação prévia em modal nativo (restrito ao responsável principal).
-  * **Histórico Clínico e de Cuidados:** Visualização consolidada de eventos clínicos (vacinas, consultas, exames) obtidos em tempo real via `GET /pets/{id}/historico` e `GET /historicos/pet/{petId}`.
+  * **Histórico Clínico e de Cuidados:** Visualização consolidada de eventos clínicos (vacinas, consultas, exames) obtidos em tempo real via `GET /pets/{id}/detalhe` e `GET /historicos/pet/{petId}`.
   * **Adicionar Histórico:** Registro de novas intervenções clínicas e preventivas (`POST /historicos`).
 
 #### 7. `TrainingEducationScreen` (Trilhas Educativas Gamificadas)
 * **Objetivo:** Capacitação dos tutores através de trilhas interativas de adestramento e boas práticas veterinárias (estilo Duolingo).
 * **Funcionalidades:**
-  * Listagem dinâmica de trilhas associadas ao pet ativo (`GET /trilhas/pet/{petId}`).
+  * Listagem dinâmica de trilhas consolidadas associadas aos pets via `GET /trilhas/me`.
   * Módulos temáticos (`GET /modulos/trilha/{trilhaId}`) e lições didáticas (`GET /aulas/modulo/{moduloId}`).
   * Passo a passo com instruções práticas de adestramento e cuidados comportamentais.
   * **Conclusão Didática:** Marcação de aula como finalizada via `PATCH /aulas/{id}/concluir`, creditando pontos educativos diretamente ao score de bem-estar do pet no backend Java.
@@ -155,9 +155,9 @@ O aplicativo é composto por **9 telas exclusivas, ricas e funcionais**, organiz
 ### Grupo 2: Gestão de Pets & Pontuação de Bem-Estar (CRUD 1)
 | Método | Endpoint | Finalidade no Mobile | Camada / Service |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/pets/me` | Listagem dos pets vinculados ao tutor logado (como titular ou co-cuidador, com paginação server-side de 4 pets por página) | `PetService.getMyPets` |
+| `GET` | `/pets/me` | Listagem dos pets vinculados ao tutor logado (como titular ou co-cuidador, com suporte a paginação de 4 pets por página no FamilyPet) | `PetService.getMyPets` |
 | `GET` | `/pets/me/pontos` | Score consolidado em lote de todos os pets (rotinas + aulas) para Home, Perfil e Treino (Zero N+1) | `PetService.getMyPetsPontos` |
-| `GET` | `/pets/me/historico` | Histórico consolidado de tarefas concluídas de todos os pets do tutor | `PetService.getMyPetsHistory` |
+| `GET` | `/pets/{id}/detalhe` | Ficha consolidada do pet com pontuação, cuidadores, tarefas concluídas e prontuário clínico | `PetService.getPetDetail` |
 | `POST` | `/pets` | **[Create]** Cadastra novo pet e vincula o criador como responsável principal | `PetService.createPet` |
 | `PUT` | `/pets/{id}` | **[Update]** Atualiza dados cadastrais do pet (porte, data de nascimento, castração) | `PetService.updatePet` |
 | `DELETE`| `/pets/{id}` | **[Delete]** Exclui o pet do sistema (operação autorizada apenas ao titular) | `PetService.deletePet` |

@@ -12,32 +12,24 @@ export const TrainingService = {
    * em 1 única requisição HTTP consolidada, transformando os DTOs nos ViewModels da UI (TrainingTrack[]).
    */
   async getTrilhas(): Promise<TrainingTrack[]> {
-    try {
-      const response = await http.get<TrilhaCompletaResponse[]>('/trilhas/me');
-      const trilhas = response.data || [];
-      if (!trilhas.length) return [];
+    const response = await http.get<TrilhaCompletaResponse[]>('/trilhas/me');
+    const trilhas = response.data || [];
+    if (!trilhas.length) return [];
 
-      return trilhas.map((trilha, index) => {
-        const licoes = (trilha.modulos || []).flatMap((modulo) =>
-          (modulo.aulas || []).map((aula) => mapearAulaParaLicao(aula, modulo.tempoConclusao))
-        );
-        return mapearTrilhaParaTrack(trilha, licoes, index);
-      });
-    } catch {
-      return [];
-    }
+    return trilhas.map((trilha, index) => {
+      const licoes = (trilha.modulos || []).flatMap((modulo) =>
+        (modulo.aulas || []).map((aula) => mapearAulaParaLicao(aula, modulo.tempoConclusao))
+      );
+      return mapearTrilhaParaTrack(trilha, licoes, index);
+    });
   },
 
   /**
    * Busca o conteúdo rico NoSQL da aula armazenado no MongoDB (GET /aulas/{aulaId}/conteudo).
    */
-  async getConteudoAula(aulaId: number): Promise<ConteudoAulaApiResponse | null> {
-    try {
-      const response = await http.get<ConteudoAulaApiResponse>(`/aulas/${aulaId}/conteudo`);
-      return response.data;
-    } catch {
-      return null;
-    }
+  async getConteudoAula(aulaId: number): Promise<ConteudoAulaApiResponse> {
+    const response = await http.get<ConteudoAulaApiResponse>(`/aulas/${aulaId}/conteudo`);
+    return response.data;
   },
 
   /**
@@ -59,22 +51,23 @@ export const TrainingService = {
   /**
    * Conclui a lição e retorna a quantidade de pontos obtidos.
    */
-  async concluirLicao(_trilhaId: string, licaoId: string): Promise<{ pontosGanhos: number }> {
+  async concluirLicao(licaoId: string): Promise<{ pontosGanhos: number }> {
     const numId = Number(licaoId);
-    if (!Number.isNaN(numId) && numId > 0) {
-      const data = await this.concluirAula(numId);
-      return { pontosGanhos: data.pontosAula };
+    if (Number.isNaN(numId) || numId <= 0) {
+      throw new Error(`ID de lição inválido: ${licaoId}`);
     }
-    return { pontosGanhos: 0 };
+    const data = await this.concluirAula(numId);
+    return { pontosGanhos: data.pontosAula };
   },
 
   /**
    * Desmarca a conclusão da lição.
    */
-  async desmarcarLicao(_trilhaId: string, licaoId: string): Promise<void> {
+  async desmarcarLicao(licaoId: string): Promise<void> {
     const numId = Number(licaoId);
-    if (!Number.isNaN(numId) && numId > 0) {
-      await this.desmarcarAula(numId);
+    if (Number.isNaN(numId) || numId <= 0) {
+      throw new Error(`ID de lição inválido: ${licaoId}`);
     }
+    await this.desmarcarAula(numId);
   },
 };

@@ -2,10 +2,13 @@ import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient, skipToken } from '@tanstack/react-query';
 import { PetService } from '../services/pets';
 import { queryKeys } from '../lib/queryKeys';
-import { PetPontuacaoResponse, PetRequest, PetResponse } from '../types/pet';
+import { PetPontuacaoResponse, PetRequest } from '../types/pet';
 import { useSession } from './useSession';
 
-export function usePets(page = 0, size = 4) {
+export const PETS_PAGE_SIZE = 4;
+export const DEFAULT_PETS_LIST_SIZE = 20;
+
+export function usePets(page = 0, size = DEFAULT_PETS_LIST_SIZE) {
   const { token } = useSession();
 
   return useQuery({
@@ -48,7 +51,7 @@ export function useMyPetsPontos() {
   });
 }
 
-export function usePetsPontosMap(_pets?: PetResponse[]) {
+export function usePetsPontosMap() {
   const { data } = useMyPetsPontos();
 
   return useMemo(() => {

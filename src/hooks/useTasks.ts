@@ -4,7 +4,9 @@ import { queryKeys } from '../lib/queryKeys';
 import { Page } from '../types/api';
 import { TarefaRequest, TarefaResponse } from '../types/task';
 
-export function useUserTasks(page = 0, size = 50, status = 'ALL') {
+export const DEFAULT_TASKS_PAGE_SIZE = 100;
+
+export function useUserTasks(page = 0, size = DEFAULT_TASKS_PAGE_SIZE, status = 'ALL') {
   return useQuery({
     queryKey: queryKeys.tasks.myTasks(status, page, size),
     queryFn: () => TaskService.getMyTarefas(page, size, status),

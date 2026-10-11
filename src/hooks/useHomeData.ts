@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { usePets, usePetPontos } from './usePets';
-import { useUserTasks } from './useTasks';
+import { useUserTasks, DEFAULT_TASKS_PAGE_SIZE } from './useTasks';
 import { useActivePet } from './useActivePet';
 import { useTaskActions } from './useTaskActions';
 import { PetResponse } from '../types/pet';
@@ -37,7 +37,7 @@ export function useHomeData(navigation?: NativeStackNavigationProp<RootStackPara
     isError: isErrorTasks,
     error: tasksError,
     refetch: refetchUserTasks,
-  } = useUserTasks(0, 50, 'ALL');
+  } = useUserTasks(0, DEFAULT_TASKS_PAGE_SIZE, 'ALL');
 
   const tarefasDoPet: TarefaResponse[] = useMemo(() => {
     const list = userTasksData?.content || [];

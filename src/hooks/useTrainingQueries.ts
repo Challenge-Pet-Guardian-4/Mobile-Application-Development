@@ -14,8 +14,8 @@ export function useConcluirLicao() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ trilhaId, licaoId }: { trilhaId: string; licaoId: string }) =>
-      TrainingService.concluirLicao(trilhaId, licaoId),
+    mutationFn: ({ licaoId }: { trilhaId?: string; licaoId: string }) =>
+      TrainingService.concluirLicao(licaoId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.training.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
@@ -29,8 +29,8 @@ export function useDesmarcarLicao() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ trilhaId, licaoId }: { trilhaId: string; licaoId: string }) =>
-      TrainingService.desmarcarLicao(trilhaId, licaoId),
+    mutationFn: ({ licaoId }: { trilhaId?: string; licaoId: string }) =>
+      TrainingService.desmarcarLicao(licaoId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.training.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });

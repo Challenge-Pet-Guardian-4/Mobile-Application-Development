@@ -1,9 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Alert } from 'react-native';
 import { PetResponse } from '../types/pet';
 import { TarefaResponse, TaskFormData } from '../types/task';
 import { CuidadorResumo, UsuarioResponse } from '../types/user';
-import { ActionCallbacks, createMutationCallbacks, getApiErrorMessage } from '../utils/apiError';
+import { ActionCallbacks, createMutationCallbacks } from '../utils/apiError';
 import { useInviteCaregiver, useRemoveCaregiver, useTransferResponsibility } from './usePets';
 
 export type FamilyModalType =
@@ -112,21 +111,28 @@ export function useFamilyModals({
       return;
     }
 
-    Promise.all(
-      petsParaRemover.map((p) =>
-        removeCaregiverMutation.mutateAsync({
-          petId: p.id,
-          email: cuidadorEmGestao.email,
-        })
-      )
-    )
-      .then(() => {
+    const removerSequencial = (index: number) => {
+      if (index >= petsParaRemover.length) {
         handleFecharGerenciamento();
-      })
+        return;
+      }
 
-      .catch((err) => {
-        Alert.alert('Erro ao Remover', getApiErrorMessage(err, 'Ocorreu um erro ao desvincular o cuidador de alguns pets.'));
-      });
+      removeCaregiverMutation.mutate(
+        {
+          petId: petsParaRemover[index].id,
+          email: cuidadorEmGestao.email,
+        },
+        createMutationCallbacks(
+          'Erro ao Remover',
+          'Ocorreu um erro ao desvincular o cuidador de alguns pets.',
+          {
+            onSuccess: () => removerSequencial(index + 1),
+          }
+        )
+      );
+    };
+
+    removerSequencial(0);
   }, [cuidadorEmGestao, user, petsOndeSouPrincipal, removeCaregiverMutation, handleFecharGerenciamento]);
 
   const handleEditTask = useCallback((tarefa: TarefaResponse) => {
