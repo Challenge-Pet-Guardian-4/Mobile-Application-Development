@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AiService } from '../../../services/ai';
+import { useAiHistory } from '../../../hooks/useAiHistory';
 import { PetResponse } from '../../../types/pet';
-import { AiChatSession, AiMessage } from '../../../types/ai';
+import { AiMessage } from '../../../types/ai';
 
 interface AiHistoryModalProps {
   visible: boolean;
@@ -22,56 +22,21 @@ export function AiHistoryModal({
   onSelectSession,
   onNewChat,
 }: AiHistoryModalProps) {
-  const [loading, setLoading] = useState(false);
-  const [loadingSessionId, setLoadingSessionId] = useState<string | null>(null);
-  const [sessoes, setSessoes] = useState<AiChatSession[]>([]);
-
-  const carregarSessoes = useCallback(async () => {
-    if (!pet?.id) return;
-    setLoading(true);
-    try {
-      const dados = await AiService.getSessoesDoPet(pet.id);
-      setSessoes(dados);
-    } catch {
-      setSessoes([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [pet?.id]);
-
-  useEffect(() => {
-    if (visible && pet?.id) {
-      carregarSessoes();
-    }
-  }, [visible, pet?.id, carregarSessoes]);
-
-  const handleSelectSession = async (sessao: AiChatSession) => {
-    setLoadingSessionId(sessao.sessionId);
-    try {
-      const mensagens = await AiService.getMensagensDaSessao(sessao.sessionId);
-      onSelectSession(sessao.sessionId, mensagens);
-      onClose();
-    } catch {
-      // Falha de carregamento silenciosa
-    } finally {
-      setLoadingSessionId(null);
-    }
-  };
-
-  const handleDeleteSession = async (sessionIdParaExcluir: string) => {
-    // Exclusão direta no SQLite sem alerta bloqueante (conforme preferência do usuário)
-    setSessoes((prev) => prev.filter((s) => s.sessionId !== sessionIdParaExcluir));
-    await AiService.excluirSessao(sessionIdParaExcluir);
-
-    if (sessionIdParaExcluir === activeSessionId) {
-      onNewChat();
-    }
-  };
-
-  const handleStartNewChat = () => {
-    onNewChat();
-    onClose();
-  };
+  const {
+    sessoes,
+    isLoading: loading,
+    loadingSessionId,
+    selecionarSessao,
+    removerSessao,
+    iniciarNovaConversa,
+  } = useAiHistory({
+    petId: pet?.id,
+    visible,
+    activeSessionId,
+    onSelectSession,
+    onNewChat,
+    onClose,
+  });
 
   return (
     <Modal
@@ -131,7 +96,7 @@ export function AiHistoryModal({
                   >
                     <TouchableOpacity
                       style={styles.cardMainClickable}
-                      onPress={() => handleSelectSession(item)}
+                      onPress={() => selecionarSessao(item.sessionId)}
                       disabled={isLoadingThis}
                       activeOpacity={0.7}
                     >
@@ -183,7 +148,7 @@ export function AiHistoryModal({
                         <ActivityIndicator size="small" color="#2563EB" />
                       ) : (
                         <TouchableOpacity
-                          onPress={() => handleDeleteSession(item.sessionId)}
+                          onPress={() => removerSessao(item.sessionId)}
                           style={styles.btnDeleteSession}
                           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                           activeOpacity={0.6}
@@ -201,7 +166,7 @@ export function AiHistoryModal({
           {/* Rodapé com botão de Nova Conversa e Fechar */}
           <View style={styles.modalFooter}>
             <TouchableOpacity
-              onPress={handleStartNewChat}
+              onPress={iniciarNovaConversa}
               style={styles.btnNovaConversa}
               activeOpacity={0.8}
             >

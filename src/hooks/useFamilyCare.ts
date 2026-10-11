@@ -20,6 +20,7 @@ import {
   construirCuidadorUsuarioLogado,
   construirResumoFamiliar,
 } from '../utils/familyCareUtils';
+import { NotificationService } from '../services/notifications';
 
 export type { ActionCallbacks };
 
@@ -111,10 +112,25 @@ export function useFamilyCare() {
           petId: data.petId,
           status: data.status || 'PENDENTE',
         },
-        createMutationCallbacks('Erro ao Cadastrar Tarefa', 'Não foi possível cadastrar a tarefa na API.', callbacks)
+        createMutationCallbacks('Erro ao Cadastrar Tarefa', 'Não foi possível cadastrar a tarefa na API.', {
+          ...callbacks,
+          onSuccess: () => {
+            const petAssociado = todosOsPets.find((p) => p.id === data.petId);
+            NotificationService.agendarLembreteTarefa({
+              tarefaId: Date.now(),
+              titulo: data.titulo.trim(),
+              nomePet: petAssociado?.nome || 'Pet',
+              petId: data.petId,
+              prazoIso: normalizarPrazoParaIso(data.prazo),
+              pontos: Number(data.pontos),
+              segundosAtraso: 4, // Dispara em 4 segundos para feedback imediato e demonstração no vídeo
+            });
+            callbacks?.onSuccess?.();
+          },
+        })
       );
     },
-    [user, createTaskMutation]
+    [user, createTaskMutation, todosOsPets]
   );
 
   // Enviar convite de co-cuidador (POST /pets/{id}/cuidadores)

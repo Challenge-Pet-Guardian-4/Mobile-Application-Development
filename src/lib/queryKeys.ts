@@ -30,6 +30,11 @@ export const queryKeys = {
     myTracks: ['training', 'me'] as const,
   },
 
+  // Conteúdo rico das aulas (MongoDB) — fora do prefixo 'training' para não ser refeito ao concluir/desmarcar aula
+  lessons: {
+    content: (aulaId?: number) => ['lessons', 'content', aulaId ?? 0] as const,
+  },
+
   // Assistente de IA
   ai: {
     insights: (petId?: number) => ['ai', 'insights', petId ?? 0] as const,

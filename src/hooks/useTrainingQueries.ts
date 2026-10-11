@@ -10,6 +10,22 @@ export function useTrilhas(enabled = true) {
   });
 }
 
+function parseAulaId(licaoId?: string): number | null {
+  const aulaId = Number(licaoId);
+  return Number.isInteger(aulaId) && aulaId > 0 ? aulaId : null;
+}
+
+export function useConteudoAula(licaoId?: string, enabled = true) {
+  const aulaId = parseAulaId(licaoId);
+
+  return useQuery({
+    queryKey: queryKeys.lessons.content(aulaId ?? undefined),
+    queryFn: () => TrainingService.getConteudoAula(aulaId as number),
+    enabled: enabled && aulaId !== null,
+    staleTime: 1000 * 60 * 10, // conteúdo pedagógico é estático
+  });
+}
+
 export function useConcluirLicao() {
   const queryClient = useQueryClient();
 

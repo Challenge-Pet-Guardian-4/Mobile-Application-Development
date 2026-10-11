@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import { TrainingLesson, ConteudoAulaApiResponse } from '../../../types/training';
-import { TrainingService } from '../../../services/trainings';
+import { TrainingLesson } from '../../../types/training';
+import { useConteudoAula } from '../../../hooks/useTrainingQueries';
 import { BaseModal } from '../../../components/BaseModal';
 
 interface LessonDetailModalProps {
@@ -22,42 +22,7 @@ export function LessonDetailModal({
   onClose,
   onConcluir,
 }: LessonDetailModalProps) {
-  const [conteudoNoSql, setConteudoNoSql] = useState<ConteudoAulaApiResponse | null>(null);
-  const [isLoadingConteudo, setIsLoadingConteudo] = useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-    if (visible && licao?.id) {
-      const aulaId = Number(licao.id);
-      if (!Number.isNaN(aulaId) && aulaId > 0) {
-        setIsLoadingConteudo(true);
-        TrainingService.getConteudoAula(aulaId)
-          .then((data) => {
-            if (isMounted) {
-              setConteudoNoSql(data);
-            }
-          })
-          .catch(() => {
-            if (isMounted) {
-              setConteudoNoSql(null);
-            }
-          })
-          .finally(() => {
-            if (isMounted) {
-              setIsLoadingConteudo(false);
-            }
-          });
-      } else {
-        setConteudoNoSql(null);
-      }
-    } else {
-      setConteudoNoSql(null);
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [visible, licao?.id]);
+  const { data: conteudoNoSql, isLoading: isLoadingConteudo } = useConteudoAula(licao?.id, visible);
 
   if (!visible || !licao) return null;
 
@@ -331,4 +296,3 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
 });
-

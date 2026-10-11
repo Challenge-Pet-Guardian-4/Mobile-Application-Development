@@ -6,14 +6,34 @@ import { shadows } from '../../../utils/shadow';
 interface ContaESuporteProps {
   onOpenFaq: () => void;
   onOpenTerms: () => void;
+  onTestNotification?: () => void;
   onLogout: () => void;
   onDeleteAccount: () => void;
 }
 
-export function ContaESuporte({ onOpenFaq, onOpenTerms, onLogout, onDeleteAccount }: ContaESuporteProps) {
+export function ContaESuporte({
+  onOpenFaq,
+  onOpenTerms,
+  onTestNotification,
+  onLogout,
+  onDeleteAccount,
+}: ContaESuporteProps) {
   return (
     <View style={styles.menuBox}>
       <Text style={styles.menuSectionTitle}>Conta & Suporte</Text>
+
+      {onTestNotification && (
+        <TouchableOpacity style={styles.menuItem} onPress={onTestNotification} activeOpacity={0.7}>
+          <View style={[styles.menuIconWrapper, { backgroundColor: '#EFF6FF' }]}>
+            <Ionicons name="notifications-outline" size={20} color="#2563EB" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.menuText}>Testar Notificação Nativa</Text>
+            <Text style={styles.menuSubText}>Dispara alerta de rotina do pet em 2 segundos</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color="#CBD5E1" />
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity style={styles.menuItem} onPress={onOpenFaq} activeOpacity={0.7}>
         <View style={[styles.menuIconWrapper, { backgroundColor: '#F1F5F9' }]}>

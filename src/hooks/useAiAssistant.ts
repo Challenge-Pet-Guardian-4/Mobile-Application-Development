@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AiService } from '../services/ai';
 import { queryKeys } from '../lib/queryKeys';
-import { AiMessage } from '../types/ai';
+import { AiChatSession, AiMessage } from '../types/ai';
 import { PetResponse } from '../types/pet';
 
 export function useAiWarmup() {
@@ -89,4 +89,39 @@ export function useAiChat(pet?: PetResponse) {
     clearChat,
     isLoading: sendMutation.isPending,
   };
+}
+
+export function useAiSessions(petId?: number, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.ai.sessions(petId),
+    queryFn: () => AiService.getSessoesDoPet(petId),
+    enabled: enabled && !!petId,
+    staleTime: 0, // sempre revalida ao abrir o histórico (novas conversas aparecem na hora)
+  });
+}
+
+export function useCarregarSessaoIa() {
+  return useMutation({
+    mutationFn: (sessionId: string) => AiService.getMensagensDaSessao(sessionId),
+  });
+}
+
+export function useExcluirSessaoIa(petId?: number) {
+  const queryClient = useQueryClient();
+  const sessionsKey = queryKeys.ai.sessions(petId);
+
+  return useMutation({
+    mutationFn: (sessionId: string) => AiService.excluirSessao(sessionId),
+    // Remoção otimista: a conversa some da lista imediatamente
+    onMutate: async (sessionId) => {
+      await queryClient.cancelQueries({ queryKey: sessionsKey });
+      queryClient.setQueryData<AiChatSession[]>(sessionsKey, (atual) =>
+        atual?.filter((sessao) => sessao.sessionId !== sessionId)
+      );
+    },
+    // Reconcilia com o servidor (restaura a lista se a exclusão falhou)
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: sessionsKey });
+    },
+  });
 }

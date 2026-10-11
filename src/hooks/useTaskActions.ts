@@ -6,6 +6,7 @@ import { TarefaResponse, TaskFormData } from '../types/task';
 import { TaskSchema, formatZodError } from '../utils/schemas';
 import { normalizarPrazoParaIso } from '../utils/petUtils';
 import { ActionCallbacks, createMutationCallbacks } from '../utils/apiError';
+import { NotificationService } from '../services/notifications';
 
 export type { ActionCallbacks };
 
@@ -66,7 +67,19 @@ export function useTaskActions() {
       } else {
         completeTaskMutation.mutate(
           taskId,
-          createMutationCallbacks('Erro ao Concluir', 'Não foi possível concluir a tarefa.', options)
+          createMutationCallbacks('Erro ao Concluir', 'Não foi possível concluir a tarefa.', {
+            ...options,
+            onSuccess: () => {
+              NotificationService.notificarConclusaoTarefa({
+                tarefaId: tarefa.id,
+                titulo: tarefa.titulo,
+                nomePet: 'Pet',
+                petId: tarefa.petId,
+                pontos: tarefa.pontosTarefa,
+              });
+              options?.onSuccess?.();
+            },
+          })
         );
       }
     },

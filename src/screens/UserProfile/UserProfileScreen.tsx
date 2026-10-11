@@ -12,6 +12,7 @@ import { EstatisticasPerfil } from './components/EstatisticasPerfil';
 import { RedeFamiliarECuidadores } from './components/RedeFamiliarECuidadores';
 import { RecursosPetGuardian } from './components/RecursosPetGuardian';
 import { ContaESuporte } from './components/ContaESuporte';
+import { NotificationService } from '../../services/notifications';
 
 interface UserProfileScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList>;
@@ -53,10 +54,11 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
         {/* Recursos & Ferramentas do Ecossistema */}
         <RecursosPetGuardian navigation={navigation} />
 
-        {/* Conta, FAQ, Termos, Logout e Exclusão de Conta */}
+        {/* Conta, FAQ, Termos, Notificações, Logout e Exclusão de Conta */}
         <ContaESuporte
           onOpenFaq={() => modals.abrir('faq')}
           onOpenTerms={() => modals.abrir('termos')}
+          onTestNotification={() => NotificationService.dispararNotificacaoDemonstracao()}
           onLogout={actions.logout}
           onDeleteAccount={actions.excluirConta}
         />
