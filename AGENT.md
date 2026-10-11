@@ -8,13 +8,15 @@ Este documento é a referência definitiva para agentes de IA e desenvolvedores 
 
 - **Framework & Runtime:** React Native 0.86.3 com **Expo SDK 57** (`expo@~57.0.20`, Metro Runtime, Expo Status Bar).
 - **Linguagem & Tipagem:** TypeScript ~6.0.3 (**Tipagem Estrita — Zero `any`**, tipagem estrita de rotas, props e payloads).
+- **Notificações Locais Nativas:** **Expo Notifications** (`expo-notifications@~57.0.22`) com agendamento determinístico por tarefa, canais prioritários Android e preferências de antecedência.
+- **Tematização & Acessibilidade:** **ThemeProvider** (`ThemeContext.tsx`, hook `useTheme`) com suporte nativo a **Modo Claro (Light) e Modo Escuro (Dark)**, tokens em `theme.ts`.
 - **Gerenciamento de Estado Assíncrono:** **TanStack Query v5** (`@tanstack/react-query@^5.102.6`) com mutações declarativas (`mutate` com `onSuccess`/`onError`) e invalidação granular de cache.
 - **Padrão de Dados:** **Domain Hooks** (camada intermediária que isola queries, mutations e lógica de negócio, mantendo telas puramente declarativas).
 - **Cliente HTTP Centralizado:** **Axios** (`^1.20.0`) com interceptores para injeção automática de Bearer Token JWT e captura global de status `401 Unauthorized`.
-- **Hardware Seguro & Persistência:** `expo-secure-store` (Keychain iOS / Keystore Android para JWT) + `@react-native-async-storage/async-storage` (cache e preferências).
-- **Navegação Nativa:** React Navigation v7 (`@react-navigation/native`, `native-stack`, `bottom-tabs`).
+- **Hardware Seguro & Persistência:** `expo-secure-store` (Keychain iOS / Keystore Android para JWT) + `@react-native-async-storage/async-storage` (cache e preferências de notificação/tema).
+- **Navegação Nativa:** React Navigation v7 (`@react-navigation/native`, `native-stack`, `bottom-tabs`, `navigationRef.ts` para navegação externa via push).
 - **Validação de Formulários:** **Zod** (`zod@^4.4.3`) + **React Hook Form** (`^7.75.0`).
-- **Design System & Ícones:** `@expo/vector-icons`, tokens em `theme.ts` (Tailwind slate/blue, raios e tipografia).
+- **Design System & Ícones:** `@expo/vector-icons`, tokens em `theme.ts` (Tailwind slate/blue, raios, espaçamentos e paleta Duolingo de trilhas).
 
 ---
 
@@ -22,25 +24,29 @@ Este documento é a referência definitiva para agentes de IA e desenvolvedores 
 
 ```text
 src/
-├── components/          → Componentes visuais atômicos e modulares (PetScoreBar, RoutineCard, StreakCard, Header, Modais)
-├── config/              → Configurações de ambiente (env.ts com Railway e Render)
-├── constants/           → Tokens de design system, tipografia e paleta de cores (theme.ts)
-├── contexts/            → Gestão global de autenticação e sessão segura (AuthContext.tsx)
+├── components/          → Componentes visuais atômicos e modulares (BaseModal, Header, PetScoreBar, RoutineCard, StreakCard, Modais)
+├── config/              → Configurações de ambiente (env.ts com Railway e Render) e metadados de versão/equipe (version.ts)
+├── constants/           → Tokens de design system, light/dark themes, tipografia e paleta de cores (theme.ts)
+├── contexts/            → Gestão global de autenticação (AuthContext.tsx) e alternância de temas (ThemeContext.tsx)
 ├── hooks/               → Custom hooks e Domain hooks (Clean Architecture / SRP / TanStack Query):
 │   ├── useHomeData.ts         → Dashboard do pet ativo, pontuação e rotinas da Home
 │   ├── useFamilyCare.ts       → Gestão colaborativa familiar, pets, tarefas e co-cuidadores
 │   ├── usePetDetail.ts        → Ficha clínica, prontuário, histórico e cuidadores do pet
 │   ├── useTrainings.ts        → Trilhas de adestramento gamificadas com TanStack Query
-│   ├── useUserProfile.ts      → Perfil do tutor, estatísticas, pontuação agregada e exclusão de conta
+│   ├── useUserProfile.ts      → Perfil do tutor, estatísticas, pontuação agregada, upgrade e exclusão de conta
 │   ├── useAiAssistantScreen.ts→ Orquestrador do chat conversacional com IA preventiva e histórico
+│   ├── useNotifications.ts    → Ciclo de vida de notificações nativas e preferências de antecedência
+│   ├── useTheme.ts            → Consumo reativo de tema ativo (isDark, toggleTheme, theme tokens)
+│   ├── useTaskActions.ts      → Ações de tarefas (concluir, desmarcar, excluir) com nomes reais do pet
 │   ├── usePets.ts / useTasks.ts / useHistoricos.ts → Queries e mutações especializadas por domínio
 │   └── useSession.ts / useActivePet.ts → Hooks utilitários de sessão e pet ativo
 ├── lib/                 → queryClient.ts (singleton) e queryKeys.ts (fábrica tipada de chaves)
-├── routes/              → MainStack.tsx (AuthStack vs AppTabs), tabs.tsx e types.ts (rotas tipadas)
+├── routes/              → MainStack.tsx (AuthStack vs AppTabs), tabs.tsx, types.ts e navigationRef.ts
 ├── screens/             → Telas da aplicação (Welcome, Login, Register, Home, FamilyPet, PetDetail, Training, AI, Profile)
-├── services/            → Camada de comunicação HTTP REST (auth, pets, tasks, users, historico, trainings, ai, storage)
+│   ├── UserProfile/components/ → Modais de Perfil (NotificationSettingsModal, UpgradePremiumModal, SobreAppModal, FaqModal, TermsModal)
+├── services/            → Camada de comunicação HTTP REST e serviços locais (auth, pets, tasks, users, historico, trainings, ai, storage, notifications)
 ├── types/               → Contratos TypeScript espelhando a API Java (zero any)
-└── utils/               → Schemas Zod (schemas.ts), normalização de datas (petUtils.ts) e helpers
+└── utils/               → Schemas Zod (schemas.ts), normalização de datas (petUtils.ts), markdownUtils.tsx e trainingUtils.ts
 ```
 
 ---
@@ -138,3 +144,21 @@ src/
 2. **Clean Forms (Sem Mocks em Produção):** Formulários iniciam vazios com validação real Zod.
 3. **Arquitetura com Domain Hooks (SRP / DRY):** Toda lógica de dados, mutações e sanitizações deve residir em um Domain Hook (`useHomeData`, `useFamilyCare`, `usePetDetail`, `useTrainings`, `useUserProfile`). A tela é estritamente declarativa.
 4. **Data de Nascimento nos Pets (`dataNasc`):** O cadastro opera exclusivamente com `dataNasc` (`DD/MM/AAAA` no input, ISO `YYYY-MM-DD` na API). Idade é calculada e formatada dinamicamente via `petUtils.ts`.
+
+---
+
+## 🔔 7. Especificação Técnica da Sprint 4 (Notificações, Tematização & Versão)
+
+1. **Notificações Locais Determinísticas (`NotificationService`):**
+   - Agendamento com identificador único determinístico `task_${tarefaId}` para evitar alarmes duplicados.
+   - Cancelamento automático quando a tarefa é concluída ou estornada.
+   - Suporte a antecedência global configurável pelo usuário (0, 5, 15, 30 ou 60 minutos antes do prazo) via `NotificationSettingsModal`.
+   - Preferências salvas de forma resiliente no `AsyncStorage` (`@petguardian:notification_settings`).
+   - Redirecionamento nativo e seguro ao tocar na notificação utilizando `navigationRef.navigate('Tabs', { screen: 'Home' })`.
+   - Sem métodos ou botões de teste/mock em produção.
+2. **Tema Claro / Modo Escuro (`ThemeContext`):**
+   - Provedor reativo encapsulado em `ThemeProvider`, expondo `theme`, `isDark`, `themeMode` e `toggleTheme()`.
+   - Tokens consolidados em `src/constants/theme.ts` (`lightTheme` e `darkTheme`).
+   - Sincronização automática com a `StatusBar` (`light` no escuro, `dark` no claro).
+3. **Metadados de Versão & Avaliação FIAP (`SobreAppModal` & `version.ts`):**
+   - Centralização de metadados obrigatórios do edital: Nome da aplicação, versão `1.0.0`, número da build `#4`, hash de commit de referência do GitHub Classroom, lista de membros com RMs e canal de distribuição (Firebase App Distribution).
