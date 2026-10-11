@@ -4,15 +4,19 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Header } from '../../components/Header';
 import { FaqModal } from './components/FaqModal';
 import { TermsModal } from './components/TermsModal';
-import { SobreAppModal } from './components/SobreAppModal';
 import { EditProfileModal } from '../../components/EditProfileModal';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import { RootStackParamList } from '../../routes/types';
 import { PerfilUsuarioCard } from './components/PerfilUsuarioCard';
+import { UpgradePremiumCard } from './components/UpgradePremiumCard';
+import { UpgradePremiumModal } from './components/UpgradePremiumModal';
 import { EstatisticasPerfil } from './components/EstatisticasPerfil';
 import { RedeFamiliarECuidadores } from './components/RedeFamiliarECuidadores';
 import { RecursosPetGuardian } from './components/RecursosPetGuardian';
 import { ContaESuporte } from './components/ContaESuporte';
+import { NotificationSettingsModal } from './components/NotificationSettingsModal';
+import { SobreAppModal } from './components/SobreAppModal';
+import { useNotifications } from '../../hooks/useNotifications';
 import { useTheme } from '../../hooks/useTheme';
 
 interface UserProfileScreenProps {
@@ -21,7 +25,12 @@ interface UserProfileScreenProps {
 
 export default function UserProfileScreen({ navigation }: UserProfileScreenProps) {
   const { status, profile, modals, actions } = useUserProfile();
+  const { settings } = useNotifications();
   const { theme } = useTheme();
+
+  const subtituloNotificacoes = settings.ativado
+    ? `Lembretes ativos • ${settings.minutosAntecedencia === 0 ? 'No horário' : `${settings.minutosAntecedencia} min antes`}`
+    : 'Lembretes desativados';
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -42,7 +51,14 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
         <PerfilUsuarioCard
           profile={profile}
           onEdit={() => modals.abrir('editar')}
-          onUpgrade={actions.realizarUpgradePremium}
+          onUpgrade={() => modals.abrir('upgrade')}
+          isUpgrading={actions.isUpgradingPremium}
+        />
+
+        {/* Card Destaque de Upgrade / Status do Plano Premium */}
+        <UpgradePremiumCard
+          role={profile.user?.role}
+          onUpgradePress={() => modals.abrir('upgrade')}
           isUpgrading={actions.isUpgradingPremium}
         />
 
@@ -55,11 +71,13 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
         {/* Recursos & Ferramentas do Ecossistema */}
         <RecursosPetGuardian navigation={navigation} />
 
-        {/* Conta, FAQ, Termos, Sobre o App, Logout e Exclusão de Conta */}
+        {/* Conta, Tema, Sobre o App, FAQ, Termos, Notificações, Logout e Exclusão de Conta */}
         <ContaESuporte
+          onOpenNotifications={() => modals.abrir('notificacoes')}
+          notificationSubtitle={subtituloNotificacoes}
+          onOpenSobreApp={() => modals.abrir('sobre')}
           onOpenFaq={() => modals.abrir('faq')}
           onOpenTerms={() => modals.abrir('termos')}
-          onOpenSobreApp={() => modals.abrir('sobre')}
           onLogout={actions.logout}
           onDeleteAccount={actions.excluirConta}
         />
@@ -67,7 +85,17 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
         <View style={{ height: 110 }} />
       </ScrollView>
 
-      {/* Modais de Suporte e Edição de Perfil */}
+      {/* Modais de Suporte, Edição de Perfil, Preferências de Notificações, Sobre o App e Upgrade Premium */}
+      <NotificationSettingsModal
+        visible={modals.ativo === 'notificacoes'}
+        onClose={modals.fechar}
+      />
+
+      <SobreAppModal
+        visible={modals.ativo === 'sobre'}
+        onClose={modals.fechar}
+      />
+
       <EditProfileModal
         visible={modals.ativo === 'editar'}
         onClose={modals.fechar}
@@ -76,11 +104,16 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
         onSubmit={actions.salvarPerfil}
       />
 
+      <UpgradePremiumModal
+        visible={modals.ativo === 'upgrade'}
+        onClose={modals.fechar}
+        onConfirm={actions.realizarUpgradePremium}
+        isLoading={actions.isUpgradingPremium}
+      />
+
       <FaqModal visible={modals.ativo === 'faq'} onClose={modals.fechar} />
 
       <TermsModal visible={modals.ativo === 'termos'} onClose={modals.fechar} />
-
-      <SobreAppModal visible={modals.ativo === 'sobre'} onClose={modals.fechar} />
     </View>
   );
 }

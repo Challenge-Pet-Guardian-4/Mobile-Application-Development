@@ -22,21 +22,7 @@ export function AiHistoryModal({
   onSelectSession,
   onNewChat,
 }: AiHistoryModalProps) {
-  const {
-    sessoes,
-    isLoading: loading,
-    loadingSessionId,
-    selecionarSessao,
-    removerSessao,
-    iniciarNovaConversa,
-  } = useAiHistory({
-    petId: pet?.id,
-    visible,
-    activeSessionId,
-    onSelectSession,
-    onNewChat,
-    onClose,
-  });
+  const { sessoes, isLoading: loading, loadingSessionId, selecionarSessao, removerSessao, iniciarNovaConversa, } = useAiHistory({ petId: pet?.id, visible, activeSessionId, onSelectSession, onNewChat, onClose, });
 
   return (
     <Modal

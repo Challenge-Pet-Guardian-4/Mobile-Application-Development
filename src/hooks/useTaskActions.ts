@@ -1,7 +1,8 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useSession } from './useSession';
 import { useCompleteTask, useUncompleteTask, useUpdateTask, useDeleteTask } from './useTasks';
+import { usePets } from './usePets';
 import { TarefaResponse, TaskFormData } from '../types/task';
 import { TaskSchema, formatZodError } from '../utils/schemas';
 import { normalizarPrazoParaIso } from '../utils/petUtils';
@@ -15,17 +16,96 @@ export interface AlternarStatusOptions extends ActionCallbacks {
   onEdit?: (tarefa: TarefaResponse) => void;
 }
 
+interface LembreteParams {
+  id: number;
+  titulo: string;
+  petId: number;
+  prazo: string;
+  pontosTarefa?: number;
+}
+
 /**
  * Hook de domínio reutilizável para centralizar o ciclo de vida e mutações de tarefas,
- * encapsulando validações com Zod, checagem de sessão, confirmações nativas e tratamento de erros.
+ * integrando validações com Zod, checagem de sessão, feedback nativo e notificações locais.
  */
 export function useTaskActions() {
   const { user } = useSession();
+  const { data: petsData } = usePets();
+
+  const petMap = useMemo(() => {
+    const list = petsData?.content || [];
+    return new Map(list.map((p) => [p.id, p.nome]));
+  }, [petsData?.content]);
+
+  const obterNomeDoPet = useCallback(
+    (petId: number) => petMap.get(petId) || 'seu pet',
+    [petMap]
+  );
 
   const completeTaskMutation = useCompleteTask();
   const uncompleteTaskMutation = useUncompleteTask();
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
+
+  // Helper DRY para agendar lembrete com nome real do pet
+  const agendarLembrete = useCallback(
+    (t: LembreteParams) => {
+      NotificationService.agendarNotificacaoTarefa({
+        tarefaId: t.id,
+        titulo: t.titulo,
+        nomePet: obterNomeDoPet(t.petId),
+        petId: t.petId,
+        prazoIso: t.prazo,
+        pontos: t.pontosTarefa,
+        status: 'PENDENTE',
+      });
+    },
+    [obterNomeDoPet]
+  );
+
+  // Helper DRY para celebrar conclusão e limpar lembrete pendente
+  const notificarConclusao = useCallback(
+    (t: TarefaResponse) => {
+      NotificationService.cancelarNotificacaoTarefa(t.id);
+      NotificationService.notificarConclusaoTarefa({
+        tarefaId: t.id,
+        titulo: t.titulo,
+        nomePet: obterNomeDoPet(t.petId),
+        petId: t.petId,
+        pontos: t.pontosTarefa,
+      });
+    },
+    [obterNomeDoPet]
+  );
+
+  // Helper para exibir opções ou alerta de tarefa expirada
+  const tratarTarefaExpirada = useCallback(
+    (tarefa: TarefaResponse, options?: AlternarStatusOptions) => {
+      if (options?.onExpired) {
+        options.onExpired(tarefa);
+        return;
+      }
+
+      if (options?.onEdit) {
+        Alert.alert(
+          'Tarefa Expirada',
+          'Esta tarefa expirou e não pode ser concluída diretamente. Deseja definir um novo horário futuro para reativá-la?',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            { text: 'Editar Tarefa', onPress: () => options.onEdit!(tarefa) },
+          ]
+        );
+        return;
+      }
+
+      Alert.alert(
+        'Tarefa Expirada',
+        'Esta tarefa já expirou e não pode ser concluída diretamente. Para reativá-la como pendente, clique no lápis de edição e defina uma nova data e horário futuro.',
+        [{ text: 'Entendi' }]
+      );
+    },
+    []
+  );
 
   const alternarStatus = useCallback(
     (taskId: number, tarefas: TarefaResponse[], options?: AlternarStatusOptions) => {
@@ -40,50 +120,30 @@ export function useTaskActions() {
       if (tarefa.status === 'CONCLUIDO') {
         uncompleteTaskMutation.mutate(
           taskId,
-          createMutationCallbacks('Erro ao Desmarcar', 'Não foi possível desmarcar a tarefa.', options)
+          createMutationCallbacks('Erro ao Desmarcar', 'Não foi possível desmarcar a tarefa.', {
+            ...options,
+            onSuccess: () => {
+              agendarLembrete(tarefa);
+              options?.onSuccess?.();
+            },
+          })
         );
       } else if (tarefa.status === 'EXPIRADO') {
-        if (options?.onExpired) {
-          options.onExpired(tarefa);
-        } else if (options?.onEdit) {
-          Alert.alert(
-            'Tarefa Expirada',
-            'Esta tarefa expirou e não pode ser concluída diretamente. Deseja definir um novo horário futuro para reativá-la?',
-            [
-              { text: 'Cancelar', style: 'cancel' },
-              {
-                text: 'Editar Tarefa',
-                onPress: () => options.onEdit!(tarefa),
-              },
-            ]
-          );
-        } else {
-          Alert.alert(
-            'Tarefa Expirada',
-            'Esta tarefa já expirou e não pode ser concluída diretamente. Para reativá-la como pendente, clique no lápis de edição e defina uma nova data e horário futuro.',
-            [{ text: 'Entendi' }]
-          );
-        }
+        tratarTarefaExpirada(tarefa, options);
       } else {
         completeTaskMutation.mutate(
           taskId,
           createMutationCallbacks('Erro ao Concluir', 'Não foi possível concluir a tarefa.', {
             ...options,
             onSuccess: () => {
-              NotificationService.notificarConclusaoTarefa({
-                tarefaId: tarefa.id,
-                titulo: tarefa.titulo,
-                nomePet: 'Pet',
-                petId: tarefa.petId,
-                pontos: tarefa.pontosTarefa,
-              });
+              notificarConclusao(tarefa);
               options?.onSuccess?.();
             },
           })
         );
       }
     },
-    [user, completeTaskMutation, uncompleteTaskMutation]
+    [user, completeTaskMutation, uncompleteTaskMutation, agendarLembrete, notificarConclusao, tratarTarefaExpirada]
   );
 
   const excluirComConfirmacao = useCallback(
@@ -96,7 +156,13 @@ export function useTaskActions() {
           onPress: () => {
             deleteTaskMutation.mutate(
               taskId,
-              createMutationCallbacks('Erro ao Excluir', 'Não foi possível excluir a tarefa.', callbacks)
+              createMutationCallbacks('Erro ao Excluir', 'Não foi possível excluir a tarefa.', {
+                ...callbacks,
+                onSuccess: () => {
+                  NotificationService.cancelarNotificacaoTarefa(taskId);
+                  callbacks?.onSuccess?.();
+                },
+              })
             );
           },
         },
@@ -138,12 +204,27 @@ export function useTaskActions() {
             conclusao: conclusaoIso,
           },
         },
-        createMutationCallbacks('Erro ao Atualizar', 'Não foi possível atualizar a tarefa.', callbacks)
+        createMutationCallbacks('Erro ao Atualizar', 'Não foi possível atualizar a tarefa.', {
+          ...callbacks,
+          onSuccess: () => {
+            if (statusFinal === 'PENDENTE') {
+              agendarLembrete({
+                id: taskId,
+                titulo: data.titulo.trim(),
+                petId: data.petId,
+                prazo: prazoIso,
+                pontosTarefa: Number(data.pontos),
+              });
+            } else {
+              NotificationService.cancelarNotificacaoTarefa(taskId);
+            }
+            callbacks?.onSuccess?.();
+          },
+        })
       );
     },
-    [user, updateTaskMutation]
+    [user, updateTaskMutation, agendarLembrete]
   );
-
 
   return {
     alternarStatus,

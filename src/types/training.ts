@@ -9,6 +9,7 @@ export interface TrainingLesson {
   duracaoMin: number;
   concluido: boolean;
   passos: string[];
+  conteudo?: string;
 }
 
 export interface TrainingTrack {

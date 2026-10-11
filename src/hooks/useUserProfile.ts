@@ -6,7 +6,7 @@ import { EditProfileFormData } from '../types/user';
 import { ProfileEditSchema, formatZodError } from '../utils/schemas';
 import { ActionCallbacks, createMutationCallbacks } from '../utils/apiError';
 
-export type UserProfileModal = 'editar' | 'faq' | 'termos' | 'sobre' | null;
+export type UserProfileModal = 'editar' | 'faq' | 'termos' | 'upgrade' | 'notificacoes' | 'sobre' | null;
 
 export function useUserProfile() {
   const { user, logout } = useSession();
@@ -18,7 +18,7 @@ export function useUserProfile() {
 
   const [modalAtivo, setModalAtivo] = useState<UserProfileModal>(null);
 
-  const abrirModal = useCallback((tipo: 'editar' | 'faq' | 'termos' | 'sobre') => {
+  const abrirModal = useCallback((tipo: 'editar' | 'faq' | 'termos' | 'upgrade' | 'notificacoes' | 'sobre') => {
     setModalAtivo(tipo);
   }, []);
 
@@ -85,23 +85,19 @@ export function useUserProfile() {
 
   const realizarUpgradePremium = useCallback(() => {
     if (!user) return;
-    Alert.alert(
-      'Tornar-se Premium ⭐',
-      'Deseja ativar o plano PetGuardian Premium para ter acesso ilimitado a trilhas, aulas de adestramento e assistente IA?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
+    upgradePremiumMutation.mutate(
+      undefined,
+      createMutationCallbacks(
+        'Parabéns! ⭐',
+        'Seu perfil foi atualizado para Premium com sucesso! As trilhas educativas e o assistente de IA foram desbloqueados.',
         {
-          text: 'Ativar Premium',
-          onPress: () => {
-            upgradePremiumMutation.mutate(
-              undefined,
-              createMutationCallbacks('Sucesso!', 'Seu perfil foi atualizado para Premium com sucesso!')
-            );
+          onSuccess: () => {
+            fecharModal();
           },
-        },
-      ]
+        }
+      )
     );
-  }, [user, upgradePremiumMutation]);
+  }, [user, upgradePremiumMutation, fecharModal]);
 
   const logoutComConfirmacao = useCallback(() => {
     Alert.alert('Sair da Conta', 'Deseja realmente encerrar sua sessão no PetGuardian?', [

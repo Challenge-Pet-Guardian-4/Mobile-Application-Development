@@ -4,7 +4,6 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../routes/types';
 import { shadows } from '../../../utils/shadow';
-
 import { useTheme } from '../../../hooks/useTheme';
 
 interface RecursosPetGuardianProps {

@@ -4,6 +4,7 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { TrainingLesson } from '../../../types/training';
 import { useConteudoAula } from '../../../hooks/useTrainingQueries';
 import { BaseModal } from '../../../components/BaseModal';
+import { renderMarkdownContent } from '../../../utils/markdownUtils';
 
 interface LessonDetailModalProps {
   visible: boolean;
@@ -31,6 +32,9 @@ export function LessonDetailModal({
     Linking.openURL(formattedUrl).catch(() => {});
   };
 
+  const textoConteudo = conteudoNoSql?.corpoMarkdown || licao.conteudo;
+  const tipoFormato = conteudoNoSql?.tipoConteudo || 'PASSO_A_PASSO';
+
   return (
     <BaseModal
       visible={visible}
@@ -45,65 +49,69 @@ export function LessonDetailModal({
           <Text style={styles.duoBadgeXPText}>+{licao.pontos} PONTOS XP</Text>
         </View>
 
-        {conteudoNoSql && (
+        {textoConteudo && (
           <View style={styles.badgeMongo}>
             <MaterialCommunityIcons name="leaf" size={14} color="#16A34A" />
             <Text style={styles.badgeMongoText}>
-              {conteudoNoSql.tipoConteudo.replace('_', ' ')}
+              {tipoFormato.replace('_', ' ')}
             </Text>
           </View>
         )}
       </View>
 
       {/* Seção Conteúdo Rico NoSQL (MongoDB) */}
-      {isLoadingConteudo ? (
+      {isLoadingConteudo && !textoConteudo ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={corTrilha} />
           <Text style={styles.loadingText}>Carregando conteúdo pedagógico...</Text>
         </View>
-      ) : (
-        conteudoNoSql && (
-          <View style={styles.conteudoNoSqlContainer}>
-            <View style={styles.conteudoNoSqlHeader}>
-              <MaterialCommunityIcons name="book-open-page-variant" size={18} color="#0F766E" />
-              <Text style={styles.conteudoNoSqlTitle}>Conteúdo Pedagógico Aprofundado</Text>
-            </View>
-            <Text style={styles.corpoMarkdownText}>{conteudoNoSql.corpoMarkdown}</Text>
+      ) : textoConteudo ? (
+        <View style={styles.conteudoNoSqlContainer}>
+          <View style={styles.conteudoNoSqlHeader}>
+            <MaterialCommunityIcons name="book-open-page-variant" size={18} color="#0F766E" />
+            <Text style={styles.conteudoNoSqlTitle}>Conteúdo Pedagógico Aprofundado</Text>
+          </View>
 
-            {conteudoNoSql.linksRecursos && conteudoNoSql.linksRecursos.length > 0 && (
-              <View style={styles.linksContainer}>
-                <Text style={styles.linksHeader}>Links & Recursos Recomendados:</Text>
-                {conteudoNoSql.linksRecursos.map((link, idx) => (
-                  <TouchableOpacity
-                    key={idx}
-                    style={styles.linkButton}
-                    onPress={() => handleOpenLink(link)}
-                    activeOpacity={0.7}
-                  >
-                    <Ionicons name="link-outline" size={16} color="#2563EB" />
-                    <Text style={styles.linkButtonText} numberOfLines={1}>
-                      {link}
-                    </Text>
-                    <Ionicons name="open-outline" size={14} color="#94A3B8" />
-                  </TouchableOpacity>
-                ))}
+          <View style={styles.markdownWrapper}>
+            {renderMarkdownContent(textoConteudo, corTrilha)}
+          </View>
+
+          {conteudoNoSql?.linksRecursos && conteudoNoSql.linksRecursos.length > 0 && (
+            <View style={styles.linksContainer}>
+              <Text style={styles.linksHeader}>Links & Recursos Recomendados:</Text>
+              {conteudoNoSql.linksRecursos.map((link, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  style={styles.linkButton}
+                  onPress={() => handleOpenLink(link)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="link-outline" size={16} color="#2563EB" />
+                  <Text style={styles.linkButtonText} numberOfLines={1}>
+                    {link}
+                  </Text>
+                  <Ionicons name="open-outline" size={14} color="#94A3B8" />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+      ) : (
+        /* Fallback de passos apenas se não houver conteúdo rico carregado */
+        licao.passos && licao.passos.length > 0 && (
+          <View style={styles.passosContainer}>
+            <Text style={styles.passosHeader}>Passo a Passo Prático com o Pet:</Text>
+            {licao.passos.map((passo, idx) => (
+              <View key={idx} style={styles.passoCard}>
+                <View style={[styles.passoCircle, { backgroundColor: corTrilha }]}>
+                  <Text style={styles.passoNumber}>{idx + 1}</Text>
+                </View>
+                <Text style={styles.passoText}>{passo}</Text>
               </View>
-            )}
+            ))}
           </View>
         )
       )}
-
-      {/* Passo a Passo Prático */}
-      <Text style={styles.passosHeader}>Passo a Passo Prático com o Pet:</Text>
-
-      {licao.passos.map((passo, idx) => (
-        <View key={idx} style={styles.passoCard}>
-          <View style={[styles.passoCircle, { backgroundColor: corTrilha }]}>
-            <Text style={styles.passoNumber}>{idx + 1}</Text>
-          </View>
-          <Text style={styles.passoText}>{passo}</Text>
-        </View>
-      ))}
 
       <TouchableOpacity
         style={[
@@ -209,11 +217,8 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#0F766E',
   },
-  corpoMarkdownText: {
-    fontSize: 13,
-    lineHeight: 20,
-    color: '#334155',
-    fontWeight: '400',
+  markdownWrapper: {
+    gap: 6,
   },
   linksContainer: {
     marginTop: 12,
@@ -244,6 +249,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#2563EB',
     fontWeight: '600',
+  },
+  passosContainer: {
+    marginBottom: 10,
   },
   passosHeader: {
     fontSize: 14,
@@ -287,6 +295,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 20,
     marginTop: 18,
+    marginBottom: 16,
     borderBottomWidth: 4,
     borderBottomColor: 'rgba(0,0,0,0.2)',
   },
@@ -296,3 +305,4 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
 });
+

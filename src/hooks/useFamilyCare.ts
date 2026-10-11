@@ -116,14 +116,15 @@ export function useFamilyCare() {
           ...callbacks,
           onSuccess: () => {
             const petAssociado = todosOsPets.find((p) => p.id === data.petId);
-            NotificationService.agendarLembreteTarefa({
+            const prazoIso = normalizarPrazoParaIso(data.prazo);
+            NotificationService.agendarNotificacaoTarefa({
               tarefaId: Date.now(),
               titulo: data.titulo.trim(),
-              nomePet: petAssociado?.nome || 'Pet',
+              nomePet: petAssociado?.nome || 'seu pet',
               petId: data.petId,
-              prazoIso: normalizarPrazoParaIso(data.prazo),
+              prazoIso,
               pontos: Number(data.pontos),
-              segundosAtraso: 4, // Dispara em 4 segundos para feedback imediato e demonstração no vídeo
+              status: data.status || 'PENDENTE',
             });
             callbacks?.onSuccess?.();
           },

@@ -63,9 +63,15 @@ export function PerfilUsuarioCard({ profile, onEdit, onUpgrade, isUpgrading = fa
         )}
       </View>
 
-      <TouchableOpacity style={[styles.btnEditProfile, { backgroundColor: isDark ? '#1E3A8A' : '#EFF6FF' }]} onPress={onEdit} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={[styles.btnEditProfile, { backgroundColor: isDark ? '#1E3A8A' : '#EFF6FF' }]}
+        onPress={onEdit}
+        activeOpacity={0.8}
+      >
         <Ionicons name="pencil" size={14} color="#3B82F6" />
-        <Text style={[styles.btnEditProfileText, { color: isDark ? '#93C5FD' : '#2563EB' }]}>Editar Dados Cadastrais</Text>
+        <Text style={[styles.btnEditProfileText, { color: isDark ? '#93C5FD' : '#2563EB' }]}>
+          Editar Dados Cadastrais
+        </Text>
       </TouchableOpacity>
     </View>
   );

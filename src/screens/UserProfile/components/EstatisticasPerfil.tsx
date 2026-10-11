@@ -3,7 +3,6 @@ import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { shadows } from '../../../utils/shadow';
 import { useUserProfile } from '../../../hooks/useUserProfile';
-
 import { useTheme } from '../../../hooks/useTheme';
 
 interface StatCardProps {

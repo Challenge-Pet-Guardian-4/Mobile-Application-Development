@@ -45,8 +45,9 @@ export function mapearAulaParaLicao(
     icone: 'paw',
     duracaoMin: extrairMinutosDuracao(tempoConclusao),
     concluido: Boolean(aula.concluida),
+    conteudo: aula.conteudo,
     passos: aula.conteudo
-      ? aula.conteudo.split('\n').filter(Boolean)
+      ? aula.conteudo.split('\n').filter((l) => l.trim().length > 0)
       : ['Siga as orientações práticas desta aula.'],
   };
 }

@@ -1,56 +1,94 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
- * PetGuardian - Serviço de Notificações Locais e Push
- * Suporta execução nativa (Android / iOS) e fallback transparente para Web.
- * Atende aos requisitos avaliativos da Sprint 4:
- * 1. Cenário realista de notificação (rotina de cuidados do pet e lembretes de saúde)
- * 2. Disparo e recepção funcionais em foreground e background
- * 3. Integração com o fluxo do app (redireciona para a tela do pet/tarefa ao tocar)
+ * PetGuardian - Serviço de Notificações Locais e Gerenciamento de Lembretes de Tarefas
  */
 
 const CHANNEL_ID = 'petguardian-lembretes';
-const isWeb = Platform.OS === 'web';
+const SETTINGS_STORAGE_KEY = '@petguardian:notification_settings';
 
-// Configura o comportamento global de exibição quando a notificação chega em primeiro plano (apenas nativo)
-if (!isWeb) {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldShowBanner: true,
-      shouldShowList: true,
-      shouldPlaySound: true,
-      shouldSetBadge: true,
-      priority: Notifications.AndroidNotificationPriority.HIGH,
-    }),
-  });
+// Configura o comportamento global de exibição quando a notificação chega em primeiro plano
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    priority: Notifications.AndroidNotificationPriority.HIGH,
+  }),
+});
+
+export type AntecedenciaMinutos = 0 | 5 | 15 | 30 | 60;
+
+export interface NotificationSettings {
+  ativado: boolean;
+  minutosAntecedencia: AntecedenciaMinutos;
 }
 
+export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
+  ativado: true,
+  minutosAntecedencia: 15,
+};
+
+export const OPCOES_ANTECEDENCIA: { valor: AntecedenciaMinutos; rotulo: string; descricao: string }[] = [
+  { valor: 0, rotulo: 'No horário', descricao: 'Exatamente no horário de vencimento' },
+  { valor: 5, rotulo: '5 min antes', descricao: 'Aviso rápido antes de vencer' },
+  { valor: 15, rotulo: '15 min antes', descricao: 'Recomendado para alimentação e cuidados' },
+  { valor: 30, rotulo: '30 min antes', descricao: 'Ideal para passeios e medicações' },
+  { valor: 60, rotulo: '1 hora antes', descricao: 'Aviso com ampla antecedência' },
+];
+
 export interface NotificationPayloadData {
-  tipo: 'ROTINA_LEMBRETE' | 'TAREFA_CONCLUIDA' | 'PET_SCORE_UP' | 'DEMO_TESTE';
+  tipo: 'ROTINA_LEMBRETE' | 'TAREFA_CONCLUIDA' | 'PET_SCORE_UP';
   tarefaId?: number;
   petId?: number;
   rota?: string;
 }
 
+function getTaskNotificationIdentifier(tarefaId: number): string {
+  return `task_${tarefaId}`;
+}
+
 export const NotificationService = {
+  /**
+   * Obtém as configurações globais de notificação do usuário.
+   */
+  async getSettings(): Promise<NotificationSettings> {
+    try {
+      const raw = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
+      if (!raw) return DEFAULT_NOTIFICATION_SETTINGS;
+      const parsed = JSON.parse(raw) as Partial<NotificationSettings>;
+      return {
+        ativado: typeof parsed.ativado === 'boolean' ? parsed.ativado : DEFAULT_NOTIFICATION_SETTINGS.ativado,
+        minutosAntecedencia:
+          typeof parsed.minutosAntecedencia === 'number'
+            ? (parsed.minutosAntecedencia as AntecedenciaMinutos)
+            : DEFAULT_NOTIFICATION_SETTINGS.minutosAntecedencia,
+      };
+    } catch {
+      return DEFAULT_NOTIFICATION_SETTINGS;
+    }
+  },
+
+  /**
+   * Salva as configurações globais de notificação.
+   */
+  async saveSettings(settings: NotificationSettings): Promise<void> {
+    try {
+      await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    } catch (error) {
+      console.warn('Erro ao salvar preferências de notificação:', error);
+    }
+  },
+
   /**
    * Solicita permissão do usuário e configura o canal de alta prioridade no Android.
    */
   async inicializarPermissoes(): Promise<boolean> {
     try {
-      if (isWeb) {
-        if (typeof window !== 'undefined' && 'Notification' in window) {
-          if (Notification.permission === 'default') {
-            const status = await Notification.requestPermission();
-            return status === 'granted';
-          }
-          return Notification.permission === 'granted';
-        }
-        return true;
-      }
-
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
 
@@ -84,45 +122,59 @@ export const NotificationService = {
   },
 
   /**
-   * Agenda ou dispara lembrete para uma tarefa/rotina do animal.
+   * Agenda notificação para uma tarefa pendente baseada em sua data de prazo e na antecedência global configurada.
+   * Não agenda se a tarefa já estiver concluída, expirada ou se o alarme já tiver passado.
    */
-  async agendarLembreteTarefa(params: {
+  async agendarNotificacaoTarefa(params: {
     tarefaId: number;
     titulo: string;
     nomePet: string;
     petId: number;
     prazoIso?: string;
     pontos?: number;
-    segundosAtraso?: number;
+    status?: string;
   }): Promise<string | null> {
     try {
-      const { tarefaId, titulo, nomePet, petId, prazoIso, pontos = 10, segundosAtraso } = params;
+      const { tarefaId, titulo, nomePet, petId, prazoIso, pontos = 10, status } = params;
 
-      let triggerSeconds = segundosAtraso ?? 3;
-
-      if (prazoIso && !segundosAtraso) {
-        const prazoDate = new Date(prazoIso);
-        const agora = new Date();
-        const diferencaSegundos = Math.floor((prazoDate.getTime() - agora.getTime()) / 1000);
-        if (diferencaSegundos > 0) {
-          triggerSeconds = diferencaSegundos;
-        }
+      // Se não for pendente, cancela qualquer agendamento existente
+      if (status && status !== 'PENDENTE') {
+        await this.cancelarNotificacaoTarefa(tarefaId);
+        return null;
       }
 
-      if (isWeb) {
-        setTimeout(() => {
-          this.dispararNotificacaoNavegador(
-            `🐾 Hora do Cuidado: ${titulo}`,
-            `Lembrete para o(a) ${nomePet}! Conclua esta rotina para garantir +${pontos} XP de bem-estar.`
-          );
-        }, triggerSeconds * 1000);
-        return 'web-schedule-id';
+      const settings = await this.getSettings();
+      if (!settings.ativado || !prazoIso) {
+        return null;
       }
 
-      const id = await Notifications.scheduleNotificationAsync({
+      const prazoDate = new Date(prazoIso);
+      if (Number.isNaN(prazoDate.getTime())) {
+        return null;
+      }
+
+      // Calcula o momento exato do disparo considerando a antecedência configurada
+      const triggerTimestamp = prazoDate.getTime() - settings.minutosAntecedencia * 60 * 1000;
+      const agora = Date.now();
+
+      // Se o momento de disparo já passou, não agenda notificação retroativa
+      if (triggerTimestamp <= agora) {
+        return null;
+      }
+
+      const triggerSeconds = Math.max(1, Math.floor((triggerTimestamp - agora) / 1000));
+      const identifier = getTaskNotificationIdentifier(tarefaId);
+
+      const corpoMensagem =
+        settings.minutosAntecedencia > 0
+          ? `Lembrete para ${nomePet}! Esta rotina vence em ${settings.minutosAntecedencia} minutos (+${pontos} XP).`
+          : `Lembrete para ${nomePet}! Hora de realizar esta rotina agora (+${pontos} XP).`;
+
+      await Notifications.scheduleNotificationAsync({
+        identifier,
         content: {
-          title: `🐾 Hora do Cuidado: ${titulo}`,
-          body: `Lembrete para o(a) ${nomePet}! Conclua esta rotina para garantir +${pontos} XP de bem-estar.`,
+          title: `🐾 Lembrete: ${titulo}`,
+          body: corpoMensagem,
           sound: true,
           data: {
             tipo: 'ROTINA_LEMBRETE',
@@ -131,22 +183,71 @@ export const NotificationService = {
             rota: 'Home',
           } satisfies NotificationPayloadData,
         },
-        trigger:
-          triggerSeconds > 0
-            ? {
-                type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                seconds: triggerSeconds,
-                channelId: CHANNEL_ID,
-              }
-            : {
-                channelId: CHANNEL_ID,
-              },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: triggerSeconds,
+        },
       });
 
-      return id;
+      return identifier;
     } catch (error) {
       console.warn('Erro ao agendar notificação de tarefa:', error);
       return null;
+    }
+  },
+
+  /**
+   * Cancela a notificação agendada de uma tarefa (ex: quando concluída ou excluída).
+   */
+  async cancelarNotificacaoTarefa(tarefaId: number): Promise<void> {
+    try {
+      const identifier = getTaskNotificationIdentifier(tarefaId);
+      await Notifications.cancelScheduledNotificationAsync(identifier);
+    } catch (error) {
+      console.warn('Erro ao cancelar notificação da tarefa:', error);
+    }
+  },
+
+  /**
+   * Sincroniza em lote as notificações das tarefas do usuário:
+   * - Cancela as tarefas concluídas/expiradas
+   * - Agenda as tarefas pendentes futuras
+   */
+  async sincronizarTarefas(
+    tarefas: { id: number; titulo: string; prazo: string; status: string; petId: number; pontosTarefa?: number }[],
+    pets: { id: number; nome: string }[]
+  ): Promise<void> {
+    try {
+      const settings = await this.getSettings();
+
+      if (!settings.ativado) {
+        // Se as notificações foram desativadas globalmente, limpa agendamentos de tarefas
+        await Promise.all(tarefas.map((t) => this.cancelarNotificacaoTarefa(t.id)));
+        return;
+      }
+
+      const petMap = new Map<number, string>(pets.map((p) => [p.id, p.nome]));
+
+      await Promise.all(
+        tarefas.map(async (tarefa) => {
+          if (tarefa.status !== 'PENDENTE') {
+            await this.cancelarNotificacaoTarefa(tarefa.id);
+          } else {
+            const nomePet = petMap.get(tarefa.petId) || 'seu pet';
+            await this.agendarNotificacaoTarefa({
+              tarefaId: tarefa.id,
+              titulo: tarefa.titulo,
+              nomePet,
+              petId: tarefa.petId,
+              prazoIso: tarefa.prazo,
+              pontos: tarefa.pontosTarefa,
+              status: tarefa.status,
+            });
+          }
+        })
+      );
+    } catch (error) {
+      console.warn('Erro ao sincronizar notificações de tarefas:', error);
     }
   },
 
@@ -163,14 +264,6 @@ export const NotificationService = {
     try {
       const { tarefaId, titulo, nomePet, petId, pontos } = params;
 
-      if (isWeb) {
-        this.dispararNotificacaoNavegador(
-          `🎉 Rotina Cumprida: ${titulo}!`,
-          `Parabéns! Você cuidou de ${nomePet} e somou +${pontos} XP ao score de bem-estar da família!`
-        );
-        return 'web-success-id';
-      }
-
       const id = await Notifications.scheduleNotificationAsync({
         content: {
           title: `🎉 Rotina Cumprida: ${titulo}!`,
@@ -183,9 +276,7 @@ export const NotificationService = {
             rota: 'Home',
           } satisfies NotificationPayloadData,
         },
-        trigger: {
-          channelId: CHANNEL_ID,
-        },
+        trigger: null, // Disparo imediato em tempo real
       });
 
       return id;
@@ -196,66 +287,9 @@ export const NotificationService = {
   },
 
   /**
-   * Dispara uma notificação de demonstração realista para apresentação em vídeo e validação pelo professor.
-   */
-  async dispararNotificacaoDemonstracao(nomePet: string = 'Thor'): Promise<string | null> {
-    try {
-      if (isWeb) {
-        setTimeout(() => {
-          this.dispararNotificacaoNavegador(
-            `🐾 PetGuardian: Atenção aos Cuidados de ${nomePet}`,
-            `Hora da refeição e hidratação! Toque aqui para acessar a rotina diária e registrar os cuidados.`
-          );
-        }, 1000);
-        return 'web-demo-id';
-      }
-
-      const id = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: `🐾 PetGuardian: Atenção aos Cuidados de ${nomePet}`,
-          body: `Hora da refeição e hidratação! Toque aqui para acessar a rotina diária e registrar os cuidados.`,
-          sound: true,
-          data: {
-            tipo: 'DEMO_TESTE',
-            rota: 'Home',
-          } satisfies NotificationPayloadData,
-        },
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-          seconds: 2,
-          channelId: CHANNEL_ID,
-        },
-      });
-
-      return id;
-    } catch (error) {
-      console.warn('Erro ao disparar notificação de demonstração:', error);
-      return null;
-    }
-  },
-
-  /**
-   * Helper para exibir notificação no navegador Web.
-   */
-  dispararNotificacaoNavegador(titulo: string, corpo: string) {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      if (Notification.permission === 'granted') {
-        new Notification(titulo, {
-          body: corpo,
-          icon: 'https://cdn-icons-png.flaticon.com/512/616/616408.png',
-        });
-        return;
-      }
-    }
-    // Fallback amigável caso notificações do navegador estejam desativadas
-    alert(`${titulo}\n\n${corpo}`);
-  },
-
-  /**
    * Cancela uma notificação agendada específica.
    */
   async cancelarNotificacao(notificacaoId: string): Promise<void> {
-    if (isWeb) return;
     try {
       await Notifications.cancelScheduledNotificationAsync(notificacaoId);
     } catch (error) {
@@ -267,7 +301,6 @@ export const NotificationService = {
    * Cancela todas as notificações pendentes.
    */
   async cancelarTodas(): Promise<void> {
-    if (isWeb) return;
     try {
       await Notifications.cancelAllScheduledNotificationsAsync();
     } catch (error) {

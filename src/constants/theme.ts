@@ -1,6 +1,6 @@
 /**
  * PetGuardian Design System - Theme Tokens
- * Centraliza a paleta de cores harmoniosa, espaçamentos, raios de borda e suporte a Modo Claro / Escuro.
+ * Centraliza a paleta de cores harmoniosa, espaçamentos, raios de borda e medidas modais.
  */
 
 export const colors = {

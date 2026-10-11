@@ -6,17 +6,21 @@ import { APP_VERSION_INFO } from '../../../config/version';
 import { useTheme } from '../../../hooks/useTheme';
 
 interface ContaESuporteProps {
+  onOpenNotifications: () => void;
+  notificationSubtitle?: string;
+  onOpenSobreApp: () => void;
   onOpenFaq: () => void;
   onOpenTerms: () => void;
-  onOpenSobreApp: () => void;
   onLogout: () => void;
   onDeleteAccount: () => void;
 }
 
 export function ContaESuporte({
+  onOpenNotifications,
+  notificationSubtitle,
+  onOpenSobreApp,
   onOpenFaq,
   onOpenTerms,
-  onOpenSobreApp,
   onLogout,
   onDeleteAccount,
 }: ContaESuporteProps) {
@@ -26,8 +30,12 @@ export function ContaESuporte({
     <View style={[styles.menuBox, { backgroundColor: theme.card, borderColor: theme.border }]}>
       <Text style={[styles.menuSectionTitle, { color: theme.text }]}>Conta & Suporte</Text>
 
-      {/* Alternador de Tema Claro / Escuro (Penalidade VI do Edital) */}
-      <TouchableOpacity style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]} onPress={toggleTheme} activeOpacity={0.7}>
+      {/* Alternador de Tema Claro / Escuro */}
+      <TouchableOpacity
+        style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]}
+        onPress={toggleTheme}
+        activeOpacity={0.7}
+      >
         <View style={[styles.menuIconWrapper, { backgroundColor: isDark ? '#312E81' : '#FEF3C7' }]}>
           <Ionicons
             name={isDark ? 'moon' : 'sunny'}
@@ -48,19 +56,48 @@ export function ContaESuporte({
         </View>
       </TouchableOpacity>
 
-      {/* Sobre o App - Requisito Avaliativo da Sprint 4 (Publicação & Commit Hash) */}
-      <TouchableOpacity style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]} onPress={onOpenSobreApp} activeOpacity={0.7}>
+      {/* Lembretes e Notificações Customizáveis */}
+      <TouchableOpacity
+        style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]}
+        onPress={onOpenNotifications}
+        activeOpacity={0.7}
+      >
         <View style={[styles.menuIconWrapper, { backgroundColor: isDark ? '#1E3A8A' : '#EFF6FF' }]}>
-          <Ionicons name="information-circle-outline" size={20} color="#2563EB" />
+          <Ionicons name="notifications-outline" size={20} color="#2563EB" />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.menuText, { color: theme.text }]}>Sobre o PetGuardian</Text>
-          <Text style={[styles.menuSubText, { color: theme.textSecondary }]}>Versão 1.0.0 • Commit #{APP_VERSION_INFO.shortCommitHash}</Text>
+          <Text style={[styles.menuText, { color: theme.text }]}>Lembretes & Notificações</Text>
+          <Text style={[styles.menuSubText, { color: theme.textSecondary }]}>
+            {notificationSubtitle || 'Configure avisos prévios de tarefas'}
+          </Text>
         </View>
         <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]} onPress={onOpenFaq} activeOpacity={0.7}>
+      {/* Sobre o PetGuardian - Versão e Equipe FIAP */}
+      <TouchableOpacity
+        style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]}
+        onPress={onOpenSobreApp}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.menuIconWrapper, { backgroundColor: isDark ? '#1E293B' : '#F1F5F9' }]}>
+          <Ionicons name="information-circle-outline" size={20} color="#3B82F6" />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.menuText, { color: theme.text }]}>Sobre o PetGuardian</Text>
+          <Text style={[styles.menuSubText, { color: theme.textSecondary }]}>
+            v{APP_VERSION_INFO.version} • Commit #{APP_VERSION_INFO.shortCommitHash}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
+      </TouchableOpacity>
+
+      {/* FAQ */}
+      <TouchableOpacity
+        style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]}
+        onPress={onOpenFaq}
+        activeOpacity={0.7}
+      >
         <View style={[styles.menuIconWrapper, { backgroundColor: isDark ? '#1E293B' : '#F1F5F9' }]}>
           <Ionicons name="help-circle-outline" size={20} color={isDark ? '#94A3B8' : '#475569'} />
         </View>
@@ -71,7 +108,12 @@ export function ContaESuporte({
         <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]} onPress={onOpenTerms} activeOpacity={0.7}>
+      {/* Termos de Uso */}
+      <TouchableOpacity
+        style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]}
+        onPress={onOpenTerms}
+        activeOpacity={0.7}
+      >
         <View style={[styles.menuIconWrapper, { backgroundColor: isDark ? '#1E293B' : '#F1F5F9' }]}>
           <Ionicons name="document-text-outline" size={20} color={isDark ? '#94A3B8' : '#475569'} />
         </View>
@@ -82,7 +124,12 @@ export function ContaESuporte({
         <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]} onPress={onLogout} activeOpacity={0.7}>
+      {/* Logout */}
+      <TouchableOpacity
+        style={[styles.menuItem, { borderBottomColor: theme.borderSubtle }]}
+        onPress={onLogout}
+        activeOpacity={0.7}
+      >
         <View style={[styles.menuIconWrapper, { backgroundColor: isDark ? '#450A0A' : '#FEF2F2' }]}>
           <Ionicons name="log-out-outline" size={20} color="#EF4444" />
         </View>
@@ -92,6 +139,7 @@ export function ContaESuporte({
         </View>
       </TouchableOpacity>
 
+      {/* Exclusão de Conta */}
       <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={onDeleteAccount} activeOpacity={0.7}>
         <View style={[styles.menuIconWrapper, { backgroundColor: isDark ? '#4C0519' : '#FFF1F2' }]}>
           <Ionicons name="trash-outline" size={20} color="#BE123C" />
@@ -142,3 +190,4 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
+
