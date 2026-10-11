@@ -6,7 +6,7 @@ import { EditProfileFormData } from '../types/user';
 import { ProfileEditSchema, formatZodError } from '../utils/schemas';
 import { ActionCallbacks, createMutationCallbacks } from '../utils/apiError';
 
-export type UserProfileModal = 'editar' | 'faq' | 'termos' | null;
+export type UserProfileModal = 'editar' | 'faq' | 'termos' | 'sobre' | null;
 
 export function useUserProfile() {
   const { user, logout } = useSession();
@@ -18,7 +18,7 @@ export function useUserProfile() {
 
   const [modalAtivo, setModalAtivo] = useState<UserProfileModal>(null);
 
-  const abrirModal = useCallback((tipo: 'editar' | 'faq' | 'termos') => {
+  const abrirModal = useCallback((tipo: 'editar' | 'faq' | 'termos' | 'sobre') => {
     setModalAtivo(tipo);
   }, []);
 

@@ -4,6 +4,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { useSession } from '../../hooks/useSession';
 import { shadows } from '../../utils/shadow';
 import { colors, spacing } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 
 export type HeaderProps = {
   title?: string;
@@ -13,6 +14,7 @@ export type HeaderProps = {
 
 export function Header({ title, subtitle, onRightPress }: HeaderProps) {
   const { user } = useSession();
+  const { theme } = useTheme();
   const userName = user?.nome ? user.nome.split(' ')[0] : 'Tutor';
 
   return (
@@ -24,8 +26,8 @@ export function Header({ title, subtitle, onRightPress }: HeaderProps) {
           </View>
           <Text style={styles.brandText}>PetGuardian</Text>
         </View>
-        <Text style={styles.pageTitle}>{title || `Olá, ${userName}`}</Text>
-        {subtitle ? <Text style={styles.pageSubtitle}>{subtitle}</Text> : null}
+        <Text style={[styles.pageTitle, { color: theme.text }]}>{title || `Olá, ${userName}`}</Text>
+        {subtitle ? <Text style={[styles.pageSubtitle, { color: theme.textSecondary }]}>{subtitle}</Text> : null}
       </View>
 
       <TouchableOpacity

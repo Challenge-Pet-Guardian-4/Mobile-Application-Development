@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from 'react';
+import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { NotificationService, NotificationPayloadData } from '../services/notifications';
 import { navigationRef } from '../routes/navigationRef';
@@ -11,6 +12,8 @@ export function useNotifications() {
   useEffect(() => {
     // 1. Inicializa permissões e canais nativos do Android
     NotificationService.inicializarPermissoes();
+
+    if (Platform.OS === 'web') return;
 
     // 2. Escuta quando o usuário toca/interage com a notificação
     const responseSubscription = Notifications.addNotificationResponseReceivedListener((response) => {

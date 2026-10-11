@@ -6,17 +6,19 @@ import { NavigationContainer } from '@react-navigation/native';
 
 import { queryClient } from './src/lib/queryClient';
 import { AuthProvider } from './src/contexts/AuthContext';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import MainStack from './src/routes/MainStack';
 import { navigationRef } from './src/routes/navigationRef';
 import { useNotifications } from './src/hooks/useNotifications';
 
 function AppContent() {
   useNotifications();
+  const { isDark } = useTheme();
 
   return (
     <NavigationContainer ref={navigationRef}>
       <MainStack />
-      <StatusBar style="auto" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
     </NavigationContainer>
   );
 }
@@ -26,7 +28,9 @@ export default function App() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <AppContent />
+          <ThemeProvider>
+            <AppContent />
+          </ThemeProvider>
         </AuthProvider>
       </QueryClientProvider>
     </SafeAreaProvider>

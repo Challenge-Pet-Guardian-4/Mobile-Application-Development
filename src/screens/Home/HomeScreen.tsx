@@ -7,6 +7,7 @@ import { colors, spacing } from '../../constants/theme';
 import { Header } from '../../components/Header';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { useHomeData } from '../../hooks/useHomeData';
+import { useTheme } from '../../hooks/useTheme';
 import { HomePetSelector } from './components/HomePetSelector';
 import { HomeScoreBar } from './components/HomeScoreBar';
 import { HomeRoutineSection } from './components/HomeRoutineSection';
@@ -21,6 +22,7 @@ interface HomeScreenProps {
 
 export default function Home({ navigation }: HomeScreenProps) {
   const { status, pets, routine, taskModal, navigation: nav } = useHomeData(navigation);
+  const { theme, isDark } = useTheme();
 
   if (status.isLoading && (pets?.list?.length ?? 0) === 0) {
     return <LoadingSpinner message="Carregando dados do PetGuardian..." />;
@@ -30,7 +32,7 @@ export default function Home({ navigation }: HomeScreenProps) {
     return (
       <>
         <HomeErrorState status={status} />
-        <StatusBar style="dark" />
+        <StatusBar style={isDark ? 'light' : 'dark'} />
       </>
     );
   }
@@ -39,13 +41,13 @@ export default function Home({ navigation }: HomeScreenProps) {
     return (
       <>
         <HomeEmptyState status={status} onNavigateToFamily={nav.toFamily} />
-        <StatusBar style="dark" />
+        <StatusBar style={isDark ? 'light' : 'dark'} />
       </>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -53,7 +55,7 @@ export default function Home({ navigation }: HomeScreenProps) {
           <RefreshControl
             refreshing={status.isFetching && !status.isLoading}
             onRefresh={status.refetch}
-            tintColor={colors.success.default}
+            tintColor={theme.primary}
           />
         }
       >
@@ -80,7 +82,7 @@ export default function Home({ navigation }: HomeScreenProps) {
       {/* Modal de Edição Rápida de Tarefa */}
       <HomeTaskModal taskModal={taskModal} pets={pets} />
 
-      <StatusBar style="dark" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
     </View>
   );
 }

@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../routes/types';
 import { useUserProfile } from '../../../hooks/useUserProfile';
+import { useTheme } from '../../../hooks/useTheme';
 import { shadows } from '../../../utils/shadow';
 
 interface RedeFamiliarECuidadoresProps {
@@ -12,23 +13,25 @@ interface RedeFamiliarECuidadoresProps {
 }
 
 export function RedeFamiliarECuidadores({ navigation, profile }: RedeFamiliarECuidadoresProps) {
+  const { theme, isDark } = useTheme();
+
   return (
-    <View style={styles.menuBox}>
+    <View style={[styles.menuBox, { backgroundColor: theme.card, borderColor: theme.border }]}>
       <View style={styles.sectionHeaderRow}>
-        <Text style={styles.menuSectionTitle}>Rede de Cuidado Familiar</Text>
+        <Text style={[styles.menuSectionTitle, { color: theme.text }]}>Rede de Cuidado Familiar</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Family')}>
           <Text style={styles.linkHeader}>Ver todos</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.familySummary}>
+      <View style={[styles.familySummary, { backgroundColor: isDark ? '#1E293B' : '#F8FAFC' }]}>
         <View style={styles.familyItem}>
           <MaterialCommunityIcons name="paw" size={18} color="#2563EB" />
-          <Text style={styles.familyItemText}>{profile?.familySummary?.petsTexto ?? '0 animais cadastrados'}</Text>
+          <Text style={[styles.familyItemText, { color: theme.textSecondary }]}>{profile?.familySummary?.petsTexto ?? '0 animais cadastrados'}</Text>
         </View>
         <View style={styles.familyItem}>
           <MaterialCommunityIcons name="account-multiple-outline" size={18} color="#059669" />
-          <Text style={styles.familyItemText}>{profile?.familySummary?.cuidadoresTexto ?? '1 cuidador ativo'}</Text>
+          <Text style={[styles.familyItemText, { color: theme.textSecondary }]}>{profile?.familySummary?.cuidadoresTexto ?? '1 cuidador ativo'}</Text>
         </View>
       </View>
     </View>

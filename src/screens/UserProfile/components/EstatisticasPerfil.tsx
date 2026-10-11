@@ -4,6 +4,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { shadows } from '../../../utils/shadow';
 import { useUserProfile } from '../../../hooks/useUserProfile';
 
+import { useTheme } from '../../../hooks/useTheme';
+
 interface StatCardProps {
   iconName: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
   iconColor: string;
@@ -13,13 +15,15 @@ interface StatCardProps {
 }
 
 function StatCard({ iconName, iconColor, iconBgColor, value, label }: StatCardProps) {
+  const { theme } = useTheme();
+
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
       <View style={[styles.iconBox, { backgroundColor: iconBgColor }]}>
         <MaterialCommunityIcons name={iconName} size={18} color={iconColor} />
       </View>
-      <Text style={styles.value}>{value}</Text>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.value, { color: theme.text }]}>{value}</Text>
+      <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text>
     </View>
   );
 }

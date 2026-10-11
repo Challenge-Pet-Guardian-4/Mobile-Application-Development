@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, KeyboardAvoidingView, 
 import { Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../utils/shadow';
 import { colors, layout, borderRadius } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 
 export type ModalSize = 'sm' | 'md' | 'lg';
 
@@ -27,6 +28,7 @@ export function BaseModal({
   size = 'md',
   maxHeight,
 }: BaseModalProps) {
+  const { theme, isDark } = useTheme();
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
@@ -87,19 +89,19 @@ export function BaseModal({
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.keyboardAvoid}
         >
-          <View style={[styles.card, { maxWidth: computedMaxWidth }]}>
+          <View style={[styles.card, { maxWidth: computedMaxWidth, backgroundColor: theme.card, borderColor: theme.border, borderWidth: isDark ? 1 : 0 }]}>
             <View style={styles.header}>
               <View style={styles.titleWrapper}>
-                <Text style={styles.title}>{title}</Text>
-                {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+                <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
+                {subtitle ? <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{subtitle}</Text> : null}
               </View>
               {showCloseButton ? (
                 <TouchableOpacity
-                  style={styles.closeBtn}
+                  style={[styles.closeBtn, { backgroundColor: isDark ? '#1E293B' : '#F1F5F9' }]}
                   onPress={onClose}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Ionicons name="close" size={20} color={colors.neutral[500]} />
+                  <Ionicons name="close" size={20} color={isDark ? '#94A3B8' : colors.neutral[500]} />
                 </TouchableOpacity>
               ) : null}
             </View>

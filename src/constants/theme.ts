@@ -1,6 +1,6 @@
 /**
  * PetGuardian Design System - Theme Tokens
- * Centraliza a paleta de cores harmoniosa, espaçamentos, raios de borda e medidas modais.
+ * Centraliza a paleta de cores harmoniosa, espaçamentos, raios de borda e suporte a Modo Claro / Escuro.
  */
 
 export const colors = {
@@ -123,11 +123,66 @@ export const layout = {
   headerHeight: 60,
 } as const;
 
-export const theme = {
+/**
+ * Paleta de Modo Claro (Light Mode)
+ */
+export const lightTheme = {
+  isDark: false,
+  background: '#F8FAFC',
+  card: '#FFFFFF',
+  cardSubtle: '#F1F5F9',
+  border: '#E2E8F0',
+  borderSubtle: '#F1F5F9',
+  text: '#0F172A',
+  textSecondary: '#64748B',
+  textMuted: '#94A3B8',
+  primary: colors.primary[600],
+  statusBar: 'dark' as const,
   colors,
   spacing,
   borderRadius,
   layout,
-} as const;
+};
+
+/**
+ * Paleta de Modo Escuro (Dark Mode)
+ */
+export const darkTheme = {
+  isDark: true,
+  background: '#090D16',
+  card: '#131D31',
+  cardSubtle: '#1E293B',
+  border: '#334155',
+  borderSubtle: '#1E293B',
+  text: '#F8FAFC',
+  textSecondary: '#94A3B8',
+  textMuted: '#64748B',
+  primary: colors.primary[500],
+  statusBar: 'light' as const,
+  colors,
+  spacing,
+  borderRadius,
+  layout,
+};
+
+export type AppTheme = {
+  isDark: boolean;
+  background: string;
+  card: string;
+  cardSubtle: string;
+  border: string;
+  borderSubtle: string;
+  text: string;
+  textSecondary: string;
+  textMuted: string;
+  primary: string;
+  statusBar: 'light' | 'dark';
+  colors: typeof colors;
+  spacing: typeof spacing;
+  borderRadius: typeof borderRadius;
+  layout: typeof layout;
+};
+
+export const theme = lightTheme;
 
 export default theme;

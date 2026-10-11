@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { RoleBadge } from '../../../components/RoleBadge';
 import { shadows } from '../../../utils/shadow';
 import { useUserProfile } from '../../../hooks/useUserProfile';
+import { useTheme } from '../../../hooks/useTheme';
 
 interface PerfilUsuarioCardProps {
   profile: ReturnType<typeof useUserProfile>['profile'];
@@ -14,14 +15,15 @@ interface PerfilUsuarioCardProps {
 
 export function PerfilUsuarioCard({ profile, onEdit, onUpgrade, isUpgrading = false }: PerfilUsuarioCardProps) {
   const { user, initials, enderecoPrincipal } = profile;
+  const { theme, isDark } = useTheme();
 
   return (
-    <View style={styles.profileCard}>
-      <View style={styles.avatarContainer}>
+    <View style={[styles.profileCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <View style={[styles.avatarContainer, { borderColor: isDark ? '#064E3B' : '#ECFDF5' }]}>
         <Text style={styles.avatarInitials}>{initials}</Text>
       </View>
-      <Text style={styles.userName}>{user?.nome}</Text>
-      {user?.email ? <Text style={styles.userEmail}>{user.email}</Text> : null}
+      <Text style={[styles.userName, { color: theme.text }]}>{user?.nome}</Text>
+      {user?.email ? <Text style={[styles.userEmail, { color: theme.textSecondary }]}>{user.email}</Text> : null}
 
       <View style={styles.roleBadgeBox}>
         <RoleBadge role={user?.role} />
@@ -43,27 +45,27 @@ export function PerfilUsuarioCard({ profile, onEdit, onUpgrade, isUpgrading = fa
 
       <View style={styles.infoPillsRow}>
         {user?.ddd && user?.numeroTelefone ? (
-          <View style={styles.infoPill}>
-            <Ionicons name="call-outline" size={12} color="#64748B" />
-            <Text style={styles.infoPillText}>
+          <View style={[styles.infoPill, { backgroundColor: isDark ? '#1E293B' : '#F1F5F9' }]}>
+            <Ionicons name="call-outline" size={12} color={isDark ? '#94A3B8' : '#64748B'} />
+            <Text style={[styles.infoPillText, { color: isDark ? '#CBD5E1' : '#475569' }]}>
               ({user.ddd}) {user.numeroTelefone}
             </Text>
           </View>
         ) : null}
 
         {enderecoPrincipal && (
-          <View style={styles.infoPill}>
-            <Ionicons name="location-outline" size={12} color="#64748B" />
-            <Text style={styles.infoPillText}>
+          <View style={[styles.infoPill, { backgroundColor: isDark ? '#1E293B' : '#F1F5F9' }]}>
+            <Ionicons name="location-outline" size={12} color={isDark ? '#94A3B8' : '#64748B'} />
+            <Text style={[styles.infoPillText, { color: isDark ? '#CBD5E1' : '#475569' }]}>
               {enderecoPrincipal.bairro ? `${enderecoPrincipal.bairro} • ` : ''}CEP {enderecoPrincipal.cep}
             </Text>
           </View>
         )}
       </View>
 
-      <TouchableOpacity style={styles.btnEditProfile} onPress={onEdit} activeOpacity={0.8}>
-        <Ionicons name="pencil" size={14} color="#2563EB" />
-        <Text style={styles.btnEditProfileText}>Editar Dados Cadastrais</Text>
+      <TouchableOpacity style={[styles.btnEditProfile, { backgroundColor: isDark ? '#1E3A8A' : '#EFF6FF' }]} onPress={onEdit} activeOpacity={0.8}>
+        <Ionicons name="pencil" size={14} color="#3B82F6" />
+        <Text style={[styles.btnEditProfileText, { color: isDark ? '#93C5FD' : '#2563EB' }]}>Editar Dados Cadastrais</Text>
       </TouchableOpacity>
     </View>
   );

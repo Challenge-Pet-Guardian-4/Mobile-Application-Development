@@ -5,28 +5,32 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../routes/types';
 import { shadows } from '../../../utils/shadow';
 
+import { useTheme } from '../../../hooks/useTheme';
+
 interface RecursosPetGuardianProps {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 }
 
 export function RecursosPetGuardian({ navigation }: RecursosPetGuardianProps) {
+  const { theme, isDark } = useTheme();
+
   return (
-    <View style={styles.menuBox}>
-      <Text style={styles.menuSectionTitle}>Recursos PetGuardian</Text>
+    <View style={[styles.menuBox, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <Text style={[styles.menuSectionTitle, { color: theme.text }]}>Recursos PetGuardian</Text>
 
       <TouchableOpacity
         style={[styles.menuItem, { borderBottomWidth: 0 }]}
         onPress={() => navigation.navigate('IA')}
         activeOpacity={0.7}
       >
-        <View style={[styles.menuIconWrapper, { backgroundColor: '#EFF6FF' }]}>
+        <View style={[styles.menuIconWrapper, { backgroundColor: isDark ? '#1E3A8A' : '#EFF6FF' }]}>
           <MaterialCommunityIcons name="robot-outline" size={20} color="#2563EB" />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.menuText}>Assistente de IA Preventiva</Text>
-          <Text style={styles.menuSubText}>Orientações sobre saúde e rotina do pet</Text>
+          <Text style={[styles.menuText, { color: theme.text }]}>Assistente de IA Preventiva</Text>
+          <Text style={[styles.menuSubText, { color: theme.textSecondary }]}>Orientações sobre saúde e rotina do pet</Text>
         </View>
-        <Ionicons name="chevron-forward" size={16} color="#CBD5E1" />
+        <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />
       </TouchableOpacity>
     </View>
   );

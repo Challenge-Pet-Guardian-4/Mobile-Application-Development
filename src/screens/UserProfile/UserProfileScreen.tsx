@@ -4,6 +4,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Header } from '../../components/Header';
 import { FaqModal } from './components/FaqModal';
 import { TermsModal } from './components/TermsModal';
+import { SobreAppModal } from './components/SobreAppModal';
 import { EditProfileModal } from '../../components/EditProfileModal';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import { RootStackParamList } from '../../routes/types';
@@ -12,7 +13,7 @@ import { EstatisticasPerfil } from './components/EstatisticasPerfil';
 import { RedeFamiliarECuidadores } from './components/RedeFamiliarECuidadores';
 import { RecursosPetGuardian } from './components/RecursosPetGuardian';
 import { ContaESuporte } from './components/ContaESuporte';
-import { NotificationService } from '../../services/notifications';
+import { useTheme } from '../../hooks/useTheme';
 
 interface UserProfileScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList>;
@@ -20,9 +21,10 @@ interface UserProfileScreenProps {
 
 export default function UserProfileScreen({ navigation }: UserProfileScreenProps) {
   const { status, profile, modals, actions } = useUserProfile();
+  const { theme } = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -30,7 +32,7 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
           <RefreshControl
             refreshing={status.isFetching && !status.isLoading}
             onRefresh={actions.refetch}
-            tintColor="#2563EB"
+            tintColor={theme.primary}
           />
         }
       >
@@ -44,7 +46,6 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
           isUpgrading={actions.isUpgradingPremium}
         />
 
-
         {/* Estatísticas Gamificadas */}
         <EstatisticasPerfil profile={profile} />
 
@@ -54,11 +55,11 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
         {/* Recursos & Ferramentas do Ecossistema */}
         <RecursosPetGuardian navigation={navigation} />
 
-        {/* Conta, FAQ, Termos, Notificações, Logout e Exclusão de Conta */}
+        {/* Conta, FAQ, Termos, Sobre o App, Logout e Exclusão de Conta */}
         <ContaESuporte
           onOpenFaq={() => modals.abrir('faq')}
           onOpenTerms={() => modals.abrir('termos')}
-          onTestNotification={() => NotificationService.dispararNotificacaoDemonstracao()}
+          onOpenSobreApp={() => modals.abrir('sobre')}
           onLogout={actions.logout}
           onDeleteAccount={actions.excluirConta}
         />
@@ -78,6 +79,8 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
       <FaqModal visible={modals.ativo === 'faq'} onClose={modals.fechar} />
 
       <TermsModal visible={modals.ativo === 'termos'} onClose={modals.fechar} />
+
+      <SobreAppModal visible={modals.ativo === 'sobre'} onClose={modals.fechar} />
     </View>
   );
 }
