@@ -19,7 +19,7 @@ http.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     try {
       const token = await StorageService.getToken();
-      if (token && config.headers) {
+      if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
@@ -53,9 +53,7 @@ http.interceptors.response.use(
       } catch {
         // ignore
       }
-      if (onUnauthorizedCallback) {
-        onUnauthorizedCallback();
-      }
+      onUnauthorizedCallback?.();
     }
 
     return Promise.reject(normalizeHttpError(error));

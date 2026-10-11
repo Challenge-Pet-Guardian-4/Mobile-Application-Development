@@ -1,4 +1,5 @@
 import { http } from './http';
+import { StorageService } from './storage';
 import { RedeCuidadoResponse, UsuarioRequest, UsuarioResponse } from '../types/user';
 
 export const UserService = {
@@ -11,6 +12,10 @@ export const UserService = {
   // Atualiza perfil do usuário autenticado via JWT (/usuarios/me)
   async updateMe(usuarioRequest: UsuarioRequest): Promise<UsuarioResponse> {
     const response = await http.put<UsuarioResponse>('/usuarios/me', usuarioRequest);
+    const novoToken = response.headers['x-novo-token'];
+    if (typeof novoToken === 'string') {
+      await StorageService.saveAuth(novoToken, response.data);
+    }
     return response.data;
   },
 

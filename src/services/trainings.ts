@@ -14,7 +14,6 @@ export const TrainingService = {
   async getTrilhas(): Promise<TrainingTrack[]> {
     const response = await http.get<TrilhaCompletaResponse[]>('/trilhas/me');
     const trilhas = response.data || [];
-    if (!trilhas.length) return [];
 
     return trilhas.map((trilha, index) => {
       const licoes = (trilha.modulos || []).flatMap((modulo) =>
@@ -52,11 +51,7 @@ export const TrainingService = {
    * Conclui a lição e retorna a quantidade de pontos obtidos.
    */
   async concluirLicao(licaoId: string): Promise<{ pontosGanhos: number }> {
-    const numId = Number(licaoId);
-    if (Number.isNaN(numId) || numId <= 0) {
-      throw new Error(`ID de lição inválido: ${licaoId}`);
-    }
-    const data = await this.concluirAula(numId);
+    const data = await this.concluirAula(Number(licaoId));
     return { pontosGanhos: data.pontosAula };
   },
 
@@ -64,10 +59,6 @@ export const TrainingService = {
    * Desmarca a conclusão da lição.
    */
   async desmarcarLicao(licaoId: string): Promise<void> {
-    const numId = Number(licaoId);
-    if (Number.isNaN(numId) || numId <= 0) {
-      throw new Error(`ID de lição inválido: ${licaoId}`);
-    }
-    await this.desmarcarAula(numId);
+    await this.desmarcarAula(Number(licaoId));
   },
 };
