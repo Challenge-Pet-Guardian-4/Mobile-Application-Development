@@ -1,7 +1,9 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { AntecedenciaMinutos, NotificationSettings, NotificationPayloadData, OpcaoAntecedencia } from '../types/notification';
+import type { AntecedenciaMinutos, NotificationSettings, NotificationPayloadData, OpcaoAntecedencia, PermissaoNativaStatus, PermissaoNativaResponse, AgendarNotificacaoTarefaParams, NotificarConclusaoTarefaParams } from '../types/notification';
+import type { TarefaResponse } from '../types/task';
+import type { PetOption, PetResponse } from '../types/pet';
 
 /**
  * PetGuardian - Serviço de Notificações Locais e Gerenciamento de Lembretes de Tarefas
@@ -38,19 +40,13 @@ function getTaskNotificationIdentifier(tarefaId: number): string {
   return `task_${tarefaId}`;
 }
 
-interface PermissaoStatus {
-  granted?: boolean;
-  status?: string;
-  canAskAgain?: boolean;
-}
-
 export const NotificationService = {
   /**
    * Verifica se a permissão nativa no nível de SO está concedida.
    */
-  async verificarPermissaoNativa(): Promise<{ concedida: boolean; canAskAgain: boolean }> {
+  async verificarPermissaoNativa(): Promise<PermissaoNativaStatus> {
     try {
-      const response = (await Notifications.getPermissionsAsync()) as unknown as PermissaoStatus;
+      const response = (await Notifications.getPermissionsAsync()) as PermissaoNativaResponse;
       const concedida = Boolean(response.granted || response.status === 'granted');
       return {
         concedida,
@@ -65,12 +61,12 @@ export const NotificationService = {
   /**
    * Solicita permissão de notificação diretamente ao sistema operacional.
    */
-  async solicitarPermissaoNativa(): Promise<{ concedida: boolean; canAskAgain: boolean }> {
+  async solicitarPermissaoNativa(): Promise<PermissaoNativaStatus> {
     try {
       if (Platform.OS === 'android') {
         await this.configurarCanalAndroid();
       }
-      const response = (await Notifications.requestPermissionsAsync()) as unknown as PermissaoStatus;
+      const response = (await Notifications.requestPermissionsAsync()) as PermissaoNativaResponse;
       const concedida = Boolean(response.granted || response.status === 'granted');
       return {
         concedida,
@@ -150,15 +146,10 @@ export const NotificationService = {
    * Agenda notificação para uma tarefa pendente baseada em sua data de prazo e na antecedência global configurada.
    * Não agenda se a tarefa já estiver concluída, expirada ou se o alarme já tiver passado.
    */
-  async agendarNotificacaoTarefa(params: {
-    tarefaId: number;
-    titulo: string;
-    nomePet: string;
-    petId: number;
-    prazoIso?: string;
-    pontos?: number;
-    status?: string;
-  }): Promise<string | null> {
+  async agendarNotificacaoTarefa(
+    params: AgendarNotificacaoTarefaParams,
+    settingsOverride?: NotificationSettings
+  ): Promise<string | null> {
     try {
       const { tarefaId, titulo, nomePet, petId, prazoIso, pontos = 10, status } = params;
 
@@ -168,7 +159,7 @@ export const NotificationService = {
         return null;
       }
 
-      const settings = await this.getSettings();
+      const settings = settingsOverride || (await this.getSettings());
       if (!settings.ativado || !prazoIso) {
         return null;
       }
@@ -276,8 +267,8 @@ export const NotificationService = {
    * - Agenda os novos alarmes com a antecedência configurada
    */
   async sincronizarTarefas(
-    tarefas: { id: number; titulo: string; prazo: string; status: string; petId: number; pontosTarefa?: number }[],
-    pets: { id: number; nome: string }[]
+    tarefas: TarefaResponse[],
+    pets: (PetOption | PetResponse)[]
   ): Promise<void> {
     try {
       const settings = await this.getSettings();
@@ -314,20 +305,23 @@ export const NotificationService = {
         orfas.map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier))
       );
 
-      // 5. Agenda as tarefas válidas
+      // 5. Agenda as tarefas válidas passando as settings em memória
       const petMap = new Map<number, string>(pets.map((p) => [p.id, p.nome]));
       await Promise.all(
         tarefasParaAgendar.map((tarefa) => {
           const nomePet = petMap.get(tarefa.petId) || 'seu pet';
-          return this.agendarNotificacaoTarefa({
-            tarefaId: tarefa.id,
-            titulo: tarefa.titulo,
-            nomePet,
-            petId: tarefa.petId,
-            prazoIso: tarefa.prazo,
-            pontos: tarefa.pontosTarefa,
-            status: tarefa.status,
-          });
+          return this.agendarNotificacaoTarefa(
+            {
+              tarefaId: tarefa.id,
+              titulo: tarefa.titulo,
+              nomePet,
+              petId: tarefa.petId,
+              prazoIso: tarefa.prazo,
+              pontos: tarefa.pontosTarefa,
+              status: tarefa.status,
+            },
+            settings
+          );
         })
       );
     } catch (error) {
@@ -338,13 +332,7 @@ export const NotificationService = {
   /**
    * Dispara notificação imediata celebrando a conclusão da tarefa e o ganho de XP do pet.
    */
-  async notificarConclusaoTarefa(params: {
-    tarefaId: number;
-    titulo: string;
-    nomePet: string;
-    petId: number;
-    pontos: number;
-  }): Promise<string | null> {
+  async notificarConclusaoTarefa(params: NotificarConclusaoTarefaParams): Promise<string | null> {
     try {
       const { tarefaId, titulo, nomePet, petId, pontos } = params;
 

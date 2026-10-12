@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { TasksRoutineSection, HeaderActionButton } from '../../../components/TasksRoutineSection';
+import { TasksRoutineSection } from '../../../components/TasksRoutineSection';
 import { useFamilyCare } from '../../../hooks/useFamilyCare';
+import { HeaderActionButton } from '../../../types';
 
 interface FamilyRoutineSectionProps {
   family: ReturnType<typeof useFamilyCare>['family'];

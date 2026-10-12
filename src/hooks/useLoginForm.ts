@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
-import { useLoginMutation, getAuthErrorMessage } from './useAuthMutations';
+import { useLoginMutation } from './useAuthMutations';
 import { LoginSchema, formatZodError, LoginFormData } from '../utils/schemas';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../routes/types';
+import { getAuthErrorMessage } from '../utils/apiError';
 
 const INITIAL_LOGIN_FORM: LoginFormData = {
   email: '',

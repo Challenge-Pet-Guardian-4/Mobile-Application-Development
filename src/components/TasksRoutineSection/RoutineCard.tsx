@@ -4,7 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../utils/shadow';
 import { TarefaResponse } from '../../types/task';
 import { formatarPrazoAmigavel } from '../../utils/petUtils';
-import { colors, spacing, borderRadius } from '../../constants/theme';
+import { colors, spacing, borderRadius, AppTheme } from '../../constants/theme';
+import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
 
 export interface RoutineCardProps {
   tarefa: TarefaResponse;
@@ -13,9 +14,6 @@ export interface RoutineCardProps {
   onDelete?: (id: number) => void;
   petNome?: string;
 }
-
-import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
-import { AppTheme } from '../../constants/theme';
 
 export const RoutineCard = memo(function RoutineCard({
   tarefa,

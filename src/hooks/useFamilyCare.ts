@@ -7,9 +7,9 @@ import { useTaskActions } from './useTaskActions';
 import { useRedeCuidado } from './useUsers';
 import { useFamilyModals } from './useFamilyModals';
 import { normalizarDataNascParaIso } from '../utils/petUtils';
-import { PetResponse, PetFormData } from '../types/pet';
+import { PetResponse, PetFormData, PetOption } from '../types/pet';
 import { TarefaResponse } from '../types/task';
-import { RedeCuidadoResponse, InviteCaregiverData } from '../types/user';
+import { RedeCuidadoResponse, InviteCaregiverData, PetResumo } from '../types/user';
 import { ActionCallbacks } from '../types/api';
 import { PetSchema, InviteCaregiverSchema, formatZodError } from '../utils/schemas';
 import { createMutationCallbacks } from '../utils/apiError';
@@ -54,15 +54,12 @@ export function useFamilyCare() {
   );
 
   // Mapeamento de titularidade e lista completa de pets da família
-  const todosOsPets = useMemo(
-    () => (redeCuidado?.pets || []).map((p) => ({ id: p.id, nome: p.nome } as PetResponse)),
+  const todosOsPets: PetOption[] = useMemo(
+    () => (redeCuidado?.pets || []).map((p) => ({ id: p.id, nome: p.nome })),
     [redeCuidado?.pets]
   );
-  const petsOndeSouPrincipal = useMemo(
-    () =>
-      (redeCuidado?.pets || [])
-        .filter((p) => p.responsavelPrincipal)
-        .map((p) => ({ id: p.id, nome: p.nome } as PetResponse)),
+  const petsOndeSouPrincipal: PetResumo[] = useMemo(
+    () => (redeCuidado?.pets || []).filter((p) => p.responsavelPrincipal),
     [redeCuidado?.pets]
   );
 

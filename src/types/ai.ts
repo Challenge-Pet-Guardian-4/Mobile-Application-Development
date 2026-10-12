@@ -57,3 +57,12 @@ export interface AiChatSession {
   totalMensagens: number;
   lastActivity?: string;
 }
+
+export interface MensagemBancoRaw {
+  id: number;
+  session_id: string;
+  pet_id?: number;
+  sender: string;
+  text: string;
+  timestamp?: string;
+}

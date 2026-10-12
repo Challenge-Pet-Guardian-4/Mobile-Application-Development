@@ -13,7 +13,7 @@ import MainStack from './src/routes/MainStack';
 import { navigationRef } from './src/routes/navigationRef';
 
 function AppContent() {
-  useNotificationSync();
+  const { onNavigationReady } = useNotificationSync();
   const { theme, isDark } = useTheme();
 
   const navigationTheme = {
@@ -29,7 +29,7 @@ function AppContent() {
   };
 
   return (
-    <NavigationContainer ref={navigationRef} theme={navigationTheme}>
+    <NavigationContainer ref={navigationRef} theme={navigationTheme} onReady={onNavigationReady}>
       <MainStack />
       <StatusBar style={isDark ? 'light' : 'dark'} />
     </NavigationContainer>

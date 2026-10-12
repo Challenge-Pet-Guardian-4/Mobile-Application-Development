@@ -85,3 +85,47 @@ export interface HomeScoreBarProps {
   onPress: () => void;
 }
 
+export interface LembreteParams {
+  id: number;
+  titulo: string;
+  petId: number;
+  prazo: string;
+  pontosTarefa?: number;
+}
+
+export interface HeaderActionButton {
+  label: string;
+  icon?: 'add' | 'chevron-forward';
+  variant?: 'primary' | 'link';
+  onPress: () => void;
+}
+
+export interface TasksRoutineData {
+  title?: string;
+  subtitle?: string;
+  filter: 'HOJE' | 'TODAS';
+  onFilterChange: (filter: 'HOJE' | 'TODAS') => void;
+  countHoje: number;
+  countTodas: number;
+  tasks: TarefaResponse[];
+  onToggleTask?: (taskId: number) => void;
+  onEditTask?: (task: TarefaResponse) => void;
+  onDeleteTask?: (taskId: number) => void;
+}
+
+export interface TasksRoutineSectionProps extends Partial<TasksRoutineData> {
+  routineData?: TasksRoutineData;
+  pets?: PetResponse[];
+  headerButton?: HeaderActionButton;
+  emptyTitle?: string;
+  emptyDesc?: string;
+  pageSize?: number;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalElements?: number;
+    onPageChange: (newPage: number) => void;
+    isLoading?: boolean;
+  };
+}
+

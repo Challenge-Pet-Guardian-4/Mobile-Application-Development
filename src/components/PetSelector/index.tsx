@@ -3,11 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-nativ
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
 import { AppTheme } from '../../constants/theme';
+import { PetOption } from '../../types/pet';
 
-export interface PetOption {
-  id: number;
-  nome: string;
-}
 
 export interface PetSelectorProps {
   label?: string;

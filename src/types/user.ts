@@ -96,3 +96,5 @@ export interface EditProfileFormData {
   numero: string;
   senha: string;
 }
+
+export type UserProfileModal = 'editar' | 'faq' | 'termos' | 'upgrade' | 'notificacoes' | 'sobre' | null;

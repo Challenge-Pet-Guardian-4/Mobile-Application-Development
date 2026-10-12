@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { AppTheme } from '../../../constants/theme';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
@@ -13,10 +14,15 @@ interface AiHeaderProps {
 
 export function AiHeader({ onGoBack, onClearChat, onOpenHistory, hasMessages }: AiHeaderProps) {
   const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useThemedStyles(createStyles);
 
+  const topPadding = Platform.OS === 'ios'
+    ? Math.max(insets.top, 44) + 6
+    : Math.max(insets.top, StatusBar.currentHeight ?? 24) + 12;
+
   return (
-    <View style={styles.headerPad}>
+    <View style={[styles.headerPad, { paddingTop: topPadding }]}>
       <View style={styles.headerRow}>
         <TouchableOpacity
           onPress={onGoBack}
@@ -59,7 +65,6 @@ const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
     headerPad: {
       paddingHorizontal: 16,
-      paddingTop: Platform.OS === 'ios' ? 50 : 25,
     },
     headerRow: {
       flexDirection: 'row',

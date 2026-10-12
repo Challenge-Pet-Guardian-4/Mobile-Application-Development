@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../routes/types';
-import { useRegisterMutation, getAuthErrorMessage } from './useAuthMutations';
+import { useRegisterMutation } from './useAuthMutations';
 import { RegisterSchema, formatZodError, RegisterFormData } from '../utils/schemas';
+import { getAuthErrorMessage } from '../utils/apiError';
 
 const INITIAL_REGISTER_FORM: RegisterFormData = {
   nome: '',

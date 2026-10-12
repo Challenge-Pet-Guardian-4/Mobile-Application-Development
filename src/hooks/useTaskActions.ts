@@ -2,20 +2,12 @@ import { useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useCreateTask, useCompleteTask, useUncompleteTask, useUpdateTask, useDeleteTask } from './useTasks';
 import { usePets } from './usePets';
-import { TarefaResponse, TaskFormData, AlternarStatusOptions } from '../types/task';
+import { TarefaResponse, TaskFormData, AlternarStatusOptions, LembreteParams } from '../types/task';
 import { ActionCallbacks } from '../types/api';
 import { TaskSchema, formatZodError } from '../utils/schemas';
 import { normalizarPrazoParaIso } from '../utils/petUtils';
 import { createMutationCallbacks } from '../utils/apiError';
 import { NotificationService } from '../services/notifications';
-
-interface LembreteParams {
-  id: number;
-  titulo: string;
-  petId: number;
-  prazo: string;
-  pontosTarefa?: number;
-}
 
 /**
  * Hook de domínio reutilizável para centralizar o ciclo de vida e mutações de tarefas,

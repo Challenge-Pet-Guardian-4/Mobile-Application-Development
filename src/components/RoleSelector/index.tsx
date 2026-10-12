@@ -5,6 +5,40 @@ import { UsuarioRole } from '../../types/user';
 import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
 import { AppTheme } from '../../constants/theme';
 
+interface RoleOptionConfig {
+  role: UsuarioRole;
+  title: string;
+  description: string;
+  badgeLabel: string;
+  iconFamily: 'ion' | 'material';
+  activeBorder: (theme: AppTheme) => string;
+  activeBg: (theme: AppTheme) => string;
+  activeColor: (theme: AppTheme) => string;
+}
+
+const ROLES: RoleOptionConfig[] = [
+  {
+    role: 'COMUM',
+    title: 'Comum',
+    description: 'Rotinas, cuidados e histórico do pet',
+    badgeLabel: 'Gratuito',
+    iconFamily: 'ion',
+    activeBorder: (t) => t.badgePrimaryBorder,
+    activeBg: (t) => t.badgePrimaryBg,
+    activeColor: (t) => t.badgePrimaryText,
+  },
+  {
+    role: 'PREMIUM',
+    title: 'Premium',
+    description: 'Trilhas, módulos, aulas e IA Assistente',
+    badgeLabel: '⭐ Completo',
+    iconFamily: 'material',
+    activeBorder: (t) => t.badgeWarningBorder,
+    activeBg: (t) => t.badgeWarningBg,
+    activeColor: (t) => t.badgeWarningText,
+  },
+];
+
 interface RoleSelectorProps {
   value: UsuarioRole;
   onChange: (role: UsuarioRole) => void;
@@ -27,51 +61,39 @@ export function RoleSelector({
       <View style={styles.compactContainer}>
         {label ? <Text style={styles.compactLabel}>{label}</Text> : null}
         <View style={styles.compactRow}>
-          <TouchableOpacity
-            style={[
-              styles.compactCard,
-              value === 'COMUM' && styles.compactCardActiveComum,
-            ]}
-            onPress={() => onChange('COMUM')}
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name="paw"
-              size={16}
-              color={value === 'COMUM' ? theme.badgePrimaryText : theme.textSecondary}
-            />
-            <Text
-              style={[
-                styles.compactCardText,
-                value === 'COMUM' && styles.compactCardTextActiveComum,
-              ]}
-            >
-              Comum
-            </Text>
-          </TouchableOpacity>
+          {ROLES.map((item) => {
+            const isSelected = value === item.role;
+            const iconColor = isSelected ? item.activeColor(theme) : theme.textSecondary;
 
-          <TouchableOpacity
-            style={[
-              styles.compactCard,
-              value === 'PREMIUM' && styles.compactCardActivePremium,
-            ]}
-            onPress={() => onChange('PREMIUM')}
-            activeOpacity={0.8}
-          >
-            <MaterialCommunityIcons
-              name="crown"
-              size={16}
-              color={value === 'PREMIUM' ? theme.badgeWarningText : theme.textSecondary}
-            />
-            <Text
-              style={[
-                styles.compactCardText,
-                value === 'PREMIUM' && styles.compactCardTextActivePremium,
-              ]}
-            >
-              Premium ⭐
-            </Text>
-          </TouchableOpacity>
+            return (
+              <TouchableOpacity
+                key={item.role}
+                style={[
+                  styles.compactCard,
+                  isSelected && {
+                    borderColor: item.activeBorder(theme),
+                    backgroundColor: item.activeBg(theme),
+                  },
+                ]}
+                onPress={() => onChange(item.role)}
+                activeOpacity={0.8}
+              >
+                {item.iconFamily === 'ion' ? (
+                  <Ionicons name="paw" size={16} color={iconColor} />
+                ) : (
+                  <MaterialCommunityIcons name="crown" size={16} color={iconColor} />
+                )}
+                <Text
+                  style={[
+                    styles.compactCardText,
+                    isSelected && { color: item.activeColor(theme) },
+                  ]}
+                >
+                  {item.role === 'PREMIUM' ? 'Premium ⭐' : 'Comum'}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </View>
     );
@@ -81,57 +103,58 @@ export function RoleSelector({
     <View style={styles.container}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
       <View style={styles.row}>
-        {/* Opção Comum */}
-        <TouchableOpacity
-          style={[styles.card, value === 'COMUM' && styles.cardActiveComum]}
-          onPress={() => onChange('COMUM')}
-          activeOpacity={0.8}
-        >
-          <View style={styles.headerRow}>
-            <Ionicons
-              name="paw"
-              size={20}
-              color={value === 'COMUM' ? theme.badgePrimaryText : theme.textSecondary}
-            />
-            <Text style={[styles.title, value === 'COMUM' && styles.titleActiveComum]}>
-              Comum
-            </Text>
-          </View>
-          <Text style={styles.description}>
-            Rotinas, cuidados e histórico do pet
-          </Text>
-          <View style={[styles.badge, value === 'COMUM' && styles.badgeActiveComum]}>
-            <Text style={[styles.badgeText, value === 'COMUM' && styles.badgeTextActiveComum]}>
-              Gratuito
-            </Text>
-          </View>
-        </TouchableOpacity>
+        {ROLES.map((item) => {
+          const isSelected = value === item.role;
+          const iconColor = isSelected ? item.activeColor(theme) : theme.textSecondary;
 
-        {/* Opção Premium */}
-        <TouchableOpacity
-          style={[styles.card, value === 'PREMIUM' && styles.cardActivePremium]}
-          onPress={() => onChange('PREMIUM')}
-          activeOpacity={0.8}
-        >
-          <View style={styles.headerRow}>
-            <MaterialCommunityIcons
-              name="crown"
-              size={20}
-              color={value === 'PREMIUM' ? theme.badgeWarningText : theme.textSecondary}
-            />
-            <Text style={[styles.title, value === 'PREMIUM' && styles.titleActivePremium]}>
-              Premium
-            </Text>
-          </View>
-          <Text style={styles.description}>
-            Trilhas, módulos, aulas e IA Assistente
-          </Text>
-          <View style={[styles.badge, value === 'PREMIUM' && styles.badgeActivePremium]}>
-            <Text style={[styles.badgeText, value === 'PREMIUM' && styles.badgeTextActivePremium]}>
-              ⭐ Completo
-            </Text>
-          </View>
-        </TouchableOpacity>
+          return (
+            <TouchableOpacity
+              key={item.role}
+              style={[
+                styles.card,
+                isSelected && {
+                  borderColor: item.activeBorder(theme),
+                  backgroundColor: item.activeBg(theme),
+                },
+              ]}
+              onPress={() => onChange(item.role)}
+              activeOpacity={0.8}
+            >
+              <View style={styles.headerRow}>
+                {item.iconFamily === 'ion' ? (
+                  <Ionicons name="paw" size={20} color={iconColor} />
+                ) : (
+                  <MaterialCommunityIcons name="crown" size={20} color={iconColor} />
+                )}
+                <Text style={[styles.title, isSelected && { color: item.activeColor(theme) }]}>
+                  {item.title}
+                </Text>
+              </View>
+              <Text style={styles.description}>{item.description}</Text>
+              <View
+                style={[
+                  styles.badge,
+                  isSelected && {
+                    backgroundColor: theme.isDark
+                      ? theme.surfaceMuted
+                      : item.role === 'COMUM'
+                      ? '#DBEAFE'
+                      : '#FDE68A',
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.badgeText,
+                    isSelected && { color: item.activeColor(theme) },
+                  ]}
+                >
+                  {item.badgeLabel}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
@@ -161,14 +184,6 @@ const createStyles = (theme: AppTheme) =>
       backgroundColor: theme.card,
       justifyContent: 'space-between',
     },
-    cardActiveComum: {
-      borderColor: theme.badgePrimaryBorder,
-      backgroundColor: theme.badgePrimaryBg,
-    },
-    cardActivePremium: {
-      borderColor: theme.badgeWarningBorder,
-      backgroundColor: theme.badgeWarningBg,
-    },
     headerRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -179,12 +194,6 @@ const createStyles = (theme: AppTheme) =>
       fontSize: 14,
       fontWeight: '800',
       color: theme.textSecondary,
-    },
-    titleActiveComum: {
-      color: theme.badgePrimaryText,
-    },
-    titleActivePremium: {
-      color: theme.badgeWarningText,
     },
     description: {
       fontSize: 11,
@@ -199,22 +208,10 @@ const createStyles = (theme: AppTheme) =>
       borderRadius: 6,
       backgroundColor: theme.surfaceMuted,
     },
-    badgeActiveComum: {
-      backgroundColor: theme.isDark ? theme.surfaceMuted : '#DBEAFE',
-    },
-    badgeActivePremium: {
-      backgroundColor: theme.isDark ? theme.surfaceMuted : '#FDE68A',
-    },
     badgeText: {
       fontSize: 10,
       fontWeight: '700',
       color: theme.textSecondary,
-    },
-    badgeTextActiveComum: {
-      color: theme.badgePrimaryText,
-    },
-    badgeTextActivePremium: {
-      color: theme.badgeWarningText,
     },
 
     // Compact Variant
@@ -244,23 +241,9 @@ const createStyles = (theme: AppTheme) =>
       borderColor: theme.border,
       backgroundColor: theme.card,
     },
-    compactCardActiveComum: {
-      borderColor: theme.badgePrimaryBorder,
-      backgroundColor: theme.badgePrimaryBg,
-    },
-    compactCardActivePremium: {
-      borderColor: theme.badgeWarningBorder,
-      backgroundColor: theme.badgeWarningBg,
-    },
     compactCardText: {
       fontSize: 12,
       fontWeight: '700',
       color: theme.textSecondary,
-    },
-    compactCardTextActiveComum: {
-      color: theme.badgePrimaryText,
-    },
-    compactCardTextActivePremium: {
-      color: theme.badgeWarningText,
     },
   });

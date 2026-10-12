@@ -2,50 +2,11 @@ import React, { memo, useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../utils/shadow';
-import { TarefaResponse } from '../../types/task';
-import { PetResponse } from '../../types/pet';
+import { TasksRoutineSectionProps, } from '../../types/task';
 import { RoutineCard } from './RoutineCard';
 import { colors, spacing, borderRadius, AppTheme } from '../../constants/theme';
 import { PaginationControls } from '../PaginationControls';
 import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
-
-export { RoutineCard } from './RoutineCard';
-
-export interface HeaderActionButton {
-  label: string;
-  icon?: 'add' | 'chevron-forward';
-  variant?: 'primary' | 'link';
-  onPress: () => void;
-}
-
-export interface TasksRoutineData {
-  title?: string;
-  subtitle?: string;
-  filter: 'HOJE' | 'TODAS';
-  onFilterChange: (filter: 'HOJE' | 'TODAS') => void;
-  countHoje: number;
-  countTodas: number;
-  tasks: TarefaResponse[];
-  onToggleTask?: (taskId: number) => void;
-  onEditTask?: (task: TarefaResponse) => void;
-  onDeleteTask?: (taskId: number) => void;
-}
-
-export interface TasksRoutineSectionProps extends Partial<TasksRoutineData> {
-  routineData?: TasksRoutineData;
-  pets?: PetResponse[];
-  headerButton?: HeaderActionButton;
-  emptyTitle?: string;
-  emptyDesc?: string;
-  pageSize?: number;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    totalElements?: number;
-    onPageChange: (newPage: number) => void;
-    isLoading?: boolean;
-  };
-}
 
 export const TasksRoutineSection = memo(function TasksRoutineSection(props: TasksRoutineSectionProps) {
   const { theme } = useTheme();

@@ -2,12 +2,10 @@ import { useState, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useSession } from './useSession';
 import { useUpdateUser, useUserProfileData, useUpgradePremium, useDeleteAccount } from './useUsers';
-import { EditProfileFormData } from '../types/user';
+import { EditProfileFormData, UserProfileModal } from '../types/user';
 import { ProfileEditSchema, formatZodError } from '../utils/schemas';
 import { ActionCallbacks } from '../types/api';
 import { createMutationCallbacks } from '../utils/apiError';
-
-export type UserProfileModal = 'editar' | 'faq' | 'termos' | 'upgrade' | 'notificacoes' | 'sobre' | null;
 
 export function useUserProfile() {
   const { user, logout } = useSession();

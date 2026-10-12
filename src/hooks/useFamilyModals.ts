@@ -1,20 +1,12 @@
 import { useState, useCallback, useMemo } from 'react';
-import { PetResponse } from '../types/pet';
+import { FamilyModalType } from '../types/pet';
 import { TarefaResponse, TaskFormData } from '../types/task';
-import { CuidadorResumo } from '../types/user';
+import { CuidadorResumo, PetResumo } from '../types/user';
 import { ActionCallbacks } from '../types/api';
 import { useCaregiverActions } from './usePets';
 
-export type FamilyModalType =
-  | 'novoPet'
-  | 'novaTarefa'
-  | 'editarTarefa'
-  | 'convite'
-  | 'gerenciarCuidador'
-  | null;
-
 interface UseFamilyModalsProps {
-  petsOndeSouPrincipal: PetResponse[];
+  petsOndeSouPrincipal: PetResumo[];
   cadastrarTarefa: (data: TaskFormData, callbacks?: ActionCallbacks<TarefaResponse>) => void;
   atualizarTarefa: (taskId: number, data: TaskFormData, callbacks?: ActionCallbacks) => void;
 }

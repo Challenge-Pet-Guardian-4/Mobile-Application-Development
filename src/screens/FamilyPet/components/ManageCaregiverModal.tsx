@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { CuidadorResumo } from '../../../types/user';
-import { PetResponse } from '../../../types/pet';
+import { CuidadorResumo, PetResumo } from '../../../types/user';
 import { BaseModal } from '../../../components/BaseModal';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 import { AppTheme } from '../../../constants/theme';
@@ -11,7 +10,7 @@ export interface ManageCaregiverModalProps {
   visible: boolean;
   onClose: () => void;
   cuidador?: CuidadorResumo;
-  petsOndeSouPrincipal: PetResponse[];
+  petsOndeSouPrincipal: PetResumo[];
   onTogglePetVinculo: (petId: number, isCurrentlyLinked: boolean) => void;
   onTransferirTitularidade: (petId: number, petNome: string) => void;
   onRemoverDeTodosPets: () => void;
@@ -33,7 +32,7 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
 
   if (!cuidador) return null;
 
-  const handlePressTransfer = (pet: PetResponse) => {
+  const handlePressTransfer = (pet: PetResumo) => {
     Alert.alert(
       'Transferir Titularidade',
       `Tem certeza de que deseja transferir a titularidade de ${pet.nome} para ${cuidador.nome}?\n\nEle passará a ser o único tutor principal deste pet e você continuará colaborando como co-cuidador. Seus outros animais não serão afetados.`,

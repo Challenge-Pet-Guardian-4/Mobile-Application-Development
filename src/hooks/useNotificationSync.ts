@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { AppState } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useSession } from './useSession';
@@ -15,6 +15,7 @@ import { NotificationPayloadData } from '../types/notification';
  */
 export function useNotificationSync() {
   const { isAuthenticated } = useSession();
+  const pendingResponseRef = useRef<Notifications.NotificationResponse | null>(null);
 
   // Sincronização centralizada de todas as tarefas pendentes através de todas as páginas da API
   const sincronizarAlarmes = useCallback(async () => {
@@ -34,41 +35,49 @@ export function useNotificationSync() {
     const data = response.notification.request.content.data as NotificationPayloadData | undefined;
     if (!data) return;
 
-    if (navigationRef.isReady()) {
-      // Se for notificação de rotina/tarefa da família, navega diretamente para FamilyPet
-      if (
-        data.tipo === 'ROTINA_LEMBRETE' ||
-        data.tipo === 'TAREFA_CONCLUIDA' ||
-        data.rota === 'Family'
-      ) {
-        try {
-          navigationRef.navigate('Tabs', { screen: 'Family' });
-          return;
-        } catch (e) {
-          console.warn('Erro ao navegar para FamilyPet via notificação:', e);
-        }
-      }
+    if (!navigationRef.isReady()) {
+      pendingResponseRef.current = response;
+      return;
+    }
 
-      // Se for notificação direcionada explicitamente para a ficha médica do pet
-      if (data.rota === 'PetDetail' && data.petId) {
-        try {
-          navigationRef.navigate('Family', {
+    pendingResponseRef.current = null;
+
+    // Se for notificação direcionada explicitamente para a ficha médica do pet
+    if (data.rota === 'PetDetail' && data.petId) {
+      try {
+        navigationRef.navigate('Tabs', {
+          screen: 'Family',
+          params: {
             screen: 'PetDetail',
             params: { petId: data.petId },
-          });
-          return;
-        } catch (e) {
-          console.warn('Erro ao navegar para PetDetail via notificação:', e);
-        }
-      }
-
-      try {
-        navigationRef.navigate('Tabs', { screen: 'Family' });
+          },
+        });
+        return;
       } catch (e) {
-        console.warn('Erro ao redirecionar via notificação:', e);
+        console.warn('Erro ao navegar para PetDetail via notificação:', e);
       }
     }
+
+    // Se for notificação de rotina/tarefa da família, navega diretamente para FamilyPet
+    try {
+      navigationRef.navigate('Tabs', { screen: 'Family' });
+    } catch (e) {
+      console.warn('Erro ao redirecionar via notificação:', e);
+    }
   }, []);
+
+  const onNavigationReady = useCallback(() => {
+    if (pendingResponseRef.current) {
+      const pending = pendingResponseRef.current;
+      pendingResponseRef.current = null;
+      processarRespostaNotificacao(pending);
+    } else {
+      const lastResponse = Notifications.getLastNotificationResponse();
+      if (lastResponse) {
+        processarRespostaNotificacao(lastResponse);
+      }
+    }
+  }, [processarRespostaNotificacao]);
 
   // Listener único de toque em notificação e tratamento de cold start
   useEffect(() => {
@@ -102,4 +111,6 @@ export function useNotificationSync() {
       subscription.remove();
     };
   }, [isAuthenticated, sincronizarAlarmes]);
+
+  return { onNavigationReady, sincronizarAlarmes };
 }

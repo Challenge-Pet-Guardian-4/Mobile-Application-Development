@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 import { AppTheme } from '../../../constants/theme';
@@ -25,6 +26,7 @@ export function AiHistoryModal({
   onNewChat,
 }: AiHistoryModalProps) {
   const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useThemedStyles(createStyles);
   const { sessoes, isLoading: loading, loadingSessionId, selecionarSessao, removerSessao, iniciarNovaConversa } = useAiHistory({
     petId: pet?.id,
@@ -43,7 +45,7 @@ export function AiHistoryModal({
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, { paddingBottom: Math.max(insets.bottom, 20) }]}>
           {/* Header do Modal */}
           <View style={styles.modalHeader}>
             <View style={styles.titleRow}>
@@ -198,15 +200,13 @@ const createStyles = (theme: AppTheme) =>
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       maxHeight: '85%',
-      minHeight: '50%',
-      paddingBottom: 24,
     },
     modalHeader: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingHorizontal: 20,
-      paddingTop: 20,
+      paddingTop: 18,
       paddingBottom: 14,
       borderBottomWidth: 1,
       borderBottomColor: theme.border,
@@ -243,7 +243,8 @@ const createStyles = (theme: AppTheme) =>
       alignItems: 'center',
     },
     loadingBox: {
-      padding: 40,
+      paddingVertical: 32,
+      paddingHorizontal: 20,
       alignItems: 'center',
       justifyContent: 'center',
       gap: 12,
@@ -253,10 +254,11 @@ const createStyles = (theme: AppTheme) =>
       color: theme.textSecondary,
     },
     emptyBox: {
-      padding: 40,
+      paddingVertical: 24,
+      paddingHorizontal: 24,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 10,
+      gap: 8,
     },
     emptyTitle: {
       fontSize: 15,
@@ -270,7 +272,7 @@ const createStyles = (theme: AppTheme) =>
       lineHeight: 18,
     },
     scrollArea: {
-      flex: 1,
+      maxHeight: 380,
     },
     scrollContent: {
       padding: 16,

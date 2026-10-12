@@ -78,3 +78,16 @@ export interface PetComMetadados extends PetResponse {
   pontosTotais?: number;
 }
 
+export interface PetOption {
+  id: number;
+  nome: string;
+}
+
+export type FamilyModalType =
+  | 'novoPet'
+  | 'novaTarefa'
+  | 'editarTarefa'
+  | 'convite'
+  | 'gerenciarCuidador'
+  | null;
+

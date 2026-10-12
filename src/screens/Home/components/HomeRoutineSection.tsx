@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { HomeStreakCard } from './HomeStreakCard';
-import { TasksRoutineSection, HeaderActionButton } from '../../../components/TasksRoutineSection';
+import { TasksRoutineSection } from '../../../components/TasksRoutineSection';
 import { useHomeData } from '../../../hooks/useHomeData';
+import { HeaderActionButton } from '../../../types';
 
 interface HomeRoutineSectionProps {
   routine: ReturnType<typeof useHomeData>['routine'];

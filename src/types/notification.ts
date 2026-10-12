@@ -17,3 +17,32 @@ export interface OpcaoAntecedencia {
   rotulo: string;
   descricao: string;
 }
+
+export interface PermissaoNativaStatus {
+  concedida: boolean;
+  canAskAgain: boolean;
+}
+
+export interface PermissaoNativaResponse {
+  granted?: boolean;
+  status?: string;
+  canAskAgain?: boolean;
+}
+
+export interface AgendarNotificacaoTarefaParams {
+  tarefaId: number;
+  titulo: string;
+  nomePet: string;
+  petId: number;
+  prazoIso?: string;
+  pontos?: number;
+  status?: string;
+}
+
+export interface NotificarConclusaoTarefaParams {
+  tarefaId: number;
+  titulo: string;
+  nomePet: string;
+  petId: number;
+  pontos: number;
+}

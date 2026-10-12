@@ -3,8 +3,6 @@ import { AuthService } from '../services/auth';
 import { useSession } from './useSession';
 import { LoginCredentials, RegisterCredentials } from '../types/auth';
 
-export { getAuthErrorMessage } from '../utils/apiError';
-
 export function useLoginMutation() {
   const queryClient = useQueryClient();
   const { setSession } = useSession();

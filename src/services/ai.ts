@@ -1,6 +1,13 @@
 import axios from 'axios';
 import { env } from '../config/env';
-import { AiMessage, AiPetInsight, AiChatResponsePayload, AiPetContextPayload, AiChatSession } from '../types/ai';
+import {
+  AiMessage,
+  AiPetInsight,
+  AiChatResponsePayload,
+  AiPetContextPayload,
+  AiChatSession,
+  MensagemBancoRaw,
+} from '../types/ai';
 import { PetResponse } from '../types/pet';
 import { calcularIdadePet } from '../utils/petUtils';
 import { createThrottledPing } from '../utils/throttleUtils';
@@ -26,15 +33,6 @@ function formatPetContext(pet?: PetResponse): AiPetContextPayload | undefined {
     sexo: pet.sexo,
     castrado: pet.castrado,
   };
-}
-
-interface MensagemBancoRaw {
-  id: number;
-  session_id: string;
-  pet_id?: number;
-  sender: string;
-  text: string;
-  timestamp?: string;
 }
 
 function mapMensagemBancoToAiMessage(m: MensagemBancoRaw): AiMessage {

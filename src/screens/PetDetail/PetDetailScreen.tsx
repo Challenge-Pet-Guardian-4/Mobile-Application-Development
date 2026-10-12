@@ -24,7 +24,11 @@ export default function PetDetailScreen({ route, navigation }: PetDetailScreenPr
   const { user } = useSession();
 
   const handleGoBack = useCallback(() => {
-    navigation.navigate('FamilyMain');
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('FamilyMain');
+    }
   }, [navigation]);
 
   const petDetail = usePetDetail(routePetId, handleGoBack);

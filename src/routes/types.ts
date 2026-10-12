@@ -1,3 +1,5 @@
+import { NavigatorScreenParams } from '@react-navigation/native';
+
 export type AuthStackParamList = {
   Welcome: undefined;
   Login: undefined;
@@ -16,19 +18,19 @@ export type ProfileStackParamList = {
 
 export type AppTabParamList = {
   Home: undefined;
-  Family: { screen?: keyof FamilyStackParamList; params?: FamilyStackParamList[keyof FamilyStackParamList] } | undefined;
+  Family: NavigatorScreenParams<FamilyStackParamList> | undefined;
   IA: { petId?: number } | undefined;
   Treino: undefined;
-  Perfil: { screen?: keyof ProfileStackParamList; params?: ProfileStackParamList[keyof ProfileStackParamList] } | undefined;
+  Perfil: NavigatorScreenParams<ProfileStackParamList> | undefined;
 };
 
 export type RootStackParamList = {
-  Auth: undefined;
-  App: undefined;
-  Tabs: { screen?: keyof AppTabParamList; params?: unknown } | undefined;
-  PetDetail: { petId?: number } | undefined;
+  Welcome: undefined;
+  Login: undefined;
+  Register: undefined;
+  Tabs: NavigatorScreenParams<AppTabParamList> | undefined;
+  Family: NavigatorScreenParams<FamilyStackParamList> | undefined;
   IA: { petId?: number } | undefined;
-  Family: { screen?: string; params?: { petId?: number } } | undefined;
-  Perfil: { screen?: string; params?: Record<string, unknown> } | undefined;
+  Perfil: NavigatorScreenParams<ProfileStackParamList> | undefined;
 };
 
