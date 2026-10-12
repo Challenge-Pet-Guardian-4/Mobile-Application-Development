@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, borderRadius } from '../../constants/theme';
+import { AppTheme, spacing, borderRadius } from '../../constants/theme';
+import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
 
 export interface PaginationControlsProps {
   currentPage: number; // 0-indexed (Spring Data standard)
@@ -18,6 +19,9 @@ export const PaginationControls = memo(function PaginationControls({
   onPageChange,
   isLoading = false,
 }: PaginationControlsProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
+
   if (totalPages <= 1) return null;
 
   const isFirst = currentPage <= 0;
@@ -48,7 +52,7 @@ export const PaginationControls = memo(function PaginationControls({
         <Ionicons
           name="chevron-back"
           size={16}
-          color={isFirst ? colors.neutral[400] : colors.neutral[700]}
+          color={isFirst ? theme.textMuted : theme.text}
         />
         <Text style={[styles.pageButtonText, isFirst && styles.pageButtonTextDisabled]}>
           Anterior
@@ -79,65 +83,66 @@ export const PaginationControls = memo(function PaginationControls({
         <Ionicons
           name="chevron-forward"
           size={16}
-          color={isLast ? colors.neutral[400] : colors.neutral[700]}
+          color={isLast ? theme.textMuted : theme.text}
         />
       </TouchableOpacity>
     </View>
   );
 });
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xs,
-    marginTop: spacing.xs,
-    borderTopWidth: 1,
-    borderTopColor: colors.neutral[100],
-  },
-  pageButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.neutral[100],
-  },
-  pageButtonDisabled: {
-    backgroundColor: 'transparent',
-    opacity: 0.5,
-  },
-  pageButtonText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.neutral[700],
-  },
-  pageButtonTextDisabled: {
-    color: colors.neutral[400],
-  },
-  pageIndicatorBox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pageIndicatorText: {
-    fontSize: 12,
-    color: colors.neutral[500],
-    fontWeight: '500',
-  },
-  pageCurrentText: {
-    fontWeight: '800',
-    color: colors.primary[600],
-  },
-  pageTotalText: {
-    fontWeight: '700',
-    color: colors.neutral[700],
-  },
-  totalElementsText: {
-    fontSize: 10,
-    color: colors.neutral[400],
-    marginTop: 1,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.xs,
+      marginTop: spacing.xs,
+      borderTopWidth: 1,
+      borderTopColor: theme.border,
+    },
+    pageButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: borderRadius.md,
+      backgroundColor: theme.surfaceMuted,
+    },
+    pageButtonDisabled: {
+      backgroundColor: 'transparent',
+      opacity: 0.5,
+    },
+    pageButtonText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.text,
+    },
+    pageButtonTextDisabled: {
+      color: theme.textMuted,
+    },
+    pageIndicatorBox: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    pageIndicatorText: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      fontWeight: '500',
+    },
+    pageCurrentText: {
+      fontWeight: '800',
+      color: theme.primary,
+    },
+    pageTotalText: {
+      fontWeight: '700',
+      color: theme.text,
+    },
+    totalElementsText: {
+      fontSize: 10,
+      color: theme.textMuted,
+      marginTop: 1,
+    },
+  });

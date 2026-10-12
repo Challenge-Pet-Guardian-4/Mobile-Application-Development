@@ -23,7 +23,7 @@ Notifications.setNotificationHandler({
 });
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
-  ativado: true,
+  ativado: false,
   minutosAntecedencia: 15,
 };
 
@@ -41,15 +41,77 @@ function getTaskNotificationIdentifier(tarefaId: number): string {
 
 export const NotificationService = {
   /**
+   * Verifica se a permissão nativa no nível de SO está concedida.
+   */
+  async verificarPermissaoNativa(): Promise<{ concedida: boolean; canAskAgain: boolean }> {
+    try {
+      const response = await Notifications.getPermissionsAsync();
+      return {
+        concedida: response.granted || response.status === 'granted',
+        canAskAgain: response.canAskAgain,
+      };
+    } catch (e) {
+      console.warn('Erro ao verificar permissão nativa de notificação:', e);
+      return { concedida: false, canAskAgain: true };
+    }
+  },
+
+  /**
+   * Solicita permissão de notificação diretamente ao sistema operacional.
+   */
+  async solicitarPermissaoNativa(): Promise<{ concedida: boolean; canAskAgain: boolean }> {
+    try {
+      const response = await Notifications.requestPermissionsAsync();
+      const concedida = response.granted || response.status === 'granted';
+      if (concedida && Platform.OS === 'android') {
+        await this.configurarCanalAndroid();
+      }
+      return {
+        concedida,
+        canAskAgain: response.canAskAgain,
+      };
+    } catch (e) {
+      console.warn('Erro ao solicitar permissão nativa:', e);
+      return { concedida: false, canAskAgain: false };
+    }
+  },
+
+  /**
+   * Configura o canal de alta prioridade no Android.
+   */
+  async configurarCanalAndroid(): Promise<void> {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
+        name: 'Lembretes de Cuidados do Pet',
+        description: 'Notificações de rotina, medicamentos, alimentação e tarefas dos seus pets',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#2563EB',
+        enableVibrate: true,
+        showBadge: true,
+      });
+    }
+  },
+
+  /**
    * Obtém as configurações globais de notificação do usuário.
+   * Se a permissão nativa do SO estiver negada, retorna forçadamente ativado = false.
    */
   async getSettings(): Promise<NotificationSettings> {
     try {
+      const { concedida } = await this.verificarPermissaoNativa();
+      if (!concedida) {
+        return {
+          ativado: false,
+          minutosAntecedencia: DEFAULT_NOTIFICATION_SETTINGS.minutosAntecedencia,
+        };
+      }
+
       const raw = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
-      if (!raw) return DEFAULT_NOTIFICATION_SETTINGS;
+      if (!raw) return { ativado: true, minutosAntecedencia: DEFAULT_NOTIFICATION_SETTINGS.minutosAntecedencia };
       const parsed = JSON.parse(raw) as Partial<NotificationSettings>;
       return {
-        ativado: typeof parsed.ativado === 'boolean' ? parsed.ativado : DEFAULT_NOTIFICATION_SETTINGS.ativado,
+        ativado: typeof parsed.ativado === 'boolean' ? parsed.ativado : true,
         minutosAntecedencia:
           typeof parsed.minutosAntecedencia === 'number'
             ? (parsed.minutosAntecedencia as AntecedenciaMinutos)
@@ -72,35 +134,16 @@ export const NotificationService = {
   },
 
   /**
-   * Solicita permissão do usuário e configura o canal de alta prioridade no Android.
+   * Inicializa permissões no startup e configura o canal nativo no Android caso permitido.
    */
   async inicializarPermissoes(): Promise<boolean> {
     try {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
+      const { concedida } = await this.verificarPermissaoNativa();
+      if (concedida) {
+        await this.configurarCanalAndroid();
+        return true;
       }
-
-      if (finalStatus !== 'granted') {
-        return false;
-      }
-
-      if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-          name: 'Lembretes de Cuidados do Pet',
-          description: 'Notificações de rotina, medicamentos, alimentação e tarefas dos seus pets',
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#2563EB',
-          enableVibrate: true,
-          showBadge: true,
-        });
-      }
-
-      return true;
+      return false;
     } catch (error) {
       console.warn('Erro ao inicializar permissões de notificação:', error);
       return false;
@@ -284,13 +327,34 @@ export const NotificationService = {
   },
 
   /**
-   * Cancela todas as notificações pendentes.
+   * Dispara uma notificação de demonstração imediata para testes e validação visual.
    */
-  async cancelarTodas(): Promise<void> {
+  async dispararNotificacaoExemplo(): Promise<string | null> {
     try {
-      await Notifications.cancelAllScheduledNotificationsAsync();
+      const { concedida } = await this.verificarPermissaoNativa();
+      if (!concedida) {
+        return null;
+      }
+
+      const id = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: '🐾 Lembrete: Hora do Passeio!',
+          body: 'Lembrete do PetGuardian para seu pet! Esta rotina vence em breve (+10 XP).',
+          sound: true,
+          data: {
+            tipo: 'ROTINA_LEMBRETE',
+            tarefaId: 0,
+            petId: 0,
+            rota: 'Home',
+          } satisfies NotificationPayloadData,
+        },
+        trigger: null,
+      });
+
+      return id;
     } catch (error) {
-      console.warn('Erro ao cancelar todas notificações:', error);
+      console.warn('Erro ao disparar notificação de exemplo:', error);
+      return null;
     }
   },
 };

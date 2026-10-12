@@ -35,8 +35,8 @@ export function Header({ title, subtitle, onRightPress }: HeaderProps) {
         onPress={onRightPress}
         activeOpacity={0.8}
       >
-        <View style={styles.avatarCircle}>
-          <Text style={styles.avatarText}>
+        <View style={[styles.avatarCircle, { backgroundColor: theme.isDark ? theme.surfaceMuted : colors.neutral[900], borderColor: theme.border, borderWidth: theme.isDark ? 1 : 0 }]}>
+          <Text style={[styles.avatarText, { color: theme.isDark ? theme.text : colors.neutral.white }]}>
             {userName.substring(0, 2).toUpperCase()}
           </Text>
         </View>

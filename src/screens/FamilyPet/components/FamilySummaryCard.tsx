@@ -10,6 +10,8 @@ export interface FamilySummaryCardProps {
   pontosAcumulados: number;
 }
 
+import { useTheme } from '../../../contexts/ThemeContext';
+
 export function FamilySummaryCard({
   tutorNome,
   petsCount,
@@ -17,10 +19,20 @@ export function FamilySummaryCard({
   tarefasConcluidas,
   pontosAcumulados,
 }: FamilySummaryCardProps) {
+  const { theme } = useTheme();
   const primeiroNome = tutorNome?.split(' ')[0] || 'Tutor';
 
   return (
-    <View style={styles.summaryCard}>
+    <View
+      style={[
+        styles.summaryCard,
+        {
+          backgroundColor: theme.isDark ? theme.card : '#0F172A',
+          borderColor: theme.border,
+          borderWidth: theme.isDark ? 1 : 0,
+        },
+      ]}
+    >
       <View style={styles.summaryTop}>
         <View style={{ flex: 1, paddingRight: 8 }}>
           <Text style={styles.summaryTitle}>Família de {primeiroNome}</Text>

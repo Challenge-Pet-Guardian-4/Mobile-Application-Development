@@ -46,10 +46,12 @@ export interface TasksRoutineSectionProps extends Partial<TasksRoutineData> {
   };
 }
 
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
 
 export const TasksRoutineSection = memo(function TasksRoutineSection(props: TasksRoutineSectionProps) {
   const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const {
     routineData,
     pets,
@@ -232,16 +234,17 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
   );
 });
 
-const styles = StyleSheet.create({
-  sectionBox: {
-    backgroundColor: colors.neutral.white,
-    borderRadius: borderRadius.xxl,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    ...shadows.sm,
-    elevation: 2,
-  },
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    sectionBox: {
+      backgroundColor: theme.card,
+      borderRadius: borderRadius.xxl,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...shadows.sm,
+      elevation: 2,
+    },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -251,11 +254,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: colors.neutral[900],
+    color: theme.text,
   },
   sectionSubtitle: {
     fontSize: 12,
-    color: colors.neutral[500],
+    color: theme.textSecondary,
     marginTop: 2,
     fontWeight: '500',
   },
@@ -277,7 +280,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: colors.primary[50],
+    backgroundColor: theme.badgePrimaryBg,
     paddingVertical: spacing.xs,
     paddingHorizontal: 10,
     borderRadius: borderRadius.md,
@@ -285,16 +288,16 @@ const styles = StyleSheet.create({
   headerButtonLinkText: {
     fontSize: 11,
     fontWeight: '700',
-    color: colors.primary[600],
+    color: theme.badgePrimaryText,
   },
   filterTabsRow: {
     flexDirection: 'row',
-    backgroundColor: colors.neutral[50],
+    backgroundColor: theme.surfaceSubtle,
     borderRadius: borderRadius.md,
     padding: 4,
     marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
+    borderColor: theme.border,
     gap: spacing.xs,
   },
   filterTab: {
@@ -307,16 +310,16 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
   },
   filterTabActive: {
-    backgroundColor: colors.neutral.white,
+    backgroundColor: theme.card,
     ...shadows.sm,
   },
   filterTabText: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.neutral[500],
+    color: theme.textSecondary,
   },
   filterTabTextActive: {
-    color: colors.primary[600],
+    color: theme.primary,
     fontWeight: '700',
   },
   emptyBox: {
@@ -324,21 +327,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: spacing.xxl,
     paddingHorizontal: spacing.md,
-    backgroundColor: colors.neutral[50],
+    backgroundColor: theme.surfaceSubtle,
     borderRadius: borderRadius.lg,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
+    borderColor: theme.border,
     borderStyle: 'dashed',
   },
   emptyTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: colors.neutral[700],
+    color: theme.text,
     marginTop: spacing.sm,
   },
   emptyDesc: {
     fontSize: 12,
-    color: colors.neutral[400],
+    color: theme.textSecondary,
     textAlign: 'center',
     marginTop: 4,
     lineHeight: 18,

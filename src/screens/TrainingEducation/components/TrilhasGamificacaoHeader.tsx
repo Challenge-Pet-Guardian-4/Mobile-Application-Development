@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTrainings } from '../../../hooks/useTrainings';
+import { AppTheme } from '../../../constants/theme';
+import { useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface TrilhasGamificacaoHeaderProps {
   trail: ReturnType<typeof useTrainings>['trail'];
@@ -9,6 +11,7 @@ interface TrilhasGamificacaoHeaderProps {
 }
 
 export function TrilhasGamificacaoHeader({ trail, pet }: TrilhasGamificacaoHeaderProps) {
+  const styles = useThemedStyles(createStyles);
   const licoesConcluidas = trail?.licoesConcluidas ?? 0;
   const totalXp = pet?.totalXpGanho ?? 0;
 
@@ -34,29 +37,30 @@ export function TrilhasGamificacaoHeader({ trail, pet }: TrilhasGamificacaoHeade
   );
 }
 
-const styles = StyleSheet.create({
-  duoTopBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFF',
-    marginHorizontal: 20,
-    marginTop: 10,
-    marginBottom: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    elevation: 2,
-  },
-  duoStatItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  duoStatVal: {
-    fontSize: 14,
-    fontWeight: '900',
-    color: '#1E293B',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    duoTopBar: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      backgroundColor: theme.card,
+      marginHorizontal: 20,
+      marginTop: 10,
+      marginBottom: 16,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 20,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+      elevation: 2,
+    },
+    duoStatItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    duoStatVal: {
+      fontSize: 14,
+      fontWeight: '900',
+      color: theme.text,
+    },
+  });

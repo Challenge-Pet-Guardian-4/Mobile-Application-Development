@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { TrainingLesson } from '../../../types/training';
+import { AppTheme } from '../../../constants/theme';
+import { useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface TrainingTrailProps {
   licoes?: TrainingLesson[];
@@ -16,6 +18,8 @@ export function TrainingTrail({
   corTrilha = '#58CC02',
   onSelectLicao,
 }: TrainingTrailProps) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <View style={styles.trailContainer}>
       {licoes.map((licao, index) => {
@@ -61,64 +65,65 @@ export function TrainingTrail({
   );
 }
 
-const styles = StyleSheet.create({
-  trailContainer: {
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  nodeWrapper: {
-    alignItems: 'center',
-    marginBottom: 40,
-    position: 'relative',
-  },
-  nodeConnector: {
-    position: 'absolute',
-    top: -30,
-    width: 8,
-    height: 35,
-    backgroundColor: '#E2E8F0',
-    zIndex: -1,
-    borderRadius: 4,
-  },
-  nodeButton: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 6,
-    borderBottomWidth: 6,
-  },
-  nodeButtonDone: {
-    backgroundColor: '#E2E8F0',
-    borderBottomColor: '#CBD5E1',
-  },
-  nodeInnerCircle: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  nodeLabelBox: {
-    backgroundColor: '#FFF',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-    elevation: 2,
-  },
-  nodeLabelTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#1E293B',
-  },
-  nodeLabelXp: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#FF9600',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    trailContainer: {
+      alignItems: 'center',
+      paddingVertical: 10,
+    },
+    nodeWrapper: {
+      alignItems: 'center',
+      marginBottom: 40,
+      position: 'relative',
+    },
+    nodeConnector: {
+      position: 'absolute',
+      top: -30,
+      width: 8,
+      height: 35,
+      backgroundColor: theme.border,
+      zIndex: -1,
+      borderRadius: 4,
+    },
+    nodeButton: {
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+      justifyContent: 'center',
+      alignItems: 'center',
+      elevation: 6,
+      borderBottomWidth: 6,
+    },
+    nodeButtonDone: {
+      backgroundColor: theme.surfaceMuted,
+      borderBottomColor: theme.border,
+    },
+    nodeInnerCircle: {
+      width: 58,
+      height: 58,
+      borderRadius: 29,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    nodeLabelBox: {
+      backgroundColor: theme.card,
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+      borderRadius: 12,
+      marginTop: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+      alignItems: 'center',
+      elevation: 2,
+    },
+    nodeLabelTitle: {
+      fontSize: 12,
+      fontWeight: '800',
+      color: theme.text,
+    },
+    nodeLabelXp: {
+      fontSize: 10,
+      fontWeight: 'bold',
+      color: '#FF9600',
+    },
+  });

@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AppTheme } from '../../../constants/theme';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface AiHeaderProps {
   onGoBack: () => void;
@@ -10,6 +12,9 @@ interface AiHeaderProps {
 }
 
 export function AiHeader({ onGoBack, onClearChat, onOpenHistory, hasMessages }: AiHeaderProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
+
   return (
     <View style={styles.headerPad}>
       <View style={styles.headerRow}>
@@ -18,7 +23,7 @@ export function AiHeader({ onGoBack, onClearChat, onOpenHistory, hasMessages }: 
           style={styles.btnVoltarTop}
           activeOpacity={0.7}
         >
-          <Ionicons name="arrow-back" size={16} color="#1E293B" />
+          <Ionicons name="arrow-back" size={16} color={theme.text} />
           <Text style={styles.btnVoltarText}>Voltar para Início</Text>
         </TouchableOpacity>
 
@@ -29,7 +34,7 @@ export function AiHeader({ onGoBack, onClearChat, onOpenHistory, hasMessages }: 
               style={styles.btnHistorico}
               activeOpacity={0.7}
             >
-              <Ionicons name="time-outline" size={14} color="#475569" />
+              <Ionicons name="time-outline" size={14} color={theme.textSecondary} />
               <Text style={styles.btnHistoricoText}>Histórico</Text>
             </TouchableOpacity>
           )}
@@ -40,7 +45,7 @@ export function AiHeader({ onGoBack, onClearChat, onOpenHistory, hasMessages }: 
               style={styles.btnNovaDuvida}
               activeOpacity={0.7}
             >
-              <Ionicons name="sparkles-outline" size={14} color="#2563EB" />
+              <Ionicons name="sparkles-outline" size={14} color={theme.primary} />
               <Text style={styles.btnNovaDuvidaText}>Nova Dúvida</Text>
             </TouchableOpacity>
           )}
@@ -50,68 +55,69 @@ export function AiHeader({ onGoBack, onClearChat, onOpenHistory, hasMessages }: 
   );
 }
 
-const styles = StyleSheet.create({
-  headerPad: {
-    paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 50 : 25,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  btnVoltarTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  btnVoltarText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  rightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  btnHistorico: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 9,
-    borderRadius: 12,
-    backgroundColor: '#F1F5F9',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  btnHistoricoText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  btnNovaDuvida: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 9,
-    borderRadius: 12,
-    backgroundColor: '#EFF6FF',
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  btnNovaDuvidaText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#2563EB',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    headerPad: {
+      paddingHorizontal: 16,
+      paddingTop: Platform.OS === 'ios' ? 50 : 25,
+    },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+    },
+    btnVoltarTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      borderRadius: 12,
+      backgroundColor: theme.card,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    btnVoltarText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.text,
+    },
+    rightActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    btnHistorico: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingVertical: 6,
+      paddingHorizontal: 9,
+      borderRadius: 12,
+      backgroundColor: theme.surfaceMuted,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    btnHistoricoText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.textSecondary,
+    },
+    btnNovaDuvida: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingVertical: 6,
+      paddingHorizontal: 9,
+      borderRadius: 12,
+      backgroundColor: theme.badgePrimaryBg,
+      borderWidth: 1,
+      borderColor: theme.badgePrimaryBorder,
+    },
+    btnNovaDuvidaText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.badgePrimaryText,
+    },
+  });

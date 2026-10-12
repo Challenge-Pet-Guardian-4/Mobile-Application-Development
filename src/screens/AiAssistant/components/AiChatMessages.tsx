@@ -2,12 +2,16 @@ import React from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAiAssistantScreen } from '../../../hooks/useAiAssistantScreen';
+import { AppTheme } from '../../../constants/theme';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface AiChatMessagesProps {
   chat: ReturnType<typeof useAiAssistantScreen>['chat'];
 }
 
 export function AiChatMessages({ chat }: AiChatMessagesProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const hasMessages = (chat?.messages?.length ?? 0) > 0;
 
   return (
@@ -17,7 +21,7 @@ export function AiChatMessages({ chat }: AiChatMessagesProps) {
       {!hasMessages && !chat?.isSending && (
         <View style={styles.emptyChatWrapper}>
           <View style={styles.emptyChatIconBg}>
-            <MaterialCommunityIcons name="chat-processing-outline" size={28} color="#2563EB" />
+            <MaterialCommunityIcons name="chat-processing-outline" size={28} color={theme.primary} />
           </View>
           <Text style={styles.emptyChatTitle}>Como a Guardian AI pode ajudar hoje?</Text>
           <Text style={styles.emptyChatDesc}>
@@ -39,7 +43,7 @@ export function AiChatMessages({ chat }: AiChatMessagesProps) {
                 <MaterialCommunityIcons
                   name={isError ? 'alert-circle-outline' : 'robot'}
                   size={16}
-                  color={isError ? '#DC2626' : '#2563EB'}
+                  color={isError ? '#DC2626' : theme.primary}
                 />
               </View>
             )}
@@ -70,10 +74,10 @@ export function AiChatMessages({ chat }: AiChatMessagesProps) {
       {chat?.isSending && (
         <View style={[styles.msgWrapper, styles.msgAiWrapper]}>
           <View style={styles.aiAvatar}>
-            <MaterialCommunityIcons name="robot" size={16} color="#2563EB" />
+            <MaterialCommunityIcons name="robot" size={16} color={theme.primary} />
           </View>
           <View style={[styles.msgBubble, styles.msgBubbleAi, styles.sendingBubble]}>
-            <ActivityIndicator size="small" color="#2563EB" style={{ marginRight: 8 }} />
+            <ActivityIndicator size="small" color={theme.primary} style={{ marginRight: 8 }} />
             <Text style={styles.msgTextAi}>Consultando inteligência preventiva...</Text>
           </View>
         </View>
@@ -82,120 +86,121 @@ export function AiChatMessages({ chat }: AiChatMessagesProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  chatSection: {
-    gap: 10,
-    marginTop: 4,
-  },
-  chatSectionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 4,
-  },
-  msgWrapper: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'flex-end',
-    marginVertical: 3,
-  },
-  msgUserWrapper: {
-    justifyContent: 'flex-end',
-  },
-  msgAiWrapper: {
-    justifyContent: 'flex-start',
-  },
-  aiAvatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#EFF6FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  aiAvatarError: {
-    backgroundColor: '#FEF2F2',
-  },
-  msgBubble: {
-    maxWidth: '82%',
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 18,
-  },
-  msgBubbleUser: {
-    backgroundColor: '#0F172A',
-    borderBottomRightRadius: 4,
-  },
-  msgBubbleAi: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    borderBottomLeftRadius: 4,
-  },
-  msgBubbleError: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
-  },
-  sendingBubble: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  msgText: {
-    fontSize: 13,
-    lineHeight: 19,
-  },
-  msgTextUser: {
-    color: '#FFFFFF',
-  },
-  msgTextAi: {
-    color: '#1E293B',
-  },
-  msgTextError: {
-    color: '#991B1B',
-  },
-  msgTime: {
-    fontSize: 10,
-    marginTop: 4,
-    alignSelf: 'flex-end',
-  },
-  msgTimeUser: {
-    color: 'rgba(255, 255, 255, 0.6)',
-  },
-  msgTimeAi: {
-    color: '#94A3B8',
-  },
-  emptyChatWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 28,
-    paddingHorizontal: 20,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    gap: 8,
-    marginVertical: 8,
-  },
-  emptyChatIconBg: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#EFF6FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  emptyChatTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#1E293B',
-    textAlign: 'center',
-  },
-  emptyChatDesc: {
-    fontSize: 12,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 18,
-    maxWidth: 280,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    chatSection: {
+      gap: 10,
+      marginTop: 4,
+    },
+    chatSectionTitle: {
+      fontSize: 15,
+      fontWeight: '800',
+      color: theme.text,
+      marginBottom: 4,
+    },
+    msgWrapper: {
+      flexDirection: 'row',
+      gap: 8,
+      alignItems: 'flex-end',
+      marginVertical: 3,
+    },
+    msgUserWrapper: {
+      justifyContent: 'flex-end',
+    },
+    msgAiWrapper: {
+      justifyContent: 'flex-start',
+    },
+    aiAvatar: {
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      backgroundColor: theme.badgePrimaryBg,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    aiAvatarError: {
+      backgroundColor: theme.badgeDangerBg,
+    },
+    msgBubble: {
+      maxWidth: '82%',
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      borderRadius: 18,
+    },
+    msgBubbleUser: {
+      backgroundColor: theme.primary,
+      borderBottomRightRadius: 4,
+    },
+    msgBubbleAi: {
+      backgroundColor: theme.card,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderBottomLeftRadius: 4,
+    },
+    msgBubbleError: {
+      backgroundColor: theme.badgeDangerBg,
+      borderColor: theme.badgeDangerBorder,
+    },
+    sendingBubble: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    msgText: {
+      fontSize: 13,
+      lineHeight: 19,
+    },
+    msgTextUser: {
+      color: '#FFFFFF',
+    },
+    msgTextAi: {
+      color: theme.text,
+    },
+    msgTextError: {
+      color: theme.badgeDangerText,
+    },
+    msgTime: {
+      fontSize: 10,
+      marginTop: 4,
+      alignSelf: 'flex-end',
+    },
+    msgTimeUser: {
+      color: 'rgba(255, 255, 255, 0.75)',
+    },
+    msgTimeAi: {
+      color: theme.textMuted,
+    },
+    emptyChatWrapper: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 28,
+      paddingHorizontal: 20,
+      backgroundColor: theme.surfaceSubtle,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: theme.border,
+      gap: 8,
+      marginVertical: 8,
+    },
+    emptyChatIconBg: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: theme.badgePrimaryBg,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 4,
+    },
+    emptyChatTitle: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: theme.text,
+      textAlign: 'center',
+    },
+    emptyChatDesc: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      textAlign: 'center',
+      lineHeight: 18,
+      maxWidth: 280,
+    },
+  });

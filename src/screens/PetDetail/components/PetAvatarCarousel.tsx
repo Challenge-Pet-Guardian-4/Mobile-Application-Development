@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { PetResponse } from '../../../types/pet';
+import { AppTheme } from '../../../constants/theme';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 export interface PetAvatarCarouselProps {
   pets: PetResponse[];
@@ -10,6 +12,8 @@ export interface PetAvatarCarouselProps {
 }
 
 export function PetAvatarCarousel({ pets, selectedPetId, onSelectPet }: PetAvatarCarouselProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   if (pets.length === 0) return null;
 
   return (
@@ -29,7 +33,7 @@ export function PetAvatarCarousel({ pets, selectedPetId, onSelectPet }: PetAvata
                 <MaterialCommunityIcons
                   name="paw"
                   size={20}
-                  color={isSelected ? '#2563EB' : '#94A3B8'}
+                  color={isSelected ? theme.primary : theme.textMuted}
                 />
               </View>
               <Text
@@ -46,45 +50,46 @@ export function PetAvatarCarousel({ pets, selectedPetId, onSelectPet }: PetAvata
   );
 }
 
-const styles = StyleSheet.create({
-  carrosselContainer: {
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  listaDePets: {
-    paddingHorizontal: 20,
-    gap: 12,
-    alignItems: 'center',
-  },
-  itemPetCarrossel: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  miniAvatarBorda: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    backgroundColor: '#F8FAFC',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  miniAvatarSelecionado: {
-    borderColor: '#2563EB',
-    backgroundColor: '#EFF6FF',
-    borderWidth: 2,
-  },
-  miniAvatarTexto: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '600',
-    maxWidth: 55,
-  },
-  miniAvatarTextoSelecionado: {
-    color: '#2563EB',
-    fontWeight: '800',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    carrosselContainer: {
+      paddingVertical: 12,
+      backgroundColor: theme.card,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.border,
+    },
+    listaDePets: {
+      paddingHorizontal: 20,
+      gap: 12,
+      alignItems: 'center',
+    },
+    itemPetCarrossel: {
+      alignItems: 'center',
+      gap: 4,
+    },
+    miniAvatarBorda: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+      backgroundColor: theme.surfaceSubtle,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    miniAvatarSelecionado: {
+      borderColor: theme.primary,
+      backgroundColor: theme.badgePrimaryBg,
+      borderWidth: 2,
+    },
+    miniAvatarTexto: {
+      fontSize: 11,
+      color: theme.textSecondary,
+      fontWeight: '600',
+      maxWidth: 55,
+    },
+    miniAvatarTextoSelecionado: {
+      color: theme.primary,
+      fontWeight: '800',
+    },
+  });

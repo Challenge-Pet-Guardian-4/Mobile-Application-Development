@@ -3,6 +3,8 @@ import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../utils/shadow';
 import { RoleBadge } from '../RoleBadge';
+import { AppTheme } from '../../constants/theme';
+import { useThemedStyles } from '../../contexts/ThemeContext';
 
 interface PremiumLockCardProps {
   title: string;
@@ -19,6 +21,8 @@ export function PremiumLockCard({
   iconName = 'crown',
   hint = '💡 Você pode atualizar seu perfil para Premium a qualquer momento na aba Meu Perfil.',
 }: PremiumLockCardProps) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
@@ -46,73 +50,76 @@ export function PremiumLockCard({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 24,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    ...shadows.md,
-    elevation: 3,
-    width: '100%',
-    maxWidth: 380,
-  },
-  iconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#FFFBEB',
-    borderWidth: 2,
-    borderColor: '#FDE68A',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#0F172A',
-    textAlign: 'center',
-    marginTop: 12,
-    marginBottom: 6,
-  },
-  description: {
-    fontSize: 13,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: 16,
-  },
-  benefitsBox: {
-    width: '100%',
-    backgroundColor: '#F8FAFC',
-    padding: 14,
-    borderRadius: 16,
-    gap: 10,
-    marginBottom: 14,
-  },
-  benefitRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  benefitText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#334155',
-  },
-  hint: {
-    fontSize: 12,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    card: {
+      backgroundColor: theme.card,
+      borderRadius: 24,
+      padding: 24,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...shadows.md,
+      elevation: 3,
+      width: '100%',
+      maxWidth: 380,
+    },
+    iconCircle: {
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+      backgroundColor: theme.badgeWarningBg,
+      borderWidth: 2,
+      borderColor: theme.badgeWarningBorder,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: '900',
+      color: theme.text,
+      textAlign: 'center',
+      marginTop: 12,
+      marginBottom: 6,
+    },
+    description: {
+      fontSize: 13,
+      color: theme.textSecondary,
+      textAlign: 'center',
+      lineHeight: 18,
+      marginBottom: 16,
+    },
+    benefitsBox: {
+      width: '100%',
+      backgroundColor: theme.surfaceSubtle,
+      borderWidth: 1,
+      borderColor: theme.border,
+      padding: 14,
+      borderRadius: 16,
+      gap: 10,
+      marginBottom: 14,
+    },
+    benefitRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    benefitText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: theme.text,
+    },
+    hint: {
+      fontSize: 12,
+      color: theme.textMuted,
+      textAlign: 'center',
+      lineHeight: 16,
+    },
+  });

@@ -7,7 +7,8 @@ import { PaginationControls } from '../../../components/PaginationControls';
 import { HistoricoResponse } from '../../../types/historico';
 import { TarefaResponse } from '../../../types/task';
 import { formatarIsoParaBr } from '../../../utils/petUtils';
-import { colors, spacing, borderRadius } from '../../../constants/theme';
+import { AppTheme, colors, spacing, borderRadius } from '../../../constants/theme';
+import { useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface HealthHistoryProps {
   type: 'health';
@@ -48,6 +49,7 @@ function formatarDataConclusao(dataStr?: string | null): string {
 }
 
 export function PetHistorySection(props: PetHistorySectionProps) {
+  const styles = useThemedStyles(createStyles);
   const { type, items, isLoading = false, pageSize = 10 } = props;
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -165,121 +167,122 @@ export function PetHistorySection(props: PetHistorySectionProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.neutral.white,
-    borderRadius: borderRadius.xxl,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.neutral[200],
-    ...shadows.sm,
-    marginBottom: spacing.md,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: colors.neutral[900],
-  },
-  btnAdd: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.danger[600],
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: borderRadius.md,
-  },
-  btnAddText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.neutral.white,
-  },
-  emptyBox: {
-    alignItems: 'center',
-    paddingVertical: spacing.lg,
-    gap: 6,
-  },
-  emptyTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.neutral[700],
-  },
-  emptySubtitle: {
-    fontSize: 12,
-    color: colors.neutral[400],
-    textAlign: 'center',
-    lineHeight: 16,
-    paddingHorizontal: spacing.lg,
-  },
-  itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[100],
-    gap: 12,
-  },
-  iconCircleHealth: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.danger[50],
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconCircleRoutine: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.success[50],
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  itemContent: {
-    flex: 1,
-  },
-  itemTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.neutral[800],
-  },
-  itemDesc: {
-    fontSize: 12,
-    color: colors.neutral[500],
-    marginTop: 2,
-  },
-  itemDate: {
-    fontSize: 12,
-    color: colors.neutral[500],
-    marginTop: 2,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  btnAction: {
-    padding: 6,
-  },
-  xpBadge: {
-    backgroundColor: colors.success[50],
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: borderRadius.sm,
-  },
-  xpText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: colors.success[600],
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: theme.card,
+      borderRadius: borderRadius.xxl,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...shadows.sm,
+      marginBottom: spacing.md,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    titleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    title: {
+      fontSize: 16,
+      fontWeight: '800',
+      color: theme.text,
+    },
+    btnAdd: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: colors.danger[600],
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: borderRadius.md,
+    },
+    btnAddText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: colors.neutral.white,
+    },
+    emptyBox: {
+      alignItems: 'center',
+      paddingVertical: spacing.lg,
+      gap: 6,
+    },
+    emptyTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.text,
+    },
+    emptySubtitle: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      textAlign: 'center',
+      lineHeight: 16,
+      paddingHorizontal: spacing.lg,
+    },
+    itemRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.borderSubtle,
+      gap: 12,
+    },
+    iconCircleHealth: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: theme.badgeDangerBg,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    iconCircleRoutine: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: theme.badgeSuccessBg,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    itemContent: {
+      flex: 1,
+    },
+    itemTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.text,
+    },
+    itemDesc: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      marginTop: 2,
+    },
+    itemDate: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      marginTop: 2,
+    },
+    actionButtons: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    btnAction: {
+      padding: 6,
+    },
+    xpBadge: {
+      backgroundColor: theme.badgeSuccessBg,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: borderRadius.sm,
+    },
+    xpText: {
+      fontSize: 11,
+      fontWeight: '800',
+      color: theme.badgeSuccessText,
+    },
+  });

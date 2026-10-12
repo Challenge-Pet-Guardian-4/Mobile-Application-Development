@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { PetCard } from './PetCard';
 import { PaginationControls } from '../../../components/PaginationControls';
-import { colors, spacing, borderRadius } from '../../../constants/theme';
+import { AppTheme, colors, spacing, borderRadius } from '../../../constants/theme';
 import { shadows } from '../../../utils/shadow';
 import { useFamilyCare } from '../../../hooks/useFamilyCare';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface FamilyPetsSectionProps {
   family: ReturnType<typeof useFamilyCare>['family'];
@@ -14,6 +15,8 @@ interface FamilyPetsSectionProps {
 }
 
 export function FamilyPetsSection({ family, onAddPet, onSelectPet }: FamilyPetsSectionProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { pets, petsExibidos, petsPagination } = family;
   const hasPets = (pets?.length ?? 0) > 0;
 
@@ -29,7 +32,7 @@ export function FamilyPetsSection({ family, onAddPet, onSelectPet }: FamilyPetsS
 
       {!hasPets ? (
         <View style={styles.emptyBox}>
-          <MaterialCommunityIcons name="paw-off" size={28} color={colors.neutral[300]} />
+          <MaterialCommunityIcons name="paw-off" size={28} color={theme.textMuted} />
           <Text style={styles.emptyTitle}>Nenhum pet cadastrado</Text>
           <Text style={styles.emptySub}>Clique no botão acima para adicionar o primeiro pet!</Text>
         </View>
@@ -60,59 +63,65 @@ export function FamilyPetsSection({ family, onAddPet, onSelectPet }: FamilyPetsS
   );
 }
 
-const styles = StyleSheet.create({
-  sectionBox: {
-    backgroundColor: colors.neutral.white,
-    borderRadius: borderRadius.xxl,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    ...shadows.sm,
-    elevation: 2,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: colors.neutral[900],
-  },
-  btnAddPet: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.success.default,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: borderRadius.md,
-    gap: 4,
-  },
-  btnAddPetText: {
-    color: colors.neutral.white,
-    fontWeight: '800',
-    fontSize: 12,
-  },
-  emptyBox: {
-    alignItems: 'center',
-    padding: spacing.lg,
-    gap: 4,
-  },
-  emptyTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.neutral[600],
-  },
-  emptySub: {
-    fontSize: 12,
-    color: colors.neutral[400],
-    textAlign: 'center',
-  },
-  petsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    sectionBox: {
+      backgroundColor: theme.card,
+      borderRadius: borderRadius.xxl,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...shadows.sm,
+      elevation: 2,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: '800',
+      color: theme.text,
+    },
+    btnAddPet: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.success.default,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.sm,
+      borderRadius: borderRadius.md,
+      gap: 4,
+    },
+    btnAddPetText: {
+      color: colors.neutral.white,
+      fontWeight: '800',
+      fontSize: 12,
+    },
+    emptyBox: {
+      alignItems: 'center',
+      padding: spacing.lg,
+      gap: 4,
+      backgroundColor: theme.surfaceSubtle,
+      borderRadius: borderRadius.lg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderStyle: 'dashed',
+    },
+    emptyTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.text,
+    },
+    emptySub: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      textAlign: 'center',
+    },
+    petsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+  });

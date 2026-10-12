@@ -2,10 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CaregiverCard } from '../../../components/CaregiverCard';
-import { colors, spacing, borderRadius } from '../../../constants/theme';
+import { AppTheme, spacing, borderRadius } from '../../../constants/theme';
 import { shadows } from '../../../utils/shadow';
 import { useFamilyCare } from '../../../hooks/useFamilyCare';
 import { CuidadorFamiliarItem } from '../../../types/user';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface FamilyCaregiversSectionProps {
   family: ReturnType<typeof useFamilyCare>['family'];
@@ -13,24 +14,23 @@ interface FamilyCaregiversSectionProps {
   onManageCaregiver: (caregiver: CuidadorFamiliarItem) => void;
 }
 
-import { useTheme } from '../../../contexts/ThemeContext';
-
 export function FamilyCaregiversSection({
   family,
   onInvite,
   onManageCaregiver,
 }: FamilyCaregiversSectionProps) {
   const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { currentUserCaregiver, coCuidadores } = family;
   const isPrincipal = currentUserCaregiver?.isPrincipal ?? false;
 
   return (
     <View style={styles.sectionBox}>
       <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>Rede de Cuidados</Text>
+        <Text style={styles.sectionTitle}>Rede de Cuidados</Text>
         {isPrincipal && (
           <TouchableOpacity style={styles.btnInvite} onPress={onInvite} activeOpacity={0.8}>
-            <Ionicons name="person-add" size={14} color="#2563EB" />
+            <Ionicons name="person-add" size={14} color={theme.badgePrimaryText} />
             <Text style={styles.btnInviteText}>Convidar</Text>
           </TouchableOpacity>
         )}
@@ -62,39 +62,40 @@ export function FamilyCaregiversSection({
   );
 }
 
-const styles = StyleSheet.create({
-  sectionBox: {
-    backgroundColor: colors.neutral.white,
-    borderRadius: borderRadius.xxl,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    ...shadows.sm,
-    elevation: 2,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: colors.neutral[900],
-  },
-  btnInvite: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary[50],
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: borderRadius.md,
-    gap: 4,
-  },
-  btnInviteText: {
-    color: colors.primary[600],
-    fontWeight: '800',
-    fontSize: 12,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    sectionBox: {
+      backgroundColor: theme.card,
+      borderRadius: borderRadius.xxl,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...shadows.sm,
+      elevation: 2,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: '800',
+      color: theme.text,
+    },
+    btnInvite: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.badgePrimaryBg,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.sm,
+      borderRadius: borderRadius.md,
+      gap: 4,
+    },
+    btnInviteText: {
+      color: theme.badgePrimaryText,
+      fontWeight: '800',
+      fontSize: 12,
+    },
+  });

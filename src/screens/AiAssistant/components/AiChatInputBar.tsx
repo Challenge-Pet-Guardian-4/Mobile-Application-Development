@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Platfo
 import { Ionicons } from '@expo/vector-icons';
 import { EdgeInsets } from 'react-native-safe-area-context';
 import { useAiAssistantScreen } from '../../../hooks/useAiAssistantScreen';
+import { AppTheme } from '../../../constants/theme';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface AiChatInputBarProps {
   chat: ReturnType<typeof useAiAssistantScreen>['chat'];
@@ -10,6 +12,8 @@ interface AiChatInputBarProps {
 }
 
 export function AiChatInputBar({ chat, insets }: AiChatInputBarProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const isSendDisabled = !chat.inputText.trim() || chat.isSending;
 
   return (
@@ -38,7 +42,7 @@ export function AiChatInputBar({ chat, insets }: AiChatInputBarProps) {
               onPress={() => chat.handleSend(sug)}
               activeOpacity={0.75}
             >
-              <Ionicons name="sparkles" size={12} color="#2563EB" />
+              <Ionicons name="sparkles" size={12} color={theme.primary} />
               <Text style={styles.suggestionChipText}>{sug}</Text>
             </TouchableOpacity>
           ))}
@@ -50,7 +54,7 @@ export function AiChatInputBar({ chat, insets }: AiChatInputBarProps) {
         <TextInput
           style={styles.chatInput}
           placeholder="Escreva sua dúvida para a IA..."
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor={theme.textMuted}
           value={chat.inputText}
           onChangeText={chat.setInputText}
           onSubmitEditing={() => chat.handleSend()}
@@ -69,64 +73,65 @@ export function AiChatInputBar({ chat, insets }: AiChatInputBarProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  fixedBottomContainer: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
-    gap: 12,
-  },
-  fixedSuggestionsWrapper: {
-    marginBottom: 2,
-  },
-  suggestionsScroll: {
-    gap: 8,
-    paddingVertical: 2,
-  },
-  suggestionChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#EFF6FF',
-    paddingVertical: 7,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#DBEAFE',
-    gap: 6,
-  },
-  suggestionChipText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#2563EB',
-  },
-  inputInnerWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    minHeight: 54,
-    gap: 10,
-  },
-  chatInput: {
-    flex: 1,
-    paddingHorizontal: 6,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: '#1E293B',
-    minHeight: 42,
-  },
-  btnSend: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#0F172A',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    fixedBottomContainer: {
+      backgroundColor: theme.card,
+      paddingHorizontal: 16,
+      paddingTop: 12,
+      borderTopWidth: 1,
+      borderTopColor: theme.border,
+      gap: 12,
+    },
+    fixedSuggestionsWrapper: {
+      marginBottom: 2,
+    },
+    suggestionsScroll: {
+      gap: 8,
+      paddingVertical: 2,
+    },
+    suggestionChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.badgePrimaryBg,
+      paddingVertical: 7,
+      paddingHorizontal: 14,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: theme.badgePrimaryBorder,
+      gap: 6,
+    },
+    suggestionChipText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.badgePrimaryText,
+    },
+    inputInnerWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.surfaceSubtle,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 24,
+      paddingHorizontal: 16,
+      paddingVertical: 6,
+      minHeight: 54,
+      gap: 10,
+    },
+    chatInput: {
+      flex: 1,
+      paddingHorizontal: 6,
+      paddingVertical: 10,
+      fontSize: 14,
+      color: theme.text,
+      minHeight: 42,
+    },
+    btnSend: {
+      width: 38,
+      height: 38,
+      borderRadius: 19,
+      backgroundColor: theme.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });

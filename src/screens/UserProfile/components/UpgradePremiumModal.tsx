@@ -18,7 +18,7 @@ const BENEFICIOS_PREMIUM = [
     descricao: 'Módulos didáticos completos com lições práticas e ganho de pontuação de bem-estar.',
   },
   {
-    icon: 'robot-outline',
+    icon: 'sparkles-outline',
     titulo: 'Assistente de IA Preventiva 24h',
     descricao: 'Orientações inteligentes em tempo real sobre nutrição, sintomas e vacinação.',
   },

@@ -1,12 +1,15 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useTrainings } from '../../../hooks/useTrainings';
+import { AppTheme } from '../../../constants/theme';
+import { useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface SeletorTrilhasPillsProps {
   trail: ReturnType<typeof useTrainings>['trail'];
 }
 
 export function SeletorTrilhasPills({ trail }: SeletorTrilhasPillsProps) {
+  const styles = useThemedStyles(createStyles);
   const { trilhas, trilhaAtivaIndex, setTrilhaAtivaIndex } = trail;
 
   return (
@@ -26,27 +29,28 @@ export function SeletorTrilhasPills({ trail }: SeletorTrilhasPillsProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  trackPillsScroll: {
-    paddingHorizontal: 20,
-    gap: 10,
-    marginBottom: 20,
-  },
-  trackPill: {
-    backgroundColor: '#FFF',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-  },
-  trackPillText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  trackPillTextActive: {
-    color: '#FFF',
-    fontWeight: '900',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    trackPillsScroll: {
+      paddingHorizontal: 20,
+      gap: 10,
+      marginBottom: 20,
+    },
+    trackPill: {
+      backgroundColor: theme.card,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      borderRadius: 16,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+    },
+    trackPillText: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.textSecondary,
+    },
+    trackPillTextActive: {
+      color: '#FFF',
+      fontWeight: '900',
+    },
+  });

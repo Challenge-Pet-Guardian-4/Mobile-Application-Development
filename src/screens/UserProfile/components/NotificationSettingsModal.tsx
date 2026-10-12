@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ActivityIndicator, Alert, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseModal } from '../../../components/BaseModal';
 import { OPCOES_ANTECEDENCIA } from '../../../services/notifications';
@@ -21,15 +21,40 @@ export function NotificationSettingsModal({
 }: NotificationSettingsModalProps) {
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
-  const { settings, salvarSettings, isLoadingSettings } = useNotifications();
+  const { settings, salvarSettings, isLoadingSettings, permissaoConcedida, solicitarPermissao, recarregarPermissoes, testarNotificacao } = useNotifications();
   const [localSettings, setLocalSettings] = useState<NotificationSettings>(settings);
   const [isSaving, setIsSaving] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
 
   useEffect(() => {
     if (visible) {
+      recarregarPermissoes();
       setLocalSettings(settings);
     }
-  }, [visible, settings]);
+  }, [visible, settings, recarregarPermissoes]);
+
+  const handleToggleAtivado = async (novoValor: boolean) => {
+    if (novoValor) {
+      const perm = await solicitarPermissao();
+      if (!perm.concedida) {
+        if (!perm.canAskAgain) {
+          Alert.alert(
+            'Notificações Bloqueadas',
+            'A permissão de notificações está desativada nas configurações do sistema. Para receber lembretes de rotinas dos pets, ative as notificações nas configurações do aparelho.',
+            [
+              { text: 'Cancelar', style: 'cancel' },
+              { text: 'Abrir Configurações', onPress: () => Linking.openSettings() },
+            ]
+          );
+        } else {
+          Alert.alert('Permissão Necessária', 'É preciso autorizar as notificações para ativar os lembretes.');
+        }
+        setLocalSettings((prev) => ({ ...prev, ativado: false }));
+        return;
+      }
+    }
+    setLocalSettings((prev) => ({ ...prev, ativado: novoValor }));
+  };
 
   const handleSalvar = async () => {
     setIsSaving(true);
@@ -41,6 +66,20 @@ export function NotificationSettingsModal({
       Alert.alert('Erro', 'Não foi possível salvar as preferências.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleTestarNotificacao = async () => {
+    setIsTesting(true);
+    try {
+      const id = await testarNotificacao();
+      if (id) {
+        Alert.alert('Notificação Enviada! 🔔', 'Verifique a barra de notificações do seu celular para conferir o lembrete.');
+      } else {
+        Alert.alert('Permissão Necessária', 'As notificações não estão permitidas pelo sistema operacional.');
+      }
+    } finally {
+      setIsTesting(false);
     }
   };
 
@@ -59,33 +98,54 @@ export function NotificationSettingsModal({
         </View>
       ) : (
         <View style={styles.content}>
+          {/* Banner de Aviso caso o sistema tenha negado permissão */}
+          {!permissaoConcedida && (
+            <View style={styles.permissionWarningBox}>
+              <Ionicons name="warning-outline" size={20} color="#D97706" />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.permissionWarningTitle}>Notificações Desativadas no Celular</Text>
+                <Text style={styles.permissionWarningText}>
+                  A permissão nativa foi negada nas configurações do sistema. Para receber lembretes, habilite as notificações do PetGuardian.
+                </Text>
+                <TouchableOpacity
+                  style={styles.btnOpenSettings}
+                  onPress={() => Linking.openSettings()}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="settings-outline" size={14} color="#D97706" />
+                  <Text style={styles.btnOpenSettingsText}>Abrir Configurações do Celular</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
           {/* Toggle Principal de Ativação */}
           <View style={styles.toggleCard}>
             <View style={styles.toggleIconWrap}>
               <Ionicons
-                name={localSettings.ativado ? 'notifications' : 'notifications-off-outline'}
+                name={localSettings.ativado && permissaoConcedida ? 'notifications' : 'notifications-off-outline'}
                 size={22}
-                color={localSettings.ativado ? theme.primary : theme.textMuted}
+                color={localSettings.ativado && permissaoConcedida ? theme.primary : theme.textMuted}
               />
             </View>
             <View style={styles.toggleTextCol}>
               <Text style={styles.toggleTitle}>Lembretes de Tarefas</Text>
               <Text style={styles.toggleDesc}>
-                {localSettings.ativado
+                {localSettings.ativado && permissaoConcedida
                   ? 'Ativo: avisos serão agendados antes do prazo'
                   : 'Desativado: nenhum alerta será disparado'}
               </Text>
             </View>
             <Switch
-              value={localSettings.ativado}
-              onValueChange={(ativado) => setLocalSettings((prev: NotificationSettings) => ({ ...prev, ativado }))}
+              value={localSettings.ativado && permissaoConcedida}
+              onValueChange={handleToggleAtivado}
               trackColor={{ false: colors.neutral[300], true: colors.primary[200] }}
-              thumbColor={localSettings.ativado ? theme.primary : colors.neutral[100]}
+              thumbColor={localSettings.ativado && permissaoConcedida ? theme.primary : colors.neutral[100]}
             />
           </View>
 
           {/* Seleção de Antecedência */}
-          {localSettings.ativado && (
+          {localSettings.ativado && permissaoConcedida && (
             <View style={styles.sectionAntecedencia}>
               <View style={styles.sectionHeader}>
                 <Ionicons name="time-outline" size={16} color={theme.textSecondary} />
@@ -103,7 +163,10 @@ export function NotificationSettingsModal({
                       key={opcao.valor}
                       style={[styles.optionCard, isSelected && styles.optionCardSelected]}
                       onPress={() =>
-                        setLocalSettings((prev: NotificationSettings) => ({ ...prev, minutosAntecedencia: opcao.valor as AntecedenciaMinutos }))
+                        setLocalSettings((prev: NotificationSettings) => ({
+                          ...prev,
+                          minutosAntecedencia: opcao.valor as AntecedenciaMinutos,
+                        }))
                       }
                       activeOpacity={0.7}
                     >
@@ -122,6 +185,23 @@ export function NotificationSettingsModal({
                   );
                 })}
               </View>
+
+              {/* Botão de Demonstração / Teste Imediato */}
+              <TouchableOpacity
+                style={styles.btnTestNotification}
+                onPress={handleTestarNotificacao}
+                disabled={isTesting}
+                activeOpacity={0.8}
+              >
+                {isTesting ? (
+                  <ActivityIndicator size="small" color={theme.primary} />
+                ) : (
+                  <>
+                    <Ionicons name="notifications-outline" size={16} color={theme.primary} />
+                    <Text style={styles.btnTestNotificationText}>Testar Lembrete Agora 🔔</Text>
+                  </>
+                )}
+              </TouchableOpacity>
             </View>
           )}
 
@@ -169,6 +249,60 @@ const createStyles = (theme: AppTheme) =>
     content: {
       gap: spacing.lg,
       paddingTop: spacing.xs,
+    },
+    permissionWarningBox: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: theme.isDark ? '#422006' : '#FEF3C7',
+      borderRadius: borderRadius.md,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: theme.isDark ? '#78350F' : '#FCD34D',
+      gap: 10,
+    },
+    permissionWarningTitle: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.isDark ? '#FDE68A' : '#92400E',
+      marginBottom: 2,
+    },
+    permissionWarningText: {
+      fontSize: 12,
+      color: theme.isDark ? '#FCD34D' : '#B45309',
+      lineHeight: 16,
+      marginBottom: 8,
+    },
+    btnOpenSettings: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: theme.isDark ? '#78350F' : '#FDE68A',
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      borderRadius: borderRadius.sm,
+      alignSelf: 'flex-start',
+    },
+    btnOpenSettingsText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: theme.isDark ? '#FEF3C7' : '#92400E',
+    },
+    btnTestNotification: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      paddingVertical: 10,
+      borderRadius: borderRadius.md,
+      backgroundColor: theme.surfaceSubtle,
+      borderWidth: 1,
+      borderColor: theme.border,
+      marginTop: 4,
+    },
+    btnTestNotificationText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: theme.primary,
     },
     toggleCard: {
       flexDirection: 'row',
