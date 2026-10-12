@@ -32,12 +32,11 @@ export function CaregiverCard({
   const displayRole = roleText || (isPrincipal ? 'Tutor Principal' : email || 'Co-cuidador');
   const badgeLabel = isPrincipal ? 'Tutor Principal' : 'Co-cuidador';
 
-  const CardWrapper = onPress ? TouchableOpacity : View;
-
   return (
-    <CardWrapper
+    <TouchableOpacity
       style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
       onPress={onPress}
+      disabled={!onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
       <View
@@ -116,7 +115,7 @@ export function CaregiverCard({
       {onPress && !onTransfer && !onRemove && (
         <Ionicons name="chevron-forward" size={18} color={colors.neutral[400]} />
       )}
-    </CardWrapper>
+    </TouchableOpacity>
   );
 }
 

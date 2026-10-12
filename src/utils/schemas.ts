@@ -122,7 +122,10 @@ export const PetSchema = z.object({
 
 // Schema de Tarefa
 export const TaskSchema = z.object({
-  petId: z.number().int().positive('Selecione para qual pet a tarefa será criada.'),
+  petId: z
+    .number({ message: 'Cadastre e selecione um pet para criar a tarefa.' })
+    .int('Identificador do pet inválido.')
+    .positive('Cadastre e selecione um pet para criar a tarefa.'),
   titulo: NonEmptyString('O título da tarefa é obrigatório.'),
   descricao: NonEmptyString('A descrição da tarefa é obrigatória.'),
   pontos: z.coerce.number()

@@ -154,8 +154,9 @@ src/
    - Cancelamento automático quando a tarefa é concluída ou estornada.
    - Suporte a antecedência global configurável pelo usuário (0, 5, 15, 30 ou 60 minutos antes do prazo) via `NotificationSettingsModal`.
    - Preferências salvas de forma resiliente no `AsyncStorage` (`@petguardian:notification_settings`).
-   - Redirecionamento nativo e seguro ao tocar na notificação utilizando `navigationRef.navigate('Tabs', { screen: 'Home' })`.
-   - Sem métodos ou botões de teste/mock em produção.
+   - Sincronização automática em primeiro plano (AppState) e inicialização, cancelando alarmes órfãos e limitando aos ~60 alarmes mais próximos (limite iOS).
+   - Redirecionamento nativo e seguro ao tocar na notificação com suporte a deep link para a ficha do pet (`'Family'` -> `'PetDetail'`, com `petId`) ou rotina (`'Tabs'` -> `'Home'`).
+   - Sem métodos ou botões de teste/mock em produção (conforme edital FIAP).
 2. **Tema Claro / Modo Escuro (`ThemeContext`):**
    - Provedor reativo encapsulado em `ThemeProvider`, expondo `theme`, `isDark`, `themeMode` e `toggleTheme()`.
    - Tokens consolidados em `src/constants/theme.ts` (`lightTheme` e `darkTheme`).

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FamilyStackParamList } from '../../routes/types';
 import { useFamilyCare } from '../../hooks/useFamilyCare';
@@ -56,7 +56,20 @@ export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
         {/* Seção Reutilizável de Tarefas da Rotina */}
         <FamilyRoutineSection
           family={family}
-          onNewTask={() => modals.abrir('novaTarefa')}
+          onNewTask={() => {
+            if (!family?.pets || family.pets.length === 0) {
+              Alert.alert(
+                'Nenhum Pet Cadastrado',
+                'Cadastre um pet primeiro para poder criar tarefas de cuidado.',
+                [
+                  { text: 'Cadastrar Pet', onPress: () => modals.abrir('novoPet') },
+                  { text: 'Cancelar', style: 'cancel' },
+                ]
+              );
+              return;
+            }
+            modals.abrir('novaTarefa');
+          }}
         />
 
         {/* Seção de Co-Cuidadores */}

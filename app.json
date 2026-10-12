@@ -4,13 +4,19 @@
     "slug": "pet-guardian",
     "version": "1.0.0",
     "android": {
-      "package": "com.anonymous.petguardian",
+      "package": "br.com.fiap.petguardian",
       "softwareKeyboardLayoutMode": "pan",
       "usesCleartextTraffic": true
     },
     "plugins": [
       "expo-secure-store",
-      "expo-notifications"
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#2563EB"
+        }
+      ]
     ]
   }
 }

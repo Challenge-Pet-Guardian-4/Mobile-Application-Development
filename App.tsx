@@ -7,12 +7,12 @@ import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/
 import { queryClient } from './src/lib/queryClient';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import { useNotificationSync } from './src/hooks/useNotificationSync';
 import MainStack from './src/routes/MainStack';
 import { navigationRef } from './src/routes/navigationRef';
-import { useNotifications } from './src/hooks/useNotifications';
 
 function AppContent() {
-  useNotifications();
+  useNotificationSync();
   const { theme, isDark } = useTheme();
 
   const navigationTheme = {

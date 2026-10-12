@@ -210,7 +210,7 @@ export function useTaskActions() {
   );
 
   const cadastrar = useCallback(
-    (data: TaskFormData, callbacks?: ActionCallbacks) => {
+    (data: TaskFormData, callbacks?: ActionCallbacks<TarefaResponse>) => {
       const validacao = TaskSchema.safeParse(data);
       if (!validacao.success) {
         Alert.alert('Dados da Tarefa', formatZodError(validacao.error));
@@ -229,19 +229,19 @@ export function useTaskActions() {
           petId: data.petId,
           status: statusFinal,
         },
-        createMutationCallbacks('Erro ao Cadastrar Tarefa', 'Não foi possível cadastrar a tarefa na API.', {
+        createMutationCallbacks<TarefaResponse, TarefaResponse>('Erro ao Cadastrar Tarefa', 'Não foi possível cadastrar a tarefa na API.', {
           ...callbacks,
-          onSuccess: () => {
-            if (statusFinal === 'PENDENTE') {
+          onSuccess: (criada: TarefaResponse) => {
+            if ((criada.status || statusFinal) === 'PENDENTE') {
               agendarLembrete({
-                id: Date.now(),
-                titulo: data.titulo.trim(),
-                petId: data.petId,
-                prazo: prazoIso,
-                pontosTarefa: Number(data.pontos),
+                id: criada.id,
+                titulo: criada.titulo || data.titulo.trim(),
+                petId: criada.petId || data.petId,
+                prazo: criada.prazo || prazoIso,
+                pontosTarefa: criada.pontosTarefa !== undefined ? criada.pontosTarefa : Number(data.pontos),
               });
             }
-            callbacks?.onSuccess?.();
+            callbacks?.onSuccess?.(criada);
           },
         })
       );

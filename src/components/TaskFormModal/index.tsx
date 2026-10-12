@@ -92,6 +92,14 @@ const TaskFormBody = memo(function TaskFormBody({
   );
 
   const handleSubmit = () => {
+    if (!pets || pets.length === 0 || !form.petId) {
+      Alert.alert(
+        'Nenhum Pet Selecionado',
+        'Cadastre e selecione um pet antes de salvar a tarefa.'
+      );
+      return;
+    }
+
     const validacao = TaskSchema.safeParse(form);
 
     if (!validacao.success) {

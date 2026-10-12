@@ -9,6 +9,7 @@ import { PetSchema, formatZodError } from '../utils/schemas';
 import { ActionCallbacks } from '../types/api';
 import { createMutationCallbacks } from '../utils/apiError';
 import { confirmarAcao } from '../utils/dialogUtils';
+import { NotificationService } from '../services/notifications';
 
 interface UsePetDetailActionsProps {
   activePet?: PetResponse;
@@ -77,16 +78,17 @@ export function usePetDetailActions({
         'Remover Pet',
         `Deseja realmente excluir a ficha de ${activePet.nome}?`,
         () => {
-          deletePetMutation.mutate(
-            activePet.id,
-            createMutationCallbacks('Erro ao Excluir Pet', 'Não foi possível excluir o pet.', {
-              onSuccess: () => {
-                onPetDeleted?.();
-                callbacks?.onSuccess?.();
-              },
-              onError: callbacks?.onError,
-            })
-          );
+            deletePetMutation.mutate(
+              activePet.id,
+              createMutationCallbacks('Erro ao Excluir Pet', 'Não foi possível excluir o pet.', {
+                onSuccess: () => {
+                  NotificationService.cancelarNotificacoesPorPet(activePet.id);
+                  onPetDeleted?.();
+                  callbacks?.onSuccess?.();
+                },
+                onError: callbacks?.onError,
+              })
+            );
         },
         { textoConfirmar: 'Excluir', destrutivo: true }
       );
@@ -120,7 +122,16 @@ export function usePetDetailActions({
       confirmarAcao(
         title,
         msg,
-        () => caregiverActions.remover(activePet.id, cuidadorEmail, callbacks),
+        () =>
+          caregiverActions.remover(activePet.id, cuidadorEmail, {
+            ...callbacks,
+            onSuccess: () => {
+              if (isSelf) {
+                NotificationService.cancelarNotificacoesPorPet(activePet.id);
+              }
+              callbacks?.onSuccess?.();
+            },
+          }),
         { textoConfirmar: isSelf ? 'Sair' : 'Remover', destrutivo: true }
       );
     },

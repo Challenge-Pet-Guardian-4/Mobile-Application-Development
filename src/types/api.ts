@@ -1,5 +1,5 @@
-export interface ActionCallbacks {
-  onSuccess?: () => void;
+export interface ActionCallbacks<T = void> {
+  onSuccess?: (data: T) => void;
   onError?: (error: unknown) => void;
 }
 

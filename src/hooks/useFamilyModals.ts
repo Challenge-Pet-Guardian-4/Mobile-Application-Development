@@ -15,7 +15,7 @@ export type FamilyModalType =
 
 interface UseFamilyModalsProps {
   petsOndeSouPrincipal: PetResponse[];
-  cadastrarTarefa: (data: TaskFormData, callbacks?: ActionCallbacks) => void;
+  cadastrarTarefa: (data: TaskFormData, callbacks?: ActionCallbacks<TarefaResponse>) => void;
   atualizarTarefa: (taskId: number, data: TaskFormData, callbacks?: ActionCallbacks) => void;
 }
 

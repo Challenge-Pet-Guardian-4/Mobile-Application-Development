@@ -1,166 +1,350 @@
-# 🤖 AGENT.md — Guia Arquitetural & Especificação Técnica (Mobile-Application-Development)
+# 🐾 PetGuardian — Mobile Application Development
 
-Este documento é a referência definitiva para agentes de IA e desenvolvedores sobre a arquitetura, telas, contratos de API, gerenciamento de estado, rotas e fluxos do aplicativo móvel **PetGuardian** (Ecossistema Clyvo).
-
----
-
-## 🏛️ 1. Stack Tecnológica & Arquitetura Base
-
-- **Framework & Runtime:** React Native 0.86.3 com **Expo SDK 57** (`expo@~57.0.20`, Metro Runtime, Expo Status Bar).
-- **Linguagem & Tipagem:** TypeScript ~6.0.3 (**Tipagem Estrita — Zero `any`**, tipagem estrita de rotas, props e payloads).
-- **Notificações Locais Nativas:** **Expo Notifications** (`expo-notifications@~57.0.22`) com agendamento determinístico por tarefa, canais prioritários Android e preferências de antecedência.
-- **Tematização & Acessibilidade:** **ThemeProvider** (`ThemeContext.tsx`, hook `useTheme`) com suporte nativo a **Modo Claro (Light) e Modo Escuro (Dark)**, tokens em `theme.ts`.
-- **Gerenciamento de Estado Assíncrono:** **TanStack Query v5** (`@tanstack/react-query@^5.102.6`) com mutações declarativas (`mutate` com `onSuccess`/`onError`) e invalidação granular de cache.
-- **Padrão de Dados:** **Domain Hooks** (camada intermediária que isola queries, mutations e lógica de negócio, mantendo telas puramente declarativas).
-- **Cliente HTTP Centralizado:** **Axios** (`^1.20.0`) com interceptores para injeção automática de Bearer Token JWT e captura global de status `401 Unauthorized`.
-- **Hardware Seguro & Persistência:** `expo-secure-store` (Keychain iOS / Keystore Android para JWT) + `@react-native-async-storage/async-storage` (cache e preferências de notificação/tema).
-- **Navegação Nativa:** React Navigation v7 (`@react-navigation/native`, `native-stack`, `bottom-tabs`, `navigationRef.ts` para navegação externa via push).
-- **Validação de Formulários:** **Zod** (`zod@^4.4.3`) + **React Hook Form** (`^7.75.0`).
-- **Design System & Ícones:** `@expo/vector-icons`, tokens em `theme.ts` (Tailwind slate/blue, raios, espaçamentos e paleta Duolingo de trilhas).
+> **Arquitetura Pet-Centric, Governança Familiar Colaborativa, Inteligência Artificial Preventiva & Notificações Nativas**  
+> *Aplicativo mobile desenvolvido para a 4ª Sprint (Entrega Final) do Challenge Clyvo 2026 — 2TDSPG (FIAP).*
 
 ---
 
-## 📁 2. Estrutura de Diretórios
+## 👥 Equipe de Desenvolvimento
+
+| Nome | RM | GitHub | LinkedIn |
+| :--- | :---: | :---: | :--- |
+| **Enzo Okuizumi** | **561432** | [EnzoOkuizumiFiap](https://github.com/EnzoOkuizumiFiap) | [LinkedIn](https://www.linkedin.com/in/enzo-okuizumi-b60292256/) |
+| **Gustavo Okada** | **563428** | [Gdev3356](https://github.com/Gdev3356) | [LinkedIn](https://www.linkedin.com/in/gustavo-okada-53a3b8359/) |
+| **Lucas Barros Gouveia** | **566422** | [LuzBGouveia](https://github.com/LuzBGouveia) | [LinkedIn](https://www.linkedin.com/in/lucas-barros-gouveia-09b147355/) |
+| **Luna de Carvalho Guimarães** | **562290** | [lunaguima](https://github.com/lunaguima) | [LinkedIn](https://www.linkedin.com/in/luna-guimar%C3%A3es-b0ba82309/) |
+| **Milton Marcelino** | **564836** | [MiltonMarcelino](https://github.com/MiltonMarcelino) | [LinkedIn](http://linkedin.com/in/milton-marcelino-250298142) |
+
+---
+
+## 🔗 Links Oficiais do Projeto
+
+* **Repositório GitHub Mobile:** [Challenge-Pet-Guardian-4/Mobile-Application-Development](https://github.com/Challenge-Pet-Guardian-4/Mobile-Application-Development)
+* **Backend Java (Spring Boot):** [Challenge-Pet-Guardian-4/Java-Advanced](https://github.com/Challenge-Pet-Guardian-4/Java-Advanced)
+* **Microsserviço IA (Python / FastAPI):** [Disruptive-Architectures-IOT-IOB-IA](https://github.com/Challenge-Pet-Guardian-4/Disruptive-Architectures-IOT-IOB-IA)
+
+---
+
+## 📱 1. Visão Geral do Projeto & Arquitetura Pet-Centric
+
+O **PetGuardian** é o aplicativo móvel central do ecossistema Clyvo, desenvolvido em **React Native 0.86 com Expo SDK 57 e TypeScript estrito**, integrado diretamente à **API RESTful corporativa em Spring Boot (Java Advanced)** com banco Oracle e ao **microsserviço de Inteligência Artificial Preventiva em FastAPI (Python / Google Gemini no Render)**.
+
+Concebido a partir das diretrizes estratégicas da **Mentoria Clyvo 2026**, o aplicativo rompe com os modelos tradicionais que tratam animais como meros registros de consultas clínicas ou cadastros individuais isolados. No PetGuardian, estabelece-se a **Arquitetura Pet-Centric**:
+
+```text
+       ┌─────────────────────────────────────────────────────────────┐
+       │                   ECOSSISTEMA PETGUARDIAN                   │
+       └──────────────────────────────┬──────────────────────────────┘
+                                      │
+         ┌────────────────────────────┼────────────────────────────┐
+         ▼                            ▼                            ▼
+  ┌──────────────┐             ┌──────────────┐             ┌──────────────┐
+  │   O TUTOR    │             │  A FAMÍLIA   │             │    O PET     │
+  └──────┬───────┘             └──────┬───────┘             └──────┬───────┘
+         │                            │                            │
+  • Onboarding & Perfil        • Care Circle (N:N)          • Prontuário Clínico
+  • Login JWT (RSA 2048)       • Co-cuidadores convidados   • Score de Bem-estar
+  • Hardware Seguro            • Delegação de tarefas       • Trilhas Didáticas
+  • Modo Claro / Escuro        • Visão unificada da rede    • Notificações Locais
+  • Plano Comum / Premium      • Histórico compartilhado    • Triagem Preventiva IA
+```
+
+### Pilares Fundamentais do Aplicativo:
+1. **Pontuação e Gamificação Focadas no Pet:** O score de experiência (XP) pertence ao animal. Cada rotina concluída e cada lição de adestramento finalizada alimentam a barra de bem-estar do pet, calculada no banco Oracle via Stored Procedure (`pr_calcular_pontuacao_pet`).
+2. **Governança Familiar (Care Circle Colaborativo):** Múltiplos tutores e familiares cuidam dos mesmos animais em uma relação N:N, com papéis definidos (Responsável Principal e Co-cuidadores), transferência de titularidade atômica e sincronização em tempo real.
+3. **Prevenção Ativa com IA (Guardian AI):** Chat contextual com Google Gemini que consome idade calculada, raça, porte e histórico clínico do pet para fornecer orientações de cuidados e triagem preliminar de sintomas.
+4. **Educação Comportamental (Trilhas Duolingo-style):** Aulas práticas interativas de adestramento armazenadas no MongoDB com renderização rica em Markdown.
+5. **Notificações Locais Nativas Confiáveis:** Sistema determinístico de alarmes no aparelho via Expo Notifications, respeitando canais de alta prioridade do Android 13+ e limites do iOS.
+
+---
+
+## ✨ 2. Novidades & Destaques da Sprint 4 (Entrega Final)
+
+Nesta 4ª Sprint, o aplicativo atinge sua maturidade de engenharia e produção com a introdução dos seguintes módulos:
+
+### 🔔 Sistema de Notificações Locais Nativas Determinísticas
+- **Agendamento por Tarefa:** Cada rotina pendente gera um alarme no dispositivo com identificador determinístico único (`task_${id}`).
+- **Antecedência Global Configurável:** O usuário define nas preferências quando deseja ser alertado: *No horário (0 min)*, *5 min antes*, *15 min antes*, *30 min antes* ou *1 hora antes*.
+- **Android 13+ Compliance:** Criação antecipada do `NotificationChannel` (`petguardian-lembretes`) com importância máxima, som, vibração e luz antes de solicitar permissões ao sistema operacional.
+- **Tolerância a Falhas no iOS:** Validação estrita de horários futuros com margem de segurança de tempo, evitando exceções no `UNUserNotificationCenter` e limitando agendamentos em lote a 60 alarmes (abaixo do teto de 64 do iOS).
+- **Foreground Handler Moderno:** Suporte aos campos atualizados `shouldShowBanner` e `shouldShowList` no Expo SDK 57, eliminando avisos de depreciação.
+- **Deep Linking:** Tocar na notificação redireciona o usuário diretamente para a rotina do animal através de `navigationRef.ts`.
+
+### 🌗 Tematização Completa: Modo Claro e Modo Escuro (Light & Dark Mode)
+- **`ThemeContext` Reativo:** Provedor central que detecta preferências do usuário, armazena no `AsyncStorage` (`@petguardian:theme`) e reage a alternâncias instantâneas.
+- **Tokens de Design Consolidados:** Paleta profissional com fundos profundos em slate dark (`#0B0F19`, `#111827`, `#1E293B`), textos de alto contraste e bordas sutis.
+- **StatusBar Dinâmica:** Sincronização automática entre o tema visual e a barra de status do sistema (`light` no dark mode, `dark` no light mode).
+
+### 🏷️ Modal "Sobre o App" & Metadados do Edital FIAP
+- **Centralização Técnica (`version.ts`):** Exibe nome da aplicação, versão de lançamento `1.0.0`, número da build `#4`, sprint correspondente, disciplina e challenge.
+- **Sincronização com o Git:** Hash de commit curto e mensagem do último commit integrados aos metadados via script de build.
+- **Identificação Acadêmica:** Nome completo e RM de todos os 5 integrantes da equipe, facilitando a validação e avaliação pelos docentes.
+
+### 💎 Modelo Freemium & Blindagem da Role ADMIN
+- **Plano `COMUM` vs. `PREMIUM`:** Usuários gratuitos desfrutam das funcionalidades essenciais, enquanto recursos avançados contam com cards ilustrativos e fluxo de upgrade via `PATCH /usuarios/me/upgrade-premium`.
+- **Blindagem de Segurança:** O aplicativo mobile é restrito a tutores (`USER` e `PREMIUM`). Telas e seletores administrativos foram completamente eliminados do cliente mobile.
+
+---
+
+## 🖥️ 3. Arquitetura das Telas da Aplicação
+
+O aplicativo é composto por **9 telas principais ricas e declarativas**, organizadas entre rotas públicas (`AuthStack`) e privadas (`AppTabs`):
+
+### 🔓 Telas Públicas (`AuthStack`)
+
+#### 1. `WelcomeScreen` (Boas-Vindas)
+* **Objetivo:** Apresentação da proposta de valor, identidade visual e acesso direto ao onboarding.
+* **Componentes:** Carrossel institucional, botões de ação estilizados e roteamento seguro.
+
+#### 2. `LoginScreen` (Autenticação JWT Real)
+* **Objetivo:** Login corporativo com credenciais do tutor.
+* **Recursos:** Validação com Zod (`LoginSchema`), requisição `POST /login`, recebimento de token JWT assinado por RSA de 2048 bits e gravação em hardware seguro (`expo-secure-store`).
+
+#### 3. `RegisterScreen` (Onboarding de Tutor com ViaCEP)
+* **Objetivo:** Cadastro de novos tutores no ecossistema.
+* **Recursos:** Validação Zod (`RegisterSchema`), consulta automática de endereço via CEP (ViaCEP), validação de senha e transição direta pós-cadastro.
+
+---
+
+### 🔒 Telas Protegidas (`AppTabs`)
+
+#### 4. `HomeScreen` (Dashboard Central do Pet Ativo)
+* **Objetivo:** Painel de controle focado nas necessidades do animal selecionado.
+* **Recursos:**
+  * **Seletor de Pet:** Alternância ágil entre os pets da família.
+  * **`PetScoreBar`:** Nível de XP e bem-estar do pet calculado pelo banco Oracle (`GET /pets/{id}/pontos`).
+  * **Rotinas do Dia:** Lista de tarefas pendentes e concluídas com badges de horário e pontos.
+  * **Conclusão em 1 Toque:** `PATCH /tarefas/{id}/concluir` e `PATCH /tarefas/{id}/desmarcar` com feedback de som/haptic e disparo de notificação de celebração de XP.
+  * **`StreakCard`:** Ofensiva diária incentivando cuidados contínuos.
+
+#### 5. `FamilyPetScreen` (Gestão Familiar & Care Circle)
+* **Objetivo:** Governança colaborativa de múltiplos pets e tarefas compartilhadas.
+* **Recursos:**
+  * **Listagem Familiar Paginada:** Visualização de todos os animais do cuidador.
+  * **Cadastro de Pet (CRUD - Create):** Modal com validação de raça, porte, sexo, castração e data de nascimento (`dataNasc`).
+  * **Criação de Tarefa (CRUD - Create):** Cadastro de rotinas com título, descrição, prazo, pontuação e vinculação a um pet existente.
+  * **Care Circle:** Envio de convites de co-cuidadores por e-mail (`POST /pets/{id}/cuidadores`).
+
+#### 6. `PetDetailScreen` (Prontuário Clínico & Operações do Pet)
+* **Objetivo:** Ficha clínica detalhada e histórico de saúde consolidado.
+* **Recursos:**
+  * **Ficha Médica:** Idade dinâmica calculada a partir de `dataNasc`, características físicas e lista de cuidadores.
+  * **Edição de Dados (CRUD - Update):** Atualização cadastral do pet via `PUT /pets/{id}`.
+  * **Exclusão de Pet (CRUD - Delete):** Remoção definitiva com confirmação nativa e cancelamento automático dos alarmes vinculados.
+  * **Histórico de Saúde:** Registro e listagem de eventos clínicos (vacinas, consultas, exames e medicações) via `GET/POST /historicos`.
+
+#### 7. `TrainingEducationScreen` (Trilhas Educativas Gamificadas)
+* **Objetivo:** Capacitação de tutores com trilhas estilo Duolingo.
+* **Recursos:** Trilhas temáticas, módulos didáticos e lições com conteúdo rico NoSQL (Markdown). Conclusão de aulas via `PATCH /aulas/{id}/concluir` credita pontos de adestramento ao pet ativo.
+
+#### 8. `AiAssistantScreen` (Guardian AI — Prevenção e Triagem)
+* **Objetivo:** Assistente conversacional preventiva integrada ao Google Gemini.
+* **Recursos:** Chat com streaming/respostas contextuais baseadas na idade, raça e histórico do pet, histórico de sessões anteriores e geração de insights preventivos.
+
+#### 9. `UserProfileScreen` (Perfil, Preferências & Notificações)
+* **Objetivo:** Gestão da conta do tutor, preferências do aplicativo e suporte.
+* **Recursos:**
+  * **Card do Usuário:** Dados de contato, status do plano (`COMUM` ou `PREMIUM`) e botão de edição de perfil (`EditProfileModal`).
+  * **Estatísticas Agregadas:** Total de pontos da rede de cuidado (`GET /usuarios/me/rede-cuidado`).
+  * **Modal de Notificações (`NotificationSettingsModal`):** Toggle de ativação, seleção de antecedência e cancelamento/reagendamento de alarmes.
+  * **Alternância de Tema:** Switch de Dark/Light mode com persistência local.
+  * **Modais Informativos:** Sobre o App (`SobreAppModal`), Dúvidas Frequentes (`FaqModal`) e Termos de Uso (`TermsModal`).
+  * **Exclusão de Conta:** Fluxo seguro em conformidade com a LGPD (`DELETE /usuarios/me`).
+
+---
+
+## 🏛️ 4. Arquitetura de Software & Organização de Diretórios
+
+O projeto adota o padrão **Clean Architecture / Separation of Concerns / Domain Hooks**, garantindo que telas permaneçam puramente visuais e declarativas, enquanto a lógica de negócio, chamadas de rede e cache residem em hooks e serviços dedicados:
 
 ```text
 src/
-├── components/          → Componentes visuais atômicos e modulares (BaseModal, Header, PetScoreBar, RoutineCard, StreakCard, Modais)
-├── config/              → Configurações de ambiente (env.ts com Railway e Render) e metadados de versão/equipe (version.ts)
-├── constants/           → Tokens de design system, light/dark themes, tipografia e paleta de cores (theme.ts)
-├── contexts/            → Gestão global de autenticação (AuthContext.tsx) e alternância de temas (ThemeContext.tsx)
-├── hooks/               → Custom hooks e Domain hooks (Clean Architecture / SRP / TanStack Query):
-│   ├── useHomeData.ts         → Dashboard do pet ativo, pontuação e rotinas da Home
-│   ├── useFamilyCare.ts       → Gestão colaborativa familiar, pets, tarefas e co-cuidadores
-│   ├── usePetDetail.ts        → Ficha clínica, prontuário, histórico e cuidadores do pet
-│   ├── useTrainings.ts        → Trilhas de adestramento gamificadas com TanStack Query
-│   ├── useUserProfile.ts      → Perfil do tutor, estatísticas, pontuação agregada, upgrade e exclusão de conta
-│   ├── useAiAssistantScreen.ts→ Orquestrador do chat conversacional com IA preventiva e histórico
-│   ├── useNotifications.ts    → Ciclo de vida de notificações nativas e preferências de antecedência
-│   ├── useTheme.ts            → Consumo reativo de tema ativo (isDark, toggleTheme, theme tokens)
-│   ├── useTaskActions.ts      → Ações de tarefas (concluir, desmarcar, excluir) com nomes reais do pet
-│   ├── usePets.ts / useTasks.ts / useHistoricos.ts → Queries e mutações especializadas por domínio
-│   └── useSession.ts / useActivePet.ts → Hooks utilitários de sessão e pet ativo
-├── lib/                 → queryClient.ts (singleton) e queryKeys.ts (fábrica tipada de chaves)
-├── routes/              → MainStack.tsx (AuthStack vs AppTabs), tabs.tsx, types.ts e navigationRef.ts
-├── screens/             → Telas da aplicação (Welcome, Login, Register, Home, FamilyPet, PetDetail, Training, AI, Profile)
-│   ├── UserProfile/components/ → Modais de Perfil (NotificationSettingsModal, UpgradePremiumModal, SobreAppModal, FaqModal, TermsModal)
-├── services/            → Camada de comunicação HTTP REST e serviços locais (auth, pets, tasks, users, historico, trainings, ai, storage, notifications)
-├── types/               → Contratos TypeScript espelhando a API Java (zero any)
-└── utils/               → Schemas Zod (schemas.ts), normalização de datas (petUtils.ts), markdownUtils.tsx e trainingUtils.ts
+├── components/          → Componentes visuais atômicos, modais e formulários compartilhados
+│   ├── BaseModal/             → Modal base acessível com animações suaves e backdrop
+│   ├── CaregiverCard/         → Card de cuidador da rede familiar com badge de papel
+│   ├── EditProfileModal/      → Formulário de edição cadastral do usuário
+│   ├── Header/                → Cabeçalho institucional com suporte a tema e subtítulo
+│   ├── HistoricoFormModal/    → Formulário de lançamento de eventos de saúde
+│   ├── InviteCaregiverModal/  → Formulário de convite de co-cuidador por e-mail
+│   ├── PetFormModal/          → Formulário de cadastro/edição de animais
+│   ├── PetScoreBar/           → Barra animada de nível e progresso de XP do pet
+│   ├── StreakCard/            → Card de ofensiva e consistência de cuidados diários
+│   ├── TaskFormModal/         → Formulário de criação e edição de rotinas
+│   └── TasksRoutineSection/   → Seção modular de rotinas e tarefas da Home
+├── config/              → Configurações de ambiente, URLs e versionamento
+│   ├── env.ts                 → Resolução de URLs de API (Localhost, Railway, Render)
+│   ├── gitCommit.ts           → Metadados gerados do Git (commit hash, data, branch)
+│   └── version.ts             → Dados de versão do edital FIAP e lista de integrantes
+├── constants/           → Tokens de design system, tipografia e temas
+│   └── theme.ts               → Paletas lightTheme e darkTheme, raios, sombras e cores
+├── contexts/            → Gestão global de estado via React Context API
+│   ├── AuthContext.tsx        → Estado de sessão, login, registro e hardware seguro
+│   └── ThemeContext.tsx       → Provedor de tema claro/escuro com sincronização de storage
+├── hooks/               → Domain Hooks que encapsulam regras de negócio e TanStack Query:
+│   ├── useActivePet.ts        → Gerenciamento do pet selecionado na sessão
+│   ├── useAiAssistant.ts      → Hooks de chat, insights e warmup do microsserviço Python
+│   ├── useAiAssistantScreen.ts→ Orquestração do estado do chat e sessões da IA
+│   ├── useFamilyCare.ts       → Queries e mutações da governança familiar e pets
+│   ├── useFamilyModals.ts     → Controle de abertura e fechamento de modais familiares
+│   ├── useHomeData.ts         → Agregação reativa de dados para o dashboard da Home
+│   ├── useNotificationSync.ts → Ciclo de vida global de notificações (cold-start e AppState)
+│   ├── useNotifications.ts    → Hook de preferências de notificações e persistência
+│   ├── usePetDetail.ts        → Ficha médica, histórico clínico e cuidadores do pet
+│   ├── usePetDetailActions.ts → Ações de exclusão, edição e cuidados do pet
+│   ├── usePets.ts             → Queries e mutações paginadas de pets
+│   ├── useTaskActions.ts      → Mutações de conclusão, desmarcação e agendamento de tarefas
+│   ├── useTasks.ts            → Queries de tarefas pendentes e paginação de rotinas
+│   ├── useTrainings.ts        → Trilhas de adestramento e mutações de conclusão de aulas
+│   ├── useUserProfile.ts      → Perfil do tutor, estatísticas da rede e upgrade premium
+│   └── useUsers.ts            → Consultas de dados do usuário e rede de cuidado
+├── lib/                 → Configurações de infraestrutura
+│   ├── queryClient.ts         → Singleton do QueryClient com staleTime e retry calibrados
+│   └── queryKeys.ts           → Fábrica de chaves tipadas para invalidação granular de cache
+├── routes/              → Roteamento e navegação com React Navigation v7
+│   ├── MainStack.tsx          → Roteador raiz condicional (AuthStack vs AppTabs)
+│   ├── tabs.tsx               → Barra inferior com 5 abas principais e ícones dinâmicos
+│   ├── navigationRef.ts       → Referência global de navegação externa (para notificações)
+│   └── types.ts               → Contratos tipados de rotas e parâmetros de navegação
+├── screens/             → Telas da aplicação (puramente declarativas)
+│   ├── AiAssistant/           → Chat conversacional com IA Preventiva
+│   ├── FamilyPet/             → Governança colaborativa de pets e tarefas
+│   ├── Home/                  → Dashboard com rotina diária e pontuação do pet
+│   ├── Login/                 → Tela de login com validação Zod
+│   ├── PetDetail/             → Ficha clínica, histórico médico e cuidadores
+│   ├── Register/              → Cadastro de tutor com busca automática ViaCEP
+│   ├── TrainingEducation/     → Trilhas educativas Duolingo-style
+│   ├── UserProfile/           → Perfil, estatísticas, modais e preferências
+│   └── Welcome/               → Onboarding de boas-vindas
+├── services/            → Comunicação HTTP REST e serviços nativos
+│   ├── ai.ts                  → Chamadas ao microsserviço Python FastAPI
+│   ├── auth.ts                → Login e registro com Spring Boot
+│   ├── historico.ts           → Prontuário médico e eventos clínicos
+│   ├── http.ts                → Cliente Axios com injeção de Bearer Token e interceptor 401
+│   ├── notifications.ts       → Serviço de agendamento local, canais Android e sincronização
+│   ├── pets.ts                → CRUD de pets, score Oracle e cuidadores
+│   ├── storage.ts             → Hardware seguro com expo-secure-store (Keychain / Keystore)
+│   ├── tasks.ts               → Rotinas de tarefas e paginação de pendências
+│   ├── trainings.ts           → Trilhas e lições com conteúdo NoSQL MongoDB
+│   └── users.ts               → Perfil, rede de cuidado e upgrade premium
+├── types/               → Interfaces TypeScript estritas espelhando a API Java (zero any)
+└── utils/               → Schemas de validação Zod, formatação de datas e helpers utilitários
 ```
 
 ---
 
-## 🔐 3. Segurança, Sessão & Blindagem da Role ADMIN
+## 🔐 5. Segurança, Hardware Seguro & Ciclo de Sessão JWT
 
-1. **Hardware Seguro:** O token JWT emitido com criptografia assimétrica RSA e o e-mail identificador são persistidos exclusivamente nas camadas nativas de hardware seguro (`expo-secure-store`). O app não utiliza AsyncStorage para tokens.
-2. **Ciclo de Vida de Sessão & Expiração 401:**
-   - O interceptor em `src/services/http.ts` injeta `Authorization: Bearer <token>` em todas as requisições autenticadas.
-   - Ao receber `401 Unauthorized`, a sessão é limpa de forma atômica no hardware seguro (`StorageService.clearAuthSession()`), o estado global do `AuthContext` é resetado para `null`, invalidando o cache do `QueryClient` e redirecionando o usuário à tela de login.
-3. **Ciclo de Vida da Role do Tutor:**
-   - Todo tutor nasce no perfil gratuito **`COMUM`** (`POST /usuarios`).
-   - O upgrade para **`PREMIUM`** pode ser acionado sob demanda no perfil ou nos cards de bloqueio (`PATCH /usuarios/me/upgrade-premium`).
-4. **Blindagem Absoluta da Role ADMIN:**
-   - O aplicativo móvel **NUNCA** deve conter campos, selectors ou referências à role `ADMIN`. Apenas o backend conhece e autoriza administradores.
-
----
-
-## 🌐 4. Mapa Canônico de Integração HTTP com a API Java
-
-### Autenticação & Usuários (`/login`, `/usuarios`)
-- `POST /login`: Autenticação e obtenção do Bearer Token JWT assinado com RSA.
-- `POST /usuarios`: Onboarding de tutor com validação de CEP via ViaCEP.
-- `GET /usuarios/me`: Restaura perfil e sessão do usuário logado via JWT.
-- `PUT /usuarios/me`: Atualização cadastral do próprio tutor via JWT.
-- `DELETE /usuarios/me`: Exclusão permanente da conta e dados (LGPD).
-- `PATCH /usuarios/me/upgrade-premium`: Upgrade de perfil de `COMUM` para `PREMIUM`.
-- `GET /usuarios/me/rede-cuidado`: Visão agregada completa da rede familiar e pontuação acumulada via Stored Procedure Oracle.
-
-### Pets & Care Circle (`/pets`)
-- `GET /pets/me`: Lista todos os pets sob tutela do usuário (paginação padrão de 20 pets para seletores e 4 por página no FamilyPet via `usePets(petsPage, PETS_PAGE_SIZE)`).
-- `GET /pets/me/pontos`: Pontuação agregada de todos os pets do tutor via Stored Procedure Oracle (Zero N+1).
-- `GET /pets/{id}/detalhe`: Ficha consolidada do pet com pontuação, cuidadores, tarefas concluídas e prontuário clínico.
-- `POST /pets`: Criação de novo pet, vinculando o criador automaticamente como responsável principal.
-- `GET /pets/{id}/pontos`: Pontuação total do pet (tarefas + aulas) via Stored Procedure Oracle `pr_calcular_pontuacao_pet`.
-- `PUT /pets/{id}`: Atualização cadastral do pet (restrito ao responsável principal ou `ADMIN`).
-- `DELETE /pets/{id}`: Remoção do pet (restrito ao responsável principal).
-- `GET /pets/{petId}/cuidadores`: Lista todos os co-cuidadores vinculados ao animal com seus papéis.
-- `POST /pets/{petId}/cuidadores`: Envio de convite de co-cuidador por e-mail.
-- `DELETE /pets/{petId}/cuidadores/me`: Desvinculação do próprio cuidador autenticado do pet via JWT (`sairDoCareCircle`).
-- `DELETE /pets/{petId}/cuidadores?email=...`: Desvinculação de co-cuidador por e-mail (responsável principal ou o próprio cuidador).
-- `PATCH /pets/{petId}/responsavel-principal`: Transferência atômica de titularidade principal via Stored Procedure Oracle.
-
-### Tarefas da Rotina (`/tarefas`)
-- `GET /tarefas/me`: Tarefas do cuidador logado com auto-expiração de tarefas atrasadas no banco via Spring Data.
-- `POST /tarefas`: Criação de nova tarefa de cuidado vinculada a um pet.
-- `PUT /tarefas/{id}`: Edição de parâmetros e prazos de uma rotina existente.
-- `PATCH /tarefas/{id}/concluir`: Conclusão em 1 toque, creditando pontos ao score do pet e disparando trigger de auditoria no Oracle.
-- `PATCH /tarefas/{id}/desmarcar`: Estorno de tarefa concluída para `PENDENTE` e reversão dos pontos.
-- `DELETE /tarefas/{id}`: Exclusão de rotina de cuidado.
-- `GET /tarefas/me/pontos`: Consulta de pontos totais de tarefas do tutor.
-
-### Prontuário Clínico & Histórico de Saúde (`/historicos`)
-- `GET /historicos/me`: Prontuário médico consolidado de todos os pets do tutor via JWT (batch).
-- `GET /historicos/pet/{petId}`: Prontuário médico do pet ordenado por data mais recente.
-- `POST /historicos`: Registro de evento clínico (vacina, consulta, exame, cirurgia).
-- `PUT /historicos/{id}`: Edição de registro de saúde prévio.
-- `DELETE /historicos/{id}`: Remoção de registro do prontuário médico.
-
-### Trilhas Educativas & Conteúdo NoSQL (`/trilhas`, `/modulos`, `/aulas`)
-- `GET /trilhas/me`: Lista todas as trilhas, módulos e aulas completas dos pets do tutor via JWT em payload consolidado único (Zero Waterfalls).
-- `GET /modulos/trilha/{trilhaId}`: Módulos didáticos da trilha selecionada.
-- `GET /aulas/modulo/{moduloId}`: Lições práticas de adestramento do módulo.
-- `GET /aulas/{aulaId}/conteudo`: Conteúdo rico NoSQL armazenado no MongoDB (Markdown e links).
-- `PATCH /aulas/{id}/concluir`: Conclusão de lição educativa, creditando pontos ao score do pet.
-- `PATCH /aulas/{id}/desmarcar`: Estorno de lição e reversão de pontos didáticos.
-
-### Microsserviço de IA Preventiva (Python FastAPI no Render)
-- `POST /ai/chat`: Chat conversacional com Google Gemini recebendo o contexto clínico do pet.
-- `POST /ai/insights`: Recomendações preventivas de saúde e bem-estar por porte e idade.
-- `GET /ai/sessions`: Sessões de conversa anteriores do pet no formato ChatGPT/Claude.
-- `GET /ai/history`: Mensagens completas de uma sessão selecionada.
-- `DELETE /ai/sessions/{id}`: Remoção permanente de uma conversa do histórico.
-- `GET /`: Ping/warm-up para redução de cold-start na nuvem.
+* **Hardware Seguro Nativo (`expo-secure-store`):**
+  * O token JWT assinado por RSA de 2048 bits e o e-mail identificador são persistidos exclusivamente nas camadas nativas de hardware seguro: **Keychain (iOS)** e **Keystore (Android)**.
+  * O aplicativo **não armazena credenciais em AsyncStorage**, eliminando vetores de ataque contra extração de dados locais.
+* **Injeção Automática de Bearer Token:**
+  * O interceptor de requisições em [src/services/http.ts](./src/services/http.ts) insere automaticamente o cabeçalho `Authorization: Bearer <token>` em todas as chamadas autenticadas.
+* **Tratamento Global de Expiração de Sessão (401 Unauthorized):**
+  * Ao receber resposta `401 Unauthorized`, o interceptor de resposta limpa o hardware seguro de forma atômica (`StorageService.clearAuthSession()`).
+  * Cancela imediatamente todos os alarmes agendados no aparelho (`NotificationService.cancelarTodasNotificacoesTarefas()`).
+  * Reseta o estado global em `AuthContext` e invalida o cache do `QueryClient`, redirecionando o usuário à tela de login sem falhas ou estados órfãos.
 
 ---
 
-## ⚡ 5. Gerenciamento de Estado & TanStack Query
+## 🔔 6. Funcionamento das Notificações Locais no Expo SDK 57
 
-1. **Mutações Declarativas (Sem `mutateAsync` nas Telas):**
-   - Não utilizar `mutateAsync` com blocos imperativos `try / catch` nas telas.
-   - Utilizar `mutate` com callbacks nativos `onSuccess` e `onError`.
-2. **Invalidação Granular de Cache:**
-   - Conclusão de tarefa/aula invalida apenas chaves de tarefas, usuários e pontos do pet afetado.
-   - Convites ou remoções de cuidadores invalidam apenas `['pets', 'caregivers']`.
-3. **Consumo Agregado Batch via `/me` (Zero Loops N+1):**
-   - O app nunca executa loops de consultas por ID individual para carregar listas.
-   - Carrega em batch via `/pets/me`, `/pets/me/pontos` e `/usuarios/me/rede-cuidado` e filtra em memória no cliente pelo `activePet.id`.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Tutor as Usuário
+    participant Modal as NotificationSettingsModal
+    participant Hook as useNotifications
+    participant Service as NotificationService
+    participant OS as Sistema Operacional (Android / iOS)
+
+    Tutor->>Modal: Altera horário para "30 min antes" e clica em Salvar
+    Modal->>Hook: salvarSettings({ ativado: true, minutosAntecedencia: 30 })
+    Hook->>Service: saveSettings(...) no AsyncStorage
+    Hook->>Service: sincronizarTarefas(tarefasPendentes, pets)
+    Service->>OS: getAllScheduledNotificationsAsync() (identifica órfãos)
+    Service->>OS: cancelScheduledNotificationAsync(orfas)
+    Service->>OS: scheduleNotificationAsync(task_123, trigger: DATE, channel: petguardian-lembretes)
+    Hook-->>Modal: Concluído com sucesso
+    Modal->>Tutor: Fecha modal e atualiza subtítulo da tela de perfil
+```
+
+1. **Cálculo Determinístico de Disparo:** O timestamp é calculado como:
+   $$\text{Trigger} = \text{Prazo da Tarefa} - (\text{Minutos de Antecedência} \times 60 \times 1000)$$
+2. **Proteção contra Agendamentos Retroativos:** Se o horário calculado for menor ou igual ao momento atual (com margem preventiva de 3 segundos), o agendamento é ignorado para evitar que o iOS lance exceções no `UNUserNotificationCenter`.
+3. **Reconciliação e Limpeza de Órfãos:** Tarefas concluídas, canceladas ou excluídas têm seus alarmes revogados imediatamente no dispositivo através do identificador padrão `task_${tarefaId}`.
+4. **Sincronização em Primeiro Plano (AppState):** Quando o aplicativo retorna do background ou quando o usuário realiza login, o hook [useNotificationSync.ts](./src/hooks/useNotificationSync.ts) sincroniza todas as tarefas pendentes através de todas as páginas da API (`/tarefas/me`), garantindo consistência mesmo após reinicializações.
 
 ---
 
-## 🔒 6. Regras Obrigatórias de Código (Clean Code / SOLID)
+## 🌐 7. Mapa de Integração com APIs
 
-1. **Strict Typing (Zero `any`):** Proibido o uso de `any` ou `as any`. Utilizar genéricos, inferência Zod ou interfaces de domínio.
-2. **Clean Forms (Sem Mocks em Produção):** Formulários iniciam vazios com validação real Zod.
-3. **Arquitetura com Domain Hooks (SRP / DRY):** Toda lógica de dados, mutações e sanitizações deve residir em um Domain Hook (`useHomeData`, `useFamilyCare`, `usePetDetail`, `useTrainings`, `useUserProfile`). A tela é estritamente declarativa.
-4. **Data de Nascimento nos Pets (`dataNasc`):** O cadastro opera exclusivamente com `dataNasc` (`DD/MM/AAAA` no input, ISO `YYYY-MM-DD` na API). Idade é calculada e formatada dinamicamente via `petUtils.ts`.
+### API Java Spring Boot (`Java-Advanced`)
+* **Autenticação:** `POST /login` (Emissão de JWT assinado com RSA).
+* **Usuários:** `POST /usuarios`, `GET /usuarios/me`, `PUT /usuarios/me`, `DELETE /usuarios/me`, `PATCH /usuarios/me/upgrade-premium`, `GET /usuarios/me/rede-cuidado`.
+* **Pets & Care Circle:** `GET /pets/me`, `POST /pets`, `GET /pets/{id}/pontos`, `PUT /pets/{id}`, `DELETE /pets/{id}`, `GET /pets/{id}/cuidadores`, `POST /pets/{id}/cuidadores`, `DELETE /pets/{id}/cuidadores/me`.
+* **Tarefas de Rotina:** `GET /tarefas/me`, `POST /tarefas`, `PUT /tarefas/{id}`, `DELETE /tarefas/{id}`, `PATCH /tarefas/{id}/concluir`, `PATCH /tarefas/{id}/desmarcar`.
+* **Histórico de Saúde:** `GET /historicos/me`, `GET /historicos/pet/{petId}`, `POST /historicos`, `DELETE /historicos/{id}`.
+* **Trilhas Didáticas (MongoDB):** `GET /trilhas/me`, `GET /modulos/trilha/{id}`, `GET /aulas/modulo/{id}`, `PATCH /aulas/{id}/concluir`.
+
+### Microsserviço Python FastAPI (`Disruptive-Architectures-IOT-IOB-IA`)
+* **Chat Conversacional:** `POST /ai/chat` (Com contexto clínico completo do pet e streaming de resposta).
+* **Insights Preventivos:** `POST /ai/insights` (Dicas de alimentação, vacinação e bem-estar por porte e idade).
+* **Sessões e Histórico:** `GET /ai/sessions`, `GET /ai/history`, `DELETE /ai/sessions/{id}`.
 
 ---
 
-## 🔔 7. Especificação Técnica da Sprint 4 (Notificações, Tematização & Versão)
+## 📦 8. Stack Tecnológica e Versões Oficiais
 
-1. **Notificações Locais Determinísticas (`NotificationService`):**
-   - Agendamento com identificador único determinístico `task_${tarefaId}` para evitar alarmes duplicados.
-   - Cancelamento automático quando a tarefa é concluída ou estornada.
-   - Suporte a antecedência global configurável pelo usuário (0, 5, 15, 30 ou 60 minutos antes do prazo) via `NotificationSettingsModal`.
-   - Preferências salvas de forma resiliente no `AsyncStorage` (`@petguardian:notification_settings`).
-   - Redirecionamento nativo e seguro ao tocar na notificação utilizando `navigationRef.navigate('Tabs', { screen: 'Home' })`.
-   - Sem métodos ou botões de teste/mock em produção.
-   - **Compatibilidade Expo Go & Dev Build:** Script automatizado (`scripts/patch-expo-notifications.js`) integrado ao `postinstall` e `prestart` que suaviza a checagem interna do `expo-notifications` no Android (introduzida no SDK 53), permitindo testes transparentes no Expo Go enquanto mantém a arquitetura 100% nativa.
-2. **Tema Claro / Modo Escuro (`ThemeContext`):**
-   - Provedor reativo encapsulado em `ThemeProvider`, expondo `theme`, `isDark`, `themeMode` e `toggleTheme()`.
-   - Tokens consolidados em `src/constants/theme.ts` (`lightTheme` e `darkTheme`).
-   - Sincronização automática com a `StatusBar` (`light` no escuro, `dark` no claro).
-3. **Metadados de Versão & Avaliação FIAP (`SobreAppModal`, `version.ts` & `scripts/sync-git.js`):**
-   - Centralização de metadados obrigatórios do edital: Nome da aplicação, versão `1.0.0`, número da build `#4`, lista de membros com RMs e canal de distribuição (GitHub Release / APK Android).
-   - **Sincronização Dinâmica do Commit Git:** Script automatizado (`scripts/sync-git.js`) integrado aos hooks de ciclo de vida do npm (`prestart`, `preandroid`, `preios`) e hook Git `post-commit`, capturando automaticamente o HEAD do repositório em `src/config/gitCommit.ts` e garantindo que o hash exibido na aplicação reflita sempre o commit real da entrega sem dependência de edições manuais.
+| Tecnologia | Versão Oficial | Finalidade no Projeto |
+| :--- | :---: | :--- |
+| **React Native** | `0.86.3` | Framework mobile de alto desempenho com arquitetura nativa |
+| **Expo** | `~57.0.27` | Ecossistema corporativo de desenvolvimento mobile e plugins nativos |
+| **TypeScript** | `~6.0.3` | Tipagem estrita de contratos de domínio e navegação (Zero `any`) |
+| **expo-notifications** | `~57.0.22` | Módulo oficial para agendamento e canais de notificações locais |
+| **expo-secure-store** | `~57.0.4` | Criptografia de hardware seguro no Keychain (iOS) e Keystore (Android) |
+| **@tanstack/react-query** | `^5.102.6` | Gerenciamento declarativo de cache assíncrono e invalidações |
+| **Axios** | `^1.20.0` | Cliente HTTP com interceptors centralizados para Bearer Token e 401 |
+| **React Navigation** | `^7.x` | Navegação nativa declarativa (`native-stack` e `bottom-tabs`) |
+| **Zod** | `^4.4.3` | Validação estrita de schemas de formulários e contratos de API |
+| **React Hook Form** | `^7.75.0` | Gerenciamento performático de formulários controlados |
+| **@react-native-async-storage/async-storage**| `2.2.0` | Armazenamento local de preferências de tema e notificações |
+| **@expo/vector-icons** | `^15.0.2` | Conjunto abrangente de ícones vetoriais nativos |
+
+---
+
+## 🚀 9. Instruções de Execução e Validação
+
+### Pré-requisitos
+1. **Node.js** (versão 20+ LTS recomendada) e **npm** instalados.
+2. Smartphone físico com **Expo Go** instalado ou emulador configurado (Android Studio ou Xcode).
+3. Backend Java executando em `http://localhost:8080` ou acessível na rede local.
+
+### Passo a Passo
+
+```bash
+# 1. Navegue até o diretório da aplicação mobile
+cd Mobile-Application-Development
+
+# 2. Instale as dependências oficiais
+npm install
+
+# 3. Configure o endereço da API em src/config/env.ts caso utilize celular físico:
+# Exemplo: apiUrl: 'http://192.168.1.X:8080'
+
+# 4. Inicie o servidor Metro do Expo
+npm start
+```
+
+* **No Emulador Android:** Pressione `a` no terminal.
+* **No Simulador iOS:** Pressione `i` no terminal.
+* **No Aparelho Físico:** Abra o **Expo Go** e escaneie o QR Code exibido no terminal.
+
+### Scripts de Validação de Código
+
+```bash
+# Verificação estrita de tipagem TypeScript (Zero erros e Zero any)
+npm run type-check
+
+# Execução do linter estrito
+npm run lint
+```

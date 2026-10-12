@@ -69,55 +69,35 @@ export function UpgradePremiumCard({
   }
 
   // 2. Estado para Usuário PREMIUM (Confirmação de Status Ativo)
-  if (role === 'PREMIUM') {
-    return (
-      <View style={styles.cardPremiumAtivo}>
-        <View style={styles.headerStatusRow}>
-          <View style={styles.badgeAtivo}>
-            <MaterialCommunityIcons name="crown" size={14} color="#D97706" />
-            <Text style={styles.badgeAtivoText}>ASSINANTE PREMIUM ATIVO</Text>
-          </View>
-          <Ionicons name="shield-checkmark" size={22} color="#059669" />
-        </View>
-
-        <Text style={styles.titleAtivo}>Seu Plano Premium está 100% Ativo! ⭐</Text>
-        <Text style={styles.subtitleAtivo}>
-          Você possui acesso irrestrito a todas as trilhas educativas de adestramento, lições gamificadas e à IA Preventiva de saúde.
-        </Text>
-
-        <View style={styles.activePillsRow}>
-          <View style={styles.activePill}>
-            <Ionicons name="school-outline" size={14} color="#047857" />
-            <Text style={styles.activePillText}>Trilhas Liberadas</Text>
-          </View>
-          <View style={styles.activePill}>
-            <MaterialCommunityIcons name="robot-outline" size={14} color="#047857" />
-            <Text style={styles.activePillText}>IA Desbloqueada</Text>
-          </View>
-          <View style={styles.activePill}>
-            <Ionicons name="flash-outline" size={14} color="#047857" />
-            <Text style={styles.activePillText}>XP Total</Text>
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  // 3. Estado para Usuário ADMIN (Acesso de Administração)
   return (
-    <View style={styles.cardAdmin}>
+    <View style={styles.cardPremiumAtivo}>
       <View style={styles.headerStatusRow}>
-        <View style={styles.badgeAdmin}>
-          <Ionicons name="key" size={12} color="#4338CA" />
-          <Text style={styles.badgeAdminText}>ADMINISTRADOR DO SISTEMA</Text>
+        <View style={styles.badgeAtivo}>
+          <MaterialCommunityIcons name="crown" size={14} color="#D97706" />
+          <Text style={styles.badgeAtivoText}>ASSINANTE PREMIUM ATIVO</Text>
         </View>
-        <Ionicons name="shield" size={22} color="#4338CA" />
+        <Ionicons name="shield-checkmark" size={22} color="#059669" />
       </View>
 
-      <Text style={styles.titleAdmin}>Acesso Irrestrito de Admin 🛡️</Text>
-      <Text style={styles.subtitleAdmin}>
-        Você possui privilégios totais na plataforma: supervisão global de pets, gestão de conteúdos no MongoDB Atlas e controle de permissões.
+      <Text style={styles.titleAtivo}>Seu Plano Premium está 100% Ativo! ⭐</Text>
+      <Text style={styles.subtitleAtivo}>
+        Você possui acesso irrestrito a todas as trilhas educativas de adestramento, lições gamificadas e à IA Preventiva de saúde.
       </Text>
+
+      <View style={styles.activePillsRow}>
+        <View style={styles.activePill}>
+          <Ionicons name="school-outline" size={14} color="#047857" />
+          <Text style={styles.activePillText}>Trilhas Liberadas</Text>
+        </View>
+        <View style={styles.activePill}>
+          <MaterialCommunityIcons name="robot-outline" size={14} color="#047857" />
+          <Text style={styles.activePillText}>IA Desbloqueada</Text>
+        </View>
+        <View style={styles.activePill}>
+          <Ionicons name="flash-outline" size={14} color="#047857" />
+          <Text style={styles.activePillText}>XP Total</Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -280,41 +260,5 @@ const styles = StyleSheet.create({
     color: '#065F46',
   },
 
-  // Card Admin
-  cardAdmin: {
-    backgroundColor: '#EEF2FF',
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    ...shadows.sm,
-  },
-  badgeAdmin: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: '#E0E7FF',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-  },
-  badgeAdminText: {
-    color: '#3730A3',
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  titleAdmin: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#1E1B4B',
-    marginBottom: 4,
-  },
-  subtitleAdmin: {
-    fontSize: 12,
-    color: '#4338CA',
-    lineHeight: 17,
-  },
+
 });

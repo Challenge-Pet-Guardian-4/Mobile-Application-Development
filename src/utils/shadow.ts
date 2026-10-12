@@ -1,4 +1,4 @@
-import { Platform, StyleProp, ViewStyle } from 'react-native';
+import { Platform, ViewStyle } from 'react-native';
 
 interface ShadowOptions {
   color?: string;
@@ -31,18 +31,20 @@ export function createShadow({
   offsetY = 4,
   blur = 8,
   opacity = 0.08,
-}: ShadowOptions = {}): StyleProp<ViewStyle> {
+}: ShadowOptions = {}): ViewStyle {
   const [r, g, b] = parseHexToRgb(color);
 
-  return Platform.select({
-    web: { boxShadow: `${offsetX}px ${offsetY}px ${blur}px rgba(${r}, ${g}, ${b}, ${opacity})` },
-    default: {
-      shadowColor: color,
-      shadowOffset: { width: offsetX, height: offsetY },
-      shadowOpacity: opacity,
-      shadowRadius: blur,
-    },
-  });
+  return (
+    Platform.select<ViewStyle>({
+      web: { boxShadow: `${offsetX}px ${offsetY}px ${blur}px rgba(${r}, ${g}, ${b}, ${opacity})` } as ViewStyle,
+      default: {
+        shadowColor: color,
+        shadowOffset: { width: offsetX, height: offsetY },
+        shadowOpacity: opacity,
+        shadowRadius: blur,
+      },
+    }) ?? {}
+  );
 }
 
 export const shadows = {

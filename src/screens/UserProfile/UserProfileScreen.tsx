@@ -25,7 +25,7 @@ interface UserProfileScreenProps {
 
 export default function UserProfileScreen({ navigation }: UserProfileScreenProps) {
   const { status, profile, modals, actions } = useUserProfile();
-  const { settings } = useNotifications();
+  const { settings, recarregar: recarregarNotificacoes } = useNotifications();
   const { theme } = useTheme();
 
   const subtituloNotificacoes = settings.ativado
@@ -89,6 +89,7 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
       <NotificationSettingsModal
         visible={modals.ativo === 'notificacoes'}
         onClose={modals.fechar}
+        onSaved={recarregarNotificacoes}
       />
 
       <SobreAppModal

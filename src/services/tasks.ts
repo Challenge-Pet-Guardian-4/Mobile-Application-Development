@@ -13,6 +13,22 @@ export const TaskService = {
     return response.data;
   },
 
+  // Busca todas as tarefas pendentes através de todas as páginas da API (/tarefas/me)
+  async getTodasTarefasPendentes(): Promise<TarefaResponse[]> {
+    let page = 0;
+    const size = 50;
+    let todas: TarefaResponse[] = [];
+    while (true) {
+      const data = await this.getMyTarefas(page, size, 'PENDENTE');
+      todas = todas.concat(data.content || []);
+      if (data.last || (data.totalPages !== undefined && page + 1 >= data.totalPages) || !data.content?.length) {
+        break;
+      }
+      page++;
+    }
+    return todas;
+  },
+
   // Cria uma nova tarefa na API Java
   async createTarefa(tarefaRequest: TarefaRequest): Promise<TarefaResponse> {
     const response = await http.post<TarefaResponse>('/tarefas', tarefaRequest);

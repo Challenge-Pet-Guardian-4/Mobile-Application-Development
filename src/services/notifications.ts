@@ -13,7 +13,6 @@ const SETTINGS_STORAGE_KEY = '@petguardian:notification_settings';
 // Configura o comportamento global de exibição quando a notificação chega em primeiro plano
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
     shouldShowBanner: true,
     shouldShowList: true,
     shouldPlaySound: true,
@@ -39,16 +38,23 @@ function getTaskNotificationIdentifier(tarefaId: number): string {
   return `task_${tarefaId}`;
 }
 
+interface PermissaoStatus {
+  granted?: boolean;
+  status?: string;
+  canAskAgain?: boolean;
+}
+
 export const NotificationService = {
   /**
    * Verifica se a permissão nativa no nível de SO está concedida.
    */
   async verificarPermissaoNativa(): Promise<{ concedida: boolean; canAskAgain: boolean }> {
     try {
-      const response = await Notifications.getPermissionsAsync();
+      const response = (await Notifications.getPermissionsAsync()) as unknown as PermissaoStatus;
+      const concedida = Boolean(response.granted || response.status === 'granted');
       return {
-        concedida: response.granted || response.status === 'granted',
-        canAskAgain: response.canAskAgain,
+        concedida,
+        canAskAgain: Boolean(response.canAskAgain),
       };
     } catch (e) {
       console.warn('Erro ao verificar permissão nativa de notificação:', e);
@@ -61,14 +67,14 @@ export const NotificationService = {
    */
   async solicitarPermissaoNativa(): Promise<{ concedida: boolean; canAskAgain: boolean }> {
     try {
-      const response = await Notifications.requestPermissionsAsync();
-      const concedida = response.granted || response.status === 'granted';
-      if (concedida && Platform.OS === 'android') {
+      if (Platform.OS === 'android') {
         await this.configurarCanalAndroid();
       }
+      const response = (await Notifications.requestPermissionsAsync()) as unknown as PermissaoStatus;
+      const concedida = Boolean(response.granted || response.status === 'granted');
       return {
         concedida,
-        canAskAgain: response.canAskAgain,
+        canAskAgain: Boolean(response.canAskAgain),
       };
     } catch (e) {
       console.warn('Erro ao solicitar permissão nativa:', e);
@@ -94,24 +100,15 @@ export const NotificationService = {
   },
 
   /**
-   * Obtém as configurações globais de notificação do usuário.
-   * Se a permissão nativa do SO estiver negada, retorna forçadamente ativado = false.
+   * Obtém as configurações globais de notificação salvas no dispositivo.
    */
   async getSettings(): Promise<NotificationSettings> {
     try {
-      const { concedida } = await this.verificarPermissaoNativa();
-      if (!concedida) {
-        return {
-          ativado: false,
-          minutosAntecedencia: DEFAULT_NOTIFICATION_SETTINGS.minutosAntecedencia,
-        };
-      }
-
       const raw = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
-      if (!raw) return { ativado: true, minutosAntecedencia: DEFAULT_NOTIFICATION_SETTINGS.minutosAntecedencia };
+      if (!raw) return DEFAULT_NOTIFICATION_SETTINGS;
       const parsed = JSON.parse(raw) as Partial<NotificationSettings>;
       return {
-        ativado: typeof parsed.ativado === 'boolean' ? parsed.ativado : true,
+        ativado: typeof parsed.ativado === 'boolean' ? parsed.ativado : DEFAULT_NOTIFICATION_SETTINGS.ativado,
         minutosAntecedencia:
           typeof parsed.minutosAntecedencia === 'number'
             ? (parsed.minutosAntecedencia as AntecedenciaMinutos)
@@ -134,16 +131,15 @@ export const NotificationService = {
   },
 
   /**
-   * Inicializa permissões no startup e configura o canal nativo no Android caso permitido.
+   * Inicializa o canal nativo no Android no startup e verifica permissão.
    */
   async inicializarPermissoes(): Promise<boolean> {
     try {
-      const { concedida } = await this.verificarPermissaoNativa();
-      if (concedida) {
+      if (Platform.OS === 'android') {
         await this.configurarCanalAndroid();
-        return true;
       }
-      return false;
+      const { concedida } = await this.verificarPermissaoNativa();
+      return concedida;
     } catch (error) {
       console.warn('Erro ao inicializar permissões de notificação:', error);
       return false;
@@ -186,12 +182,11 @@ export const NotificationService = {
       const triggerTimestamp = prazoDate.getTime() - settings.minutosAntecedencia * 60 * 1000;
       const agora = Date.now();
 
-      // Se o momento de disparo já passou, não agenda notificação retroativa
-      if (triggerTimestamp <= agora) {
+      // Se o momento de disparo já passou ou é iminente (margem de 3s), não agenda para evitar erro nativo
+      if (triggerTimestamp <= agora + 3000) {
         return null;
       }
 
-      const triggerSeconds = Math.max(1, Math.floor((triggerTimestamp - agora) / 1000));
       const identifier = getTaskNotificationIdentifier(tarefaId);
 
       const corpoMensagem =
@@ -213,8 +208,9 @@ export const NotificationService = {
           } satisfies NotificationPayloadData,
         },
         trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-          seconds: triggerSeconds,
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: triggerTimestamp,
+          channelId: CHANNEL_ID,
         },
       });
 
@@ -238,9 +234,46 @@ export const NotificationService = {
   },
 
   /**
+   * Cancela todas as notificações de tarefas agendadas no aparelho (task_*).
+   */
+  async cancelarTodasNotificacoesTarefas(): Promise<void> {
+    try {
+      const agendadas = await Notifications.getAllScheduledNotificationsAsync();
+      const taskNotifications = agendadas.filter((n) => n.identifier.startsWith('task_'));
+      await Promise.all(
+        taskNotifications.map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier))
+      );
+    } catch (error) {
+      console.warn('Erro ao cancelar todas as notificações de tarefas:', error);
+    }
+  },
+
+  /**
+   * Cancela todas as notificações agendadas vinculadas a um pet específico.
+   * Utilizado quando o cuidador sai do Care Circle do animal ou exclui o pet.
+   */
+  async cancelarNotificacoesPorPet(petId: number): Promise<void> {
+    try {
+      const agendadas = await Notifications.getAllScheduledNotificationsAsync();
+      const petNotifications = agendadas.filter((n) => {
+        const data = n.content.data as NotificationPayloadData | undefined;
+        return data?.petId === petId;
+      });
+      await Promise.all(
+        petNotifications.map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier))
+      );
+    } catch (error) {
+      console.warn(`Erro ao cancelar notificações do pet ${petId}:`, error);
+    }
+  },
+
+  /**
    * Sincroniza em lote as notificações das tarefas do usuário:
-   * - Cancela as tarefas concluídas/expiradas
-   * - Agenda as tarefas pendentes futuras
+   * - Se desativado: cancela todos os alarmes de tarefas
+   * - Filtra tarefas pendentes com prazo futuro
+   * - Ordena as mais próximas primeiro e limita a ~60 (limite do iOS)
+   * - Remove alarmes órfãos no dispositivo via getAllScheduledNotificationsAsync
+   * - Agenda os novos alarmes com a antecedência configurada
    */
   async sincronizarTarefas(
     tarefas: { id: number; titulo: string; prazo: string; status: string; petId: number; pontosTarefa?: number }[],
@@ -248,31 +281,53 @@ export const NotificationService = {
   ): Promise<void> {
     try {
       const settings = await this.getSettings();
+      const { concedida } = await this.verificarPermissaoNativa();
 
-      if (!settings.ativado) {
-        // Se as notificações foram desativadas globalmente, limpa agendamentos de tarefas
-        await Promise.all(tarefas.map((t) => this.cancelarNotificacaoTarefa(t.id)));
+      if (!settings.ativado || !concedida) {
+        await this.cancelarTodasNotificacoesTarefas();
         return;
       }
 
-      const petMap = new Map<number, string>(pets.map((p) => [p.id, p.nome]));
+      const agora = Date.now();
+      const offsetMs = settings.minutosAntecedencia * 60 * 1000;
 
+      // 1. Filtra tarefas pendentes cujo alarme ainda está no futuro
+      const pendentesFuturas = tarefas.filter((t) => {
+        if (t.status !== 'PENDENTE' || !t.prazo) return false;
+        const prazoMs = new Date(t.prazo).getTime();
+        return !Number.isNaN(prazoMs) && prazoMs - offsetMs > agora;
+      });
+
+      // 2. Ordena pelas mais próximas primeiro
+      pendentesFuturas.sort((a, b) => new Date(a.prazo).getTime() - new Date(b.prazo).getTime());
+
+      // 3. Limita a ~60 agendamentos (limite de 64 no iOS)
+      const tarefasParaAgendar = pendentesFuturas.slice(0, 60);
+      const identifiersValidos = new Set(tarefasParaAgendar.map((t) => getTaskNotificationIdentifier(t.id)));
+
+      // 4. Cancela alarmes task_* órfãos que não estão na lista válida
+      const agendadas = await Notifications.getAllScheduledNotificationsAsync();
+      const orfas = agendadas.filter(
+        (n) => n.identifier.startsWith('task_') && !identifiersValidos.has(n.identifier)
+      );
       await Promise.all(
-        tarefas.map(async (tarefa) => {
-          if (tarefa.status !== 'PENDENTE') {
-            await this.cancelarNotificacaoTarefa(tarefa.id);
-          } else {
-            const nomePet = petMap.get(tarefa.petId) || 'seu pet';
-            await this.agendarNotificacaoTarefa({
-              tarefaId: tarefa.id,
-              titulo: tarefa.titulo,
-              nomePet,
-              petId: tarefa.petId,
-              prazoIso: tarefa.prazo,
-              pontos: tarefa.pontosTarefa,
-              status: tarefa.status,
-            });
-          }
+        orfas.map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier))
+      );
+
+      // 5. Agenda as tarefas válidas
+      const petMap = new Map<number, string>(pets.map((p) => [p.id, p.nome]));
+      await Promise.all(
+        tarefasParaAgendar.map((tarefa) => {
+          const nomePet = petMap.get(tarefa.petId) || 'seu pet';
+          return this.agendarNotificacaoTarefa({
+            tarefaId: tarefa.id,
+            titulo: tarefa.titulo,
+            nomePet,
+            petId: tarefa.petId,
+            prazoIso: tarefa.prazo,
+            pontos: tarefa.pontosTarefa,
+            status: tarefa.status,
+          });
         })
       );
     } catch (error) {
@@ -293,6 +348,8 @@ export const NotificationService = {
     try {
       const { tarefaId, titulo, nomePet, petId, pontos } = params;
 
+      const trigger = Platform.OS === 'android' ? { channelId: CHANNEL_ID } : null;
+
       const id = await Notifications.scheduleNotificationAsync({
         content: {
           title: `🎉 Rotina Cumprida: ${titulo}!`,
@@ -305,7 +362,7 @@ export const NotificationService = {
             rota: 'Home',
           } satisfies NotificationPayloadData,
         },
-        trigger: null, // Disparo imediato em tempo real
+        trigger,
       });
 
       return id;
@@ -323,38 +380,6 @@ export const NotificationService = {
       await Notifications.cancelScheduledNotificationAsync(notificacaoId);
     } catch (error) {
       console.warn('Erro ao cancelar notificação:', error);
-    }
-  },
-
-  /**
-   * Dispara uma notificação de demonstração imediata para testes e validação visual.
-   */
-  async dispararNotificacaoExemplo(): Promise<string | null> {
-    try {
-      const { concedida } = await this.verificarPermissaoNativa();
-      if (!concedida) {
-        return null;
-      }
-
-      const id = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: '🐾 Lembrete: Hora do Passeio!',
-          body: 'Lembrete do PetGuardian para seu pet! Esta rotina vence em breve (+10 XP).',
-          sound: true,
-          data: {
-            tipo: 'ROTINA_LEMBRETE',
-            tarefaId: 0,
-            petId: 0,
-            rota: 'Home',
-          } satisfies NotificationPayloadData,
-        },
-        trigger: null,
-      });
-
-      return id;
-    } catch (error) {
-      console.warn('Erro ao disparar notificação de exemplo:', error);
-      return null;
     }
   },
 };

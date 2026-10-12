@@ -122,13 +122,15 @@ export function getAuthErrorMessage(
 /**
  * Cria callbacks padronizados de sucesso e tratamento de erro com Alert nativo para mutações do TanStack Query.
  */
-export function createMutationCallbacks(
+export function createMutationCallbacks<TData = unknown, TCallback = unknown>(
   errorTitle: string,
   defaultErrorMsg: string,
-  callbacks?: ActionCallbacks
+  callbacks?: ActionCallbacks<TCallback>
 ) {
   return {
-    onSuccess: () => callbacks?.onSuccess?.(),
+    onSuccess: (data: TData) => {
+      (callbacks?.onSuccess as ((d?: unknown) => void) | undefined)?.(data);
+    },
     onError: (err: unknown) => {
       Alert.alert(errorTitle, getApiErrorMessage(err, defaultErrorMsg));
       callbacks?.onError?.(err);

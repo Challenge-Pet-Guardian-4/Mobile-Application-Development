@@ -22,7 +22,17 @@ export const PetSelector = memo(function PetSelector({
   onSelectPet,
   containerStyle,
 }: PetSelectorProps) {
-  if (pets.length === 0) return null;
+  if (pets.length === 0) {
+    return (
+      <View style={[styles.container, containerStyle]}>
+        {label ? <Text style={styles.label}>{label}</Text> : null}
+        <View style={styles.emptyNotice}>
+          <MaterialCommunityIcons name="alert-circle-outline" size={16} color="#D97706" style={{ marginRight: 6 }} />
+          <Text style={styles.emptyNoticeText}>Nenhum pet cadastrado para vincular a esta tarefa.</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -57,6 +67,21 @@ export const PetSelector = memo(function PetSelector({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
+  },
+  emptyNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#FEF3C7',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  emptyNoticeText: {
+    fontSize: 12,
+    color: '#92400E',
+    fontWeight: '600',
+    flex: 1,
   },
   label: {
     fontSize: 13,

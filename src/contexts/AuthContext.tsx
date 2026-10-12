@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
+import * as Notifications from 'expo-notifications';
 import { AuthService } from '../services/auth';
 import { StorageService } from '../services/storage';
 import { setOnUnauthorizedCallback, HttpService } from '../services/http';
@@ -51,12 +52,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Dispara warm-up proativo em segundo plano para acordar instâncias em nuvem (Railway e Render)
     HttpService.warmup();
     AiService.ping();
-
     // Callback para interceptor 401
     setOnUnauthorizedCallback(() => {
       setUser(null);
       setToken(null);
       queryClient.clear();
+      Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
     });
   }, []);
 
@@ -91,6 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null);
       setToken(null);
       queryClient.clear();
+      await Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
     } finally {
       setIsLoading(false);
     }
