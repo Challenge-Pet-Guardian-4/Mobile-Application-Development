@@ -4,8 +4,8 @@
  */
 
 export const GIT_COMMIT_INFO = {
-  commitHash: '0540435d028cece22d5ea36c621c7d130a730c3a',
-  shortCommitHash: '0540435',
+  commitHash: '1babe73cf2202532d0609c6c55fab46121239d38',
+  shortCommitHash: '1babe73',
   branch: 'main',
-  commitDate: '2026-10-11T20:01:58-03:00',
+  commitDate: '2026-10-12T11:43:17-03:00',
 } as const;
