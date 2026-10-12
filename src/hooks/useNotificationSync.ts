@@ -35,7 +35,22 @@ export function useNotificationSync() {
     if (!data) return;
 
     if (navigationRef.isReady()) {
-      if (data.petId) {
+      // Se for notificação de rotina/tarefa da família, navega diretamente para FamilyPet
+      if (
+        data.tipo === 'ROTINA_LEMBRETE' ||
+        data.tipo === 'TAREFA_CONCLUIDA' ||
+        data.rota === 'Family'
+      ) {
+        try {
+          navigationRef.navigate('Tabs', { screen: 'Family' });
+          return;
+        } catch (e) {
+          console.warn('Erro ao navegar para FamilyPet via notificação:', e);
+        }
+      }
+
+      // Se for notificação direcionada explicitamente para a ficha médica do pet
+      if (data.rota === 'PetDetail' && data.petId) {
         try {
           navigationRef.navigate('Family', {
             screen: 'PetDetail',
@@ -48,9 +63,9 @@ export function useNotificationSync() {
       }
 
       try {
-        navigationRef.navigate('Tabs', { screen: 'Home' });
+        navigationRef.navigate('Tabs', { screen: 'Family' });
       } catch (e) {
-        console.warn('Erro ao redirecionar para Home via notificação:', e);
+        console.warn('Erro ao redirecionar via notificação:', e);
       }
     }
   }, []);
@@ -59,11 +74,10 @@ export function useNotificationSync() {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    Notifications.getLastNotificationResponseAsync().then((response) => {
-      if (response) {
-        processarRespostaNotificacao(response);
-      }
-    });
+    const lastResponse = Notifications.getLastNotificationResponse();
+    if (lastResponse) {
+      processarRespostaNotificacao(lastResponse);
+    }
 
     const subscription = Notifications.addNotificationResponseReceivedListener(processarRespostaNotificacao);
 

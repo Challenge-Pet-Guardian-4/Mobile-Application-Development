@@ -204,7 +204,7 @@ export const NotificationService = {
             tipo: 'ROTINA_LEMBRETE',
             tarefaId,
             petId,
-            rota: 'Home',
+            rota: 'Family',
           } satisfies NotificationPayloadData,
         },
         trigger: {
@@ -359,7 +359,7 @@ export const NotificationService = {
             tipo: 'TAREFA_CONCLUIDA',
             tarefaId,
             petId,
-            rota: 'Home',
+            rota: 'Family',
           } satisfies NotificationPayloadData,
         },
         trigger,

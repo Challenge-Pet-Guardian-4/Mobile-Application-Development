@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import './src/services/notifications';
 
 import { queryClient } from './src/lib/queryClient';
 import { AuthProvider } from './src/contexts/AuthContext';

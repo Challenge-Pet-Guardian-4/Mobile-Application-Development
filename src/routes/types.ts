@@ -25,7 +25,7 @@ export type AppTabParamList = {
 export type RootStackParamList = {
   Auth: undefined;
   App: undefined;
-  Tabs: { screen?: keyof AppTabParamList } | undefined;
+  Tabs: { screen?: keyof AppTabParamList; params?: unknown } | undefined;
   PetDetail: { petId?: number } | undefined;
   IA: { petId?: number } | undefined;
   Family: { screen?: string; params?: { petId?: number } } | undefined;
