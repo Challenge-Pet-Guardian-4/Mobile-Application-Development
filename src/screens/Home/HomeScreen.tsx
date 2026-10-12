@@ -3,11 +3,11 @@ import { StatusBar } from 'expo-status-bar';
 import { View, StyleSheet, ScrollView, Platform, RefreshControl } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../routes/types';
-import { colors, spacing } from '../../constants/theme';
+import { spacing, AppTheme } from '../../constants/theme';
 import { Header } from '../../components/Header';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { useHomeData } from '../../hooks/useHomeData';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
 import { HomePetSelector } from './components/HomePetSelector';
 import { HomeScoreBar } from './components/HomeScoreBar';
 import { HomeRoutineSection } from './components/HomeRoutineSection';
@@ -23,6 +23,7 @@ interface HomeScreenProps {
 export default function Home({ navigation }: HomeScreenProps) {
   const { status, pets, routine, taskModal, navigation: nav } = useHomeData(navigation);
   const { theme, isDark } = useTheme();
+  const styles = useThemedStyles(createStyles);
 
   if (status.isLoading && (pets?.list?.length ?? 0) === 0) {
     return <LoadingSpinner message="Carregando dados do PetGuardian..." />;
@@ -47,7 +48,7 @@ export default function Home({ navigation }: HomeScreenProps) {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -87,15 +88,16 @@ export default function Home({ navigation }: HomeScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.neutral[50],
-    paddingTop: Platform.OS === 'ios' ? 50 : 25,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xs,
-    gap: spacing.md,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+      paddingTop: Platform.OS === 'ios' ? 50 : 25,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.xs,
+      gap: spacing.md,
+    },
+  });

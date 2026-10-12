@@ -5,12 +5,15 @@ import { AuthStackParamList } from '../../routes/types';
 import { AuthHeader } from '../../components/AuthHeader';
 import { useRegisterForm } from '../../hooks/useRegisterForm';
 import { RegisterForm } from './components/RegisterForm';
+import { useThemedStyles } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
 
 type Props = {
   navigation: NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 };
 
 export default function RegisterScreen({ navigation }: Props) {
+  const styles = useThemedStyles(createStyles);
   const registerState = useRegisterForm(navigation);
 
   return (
@@ -34,19 +37,20 @@ export default function RegisterScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  contentWrapper: {
-    width: '100%',
-    maxWidth: 420,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    mainContainer: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    scrollContainer: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 24,
+    },
+    contentWrapper: {
+      width: '100%',
+      maxWidth: 420,
+    },
+  });

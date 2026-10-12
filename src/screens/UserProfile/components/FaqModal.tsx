@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { BaseModal } from '../../../components/BaseModal';
+import { useThemedStyles } from '../../../contexts/ThemeContext';
+import { AppTheme } from '../../../constants/theme';
 
 interface FaqModalProps {
   visible: boolean;
@@ -26,6 +28,8 @@ const FAQ_ITEMS = [
 ];
 
 export function FaqModal({ visible, onClose }: FaqModalProps) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <BaseModal
       visible={visible}
@@ -44,24 +48,25 @@ export function FaqModal({ visible, onClose }: FaqModalProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  faqItem: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 10,
-  },
-  faqQ: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 6,
-  },
-  faqA: {
-    fontSize: 13,
-    color: '#475569',
-    lineHeight: 19,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    faqItem: {
+      backgroundColor: theme.cardSubtle,
+      borderRadius: 14,
+      padding: 14,
+      borderWidth: 1,
+      borderColor: theme.border,
+      marginBottom: 10,
+    },
+    faqQ: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: theme.text,
+      marginBottom: 6,
+    },
+    faqA: {
+      fontSize: 13,
+      color: theme.textSecondary,
+      lineHeight: 19,
+    },
+  });

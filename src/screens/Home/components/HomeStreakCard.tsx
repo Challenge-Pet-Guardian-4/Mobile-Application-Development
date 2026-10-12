@@ -4,10 +4,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { shadows } from '../../../utils/shadow';
 import { StreakCardProps } from '../../../types/models';
 import { calcularDiasSemanaAtual, calcularTotalOfensiva, getDiasDaSemanaVazios } from '../../../utils/streakUtils';
-import { useThemedStyles } from '../../../contexts/ThemeContext';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 import { AppTheme } from '../../../constants/theme';
 
 export function HomeStreakCard({ streakDays, totalStreak, tasks }: StreakCardProps) {
+  const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
   const { diasExibidos, streakExibido } = useMemo(() => {
     if (tasks) {
@@ -32,7 +33,7 @@ export function HomeStreakCard({ streakDays, totalStreak, tasks }: StreakCardPro
         </View>
 
         <View style={styles.totalStreakBadge}>
-          <MaterialCommunityIcons name="fire" size={18} color="#EA580C" />
+          <MaterialCommunityIcons name="fire" size={18} color={theme.badgeWarningText} />
           <Text style={styles.totalStreakText}>
             {streakExibido} {streakExibido === 1 ? 'dia' : 'dias'}
           </Text>
@@ -119,7 +120,7 @@ const createStyles = (theme: AppTheme) =>
     totalStreakText: {
       fontSize: 13,
       fontWeight: '800',
-      color: '#C2410C',
+      color: theme.badgeWarningText,
     },
     streakRow: {
       flexDirection: 'row',
@@ -146,12 +147,12 @@ const createStyles = (theme: AppTheme) =>
     },
     streakToday: {
       backgroundColor: theme.badgePrimaryBg,
-      borderColor: '#93C5FD',
+      borderColor: theme.badgePrimaryBorder,
       borderWidth: 1.5,
     },
     streakMissed: {
       backgroundColor: theme.badgeDangerBg,
-      borderColor: '#FECACA',
+      borderColor: theme.badgeDangerBorder,
       borderWidth: 1.5,
     },
     streakDayNumber: {
@@ -165,7 +166,7 @@ const createStyles = (theme: AppTheme) =>
       fontWeight: '600',
     },
     streakDayLabelToday: {
-      color: '#2563EB',
+      color: theme.primary,
       fontWeight: '800',
     },
     streakDayLabelMissed: {

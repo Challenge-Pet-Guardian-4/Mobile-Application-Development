@@ -6,9 +6,15 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
  * Utilitário para interpretar e renderizar sintaxe simplificada de Markdown em elementos React Native.
  * Suporta títulos (H1, H2/H3), callouts/dicas de ouro, listas numeradas, listas com marcadores e parágrafos.
  */
-export function renderMarkdownContent(markdown: string, corTema: string): React.ReactNode[] {
+export function renderMarkdownContent(
+  markdown: string,
+  corTema: string,
+  isDark: boolean = false
+): React.ReactNode[] {
   const lines = markdown.split('\n');
   const elements: React.ReactNode[] = [];
+  const primaryTextColor = isDark ? '#F8FAFC' : '#0F172A';
+  const bodyTextColor = isDark ? '#E2E8F0' : '#334155';
 
   for (let idx = 0; idx < lines.length; idx++) {
     const rawLine = lines[idx];
@@ -19,7 +25,7 @@ export function renderMarkdownContent(markdown: string, corTema: string): React.
     // 1. Título H1 (# Título)
     if (line.startsWith('# ')) {
       elements.push(
-        <Text key={idx} style={styles.mdH1}>
+        <Text key={idx} style={[styles.mdH1, { color: primaryTextColor }]}>
           {line.replace(/^#\s+/, '')}
         </Text>
       );
@@ -40,9 +46,15 @@ export function renderMarkdownContent(markdown: string, corTema: string): React.
     if (line.startsWith('>')) {
       const calloutText = line.replace(/^>\s*/, '').replace(/\*\*/g, '');
       elements.push(
-        <View key={idx} style={styles.mdCallout}>
+        <View
+          key={idx}
+          style={[
+            styles.mdCallout,
+            isDark && styles.mdCalloutDark,
+          ]}
+        >
           <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color="#D97706" style={{ marginTop: 2 }} />
-          <Text style={styles.mdCalloutText}>{calloutText}</Text>
+          <Text style={[styles.mdCalloutText, isDark && styles.mdCalloutTextDark]}>{calloutText}</Text>
         </View>
       );
       continue;
@@ -58,7 +70,7 @@ export function renderMarkdownContent(markdown: string, corTema: string): React.
           <View style={[styles.mdStepBadge, { backgroundColor: corTema }]}>
             <Text style={styles.mdStepBadgeText}>{num}</Text>
           </View>
-          <Text style={styles.mdStepText}>{stepText}</Text>
+          <Text style={[styles.mdStepText, { color: bodyTextColor }]}>{stepText}</Text>
         </View>
       );
       continue;
@@ -70,7 +82,7 @@ export function renderMarkdownContent(markdown: string, corTema: string): React.
       elements.push(
         <View key={idx} style={styles.mdBulletRow}>
           <Text style={[styles.mdBulletDot, { color: corTema }]}>•</Text>
-          <Text style={styles.mdBulletText}>{bulletText}</Text>
+          <Text style={[styles.mdBulletText, { color: bodyTextColor }]}>{bulletText}</Text>
         </View>
       );
       continue;
@@ -79,7 +91,7 @@ export function renderMarkdownContent(markdown: string, corTema: string): React.
     // 6. Parágrafo comum
     const paragraphText = line.replace(/\*\*/g, '');
     elements.push(
-      <Text key={idx} style={styles.mdParagraph}>
+      <Text key={idx} style={[styles.mdParagraph, { color: bodyTextColor }]}>
         {paragraphText}
       </Text>
     );
@@ -125,6 +137,13 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: '#92400E',
     fontWeight: '600',
+  },
+  mdCalloutDark: {
+    backgroundColor: '#451A03',
+    borderLeftColor: '#F59E0B',
+  },
+  mdCalloutTextDark: {
+    color: '#FDE68A',
   },
   mdStepRow: {
     flexDirection: 'row',

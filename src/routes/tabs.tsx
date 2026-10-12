@@ -4,16 +4,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { shadows } from '../utils/shadow';
-
+import { AppTabParamList, FamilyStackParamList, ProfileStackParamList } from './types';
 import Home from '../screens/Home/HomeScreen';
 import FamilyPetScreen from '../screens/FamilyPet/FamilyPetScreen';
 import PetDetailScreen from '../screens/PetDetail/PetDetailScreen';
 import TrainingEducationScreen from '../screens/TrainingEducation/TrainingEducationScreen';
 import UserProfileScreen from '../screens/UserProfile/UserProfileScreen';
 import AiAssistantScreen from '../screens/AiAssistant/AiAssistantScreen';
-
-import { AppTabParamList, FamilyStackParamList, ProfileStackParamList } from './types';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme, useThemedStyles } from '../contexts/ThemeContext';
+import { AppTheme } from '../constants/theme';
 
 const Tab = createBottomTabNavigator<AppTabParamList>();
 const FamilyStackNav = createNativeStackNavigator<FamilyStackParamList>();
@@ -39,20 +38,14 @@ function ProfileStack() {
 
 export default function Tabs() {
   const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: [
-          styles.tabBar,
-          {
-            backgroundColor: theme.tabBarBg,
-            borderColor: theme.tabBarBorder,
-            borderWidth: theme.isDark ? 1 : 0,
-          },
-        ],
+        tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: theme.tabBarActive,
         tabBarInactiveTintColor: theme.tabBarInactive,
         tabBarLabelStyle: styles.tabBarLabel,
@@ -90,9 +83,9 @@ export default function Tabs() {
           tabBarIcon: ({ focused }) => (
             <View style={[styles.centerButton, focused && styles.centerButtonActive]}>
               <MaterialCommunityIcons
-                name="robot"
+                name="robot-confused-outline"
                 size={28}
-                color={focused ? '#FFFFFF' : '#93C5FD'}
+                color="#FFFFFF"
               />
             </View>
           ),
@@ -103,7 +96,7 @@ export default function Tabs() {
         name="Treino"
         component={TrainingEducationScreen}
         options={{
-          tabBarLabel: 'Trilhas',
+          tabBarLabel: 'Educação',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="school" color={color} size={size + 2} />
           ),
@@ -116,7 +109,7 @@ export default function Tabs() {
         options={{
           tabBarLabel: 'Perfil',
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" color={color} size={size + 2} />
+            <MaterialCommunityIcons name="account-circle" color={color} size={size + 2} />
           ),
         }}
       />
@@ -124,39 +117,42 @@ export default function Tabs() {
   );
 }
 
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: '#0F172A',
-    bottom: Platform.OS === 'ios' ? 24 : 14,
-    marginHorizontal: 16,
-    borderRadius: 24,
-    borderTopWidth: 0,
-    elevation: 10,
-    ...shadows.xxl,
-    height: 64,
-    position: 'absolute',
-    paddingBottom: Platform.OS === 'ios' ? 10 : 8,
-    paddingTop: 8,
-  },
-  tabBarLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  centerButton: {
-    width: 58,
-    height: 58,
-    backgroundColor: '#1E293B',
-    borderRadius: 29,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Platform.OS === 'android' ? 20 : 16,
-    borderWidth: 3.5,
-    borderColor: '#0F172A',
-    ...shadows.colored('#000000', 0.25),
-    elevation: 6,
-  },
-  centerButtonActive: {
-    backgroundColor: '#2563EB',
-    ...shadows.colored('#2563EB', 0.4),
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    tabBar: {
+      backgroundColor: theme.tabBarBg,
+      borderColor: theme.tabBarBorder,
+      borderWidth: theme.isDark ? 1 : 0,
+      bottom: Platform.OS === 'ios' ? 24 : 14,
+      marginHorizontal: 16,
+      borderRadius: 24,
+      borderTopWidth: 0,
+      elevation: 10,
+      ...shadows.xxl,
+      height: 64,
+      position: 'absolute',
+      paddingBottom: Platform.OS === 'ios' ? 10 : 8,
+      paddingTop: 8,
+    },
+    tabBarLabel: {
+      fontSize: 11,
+      fontWeight: '700',
+    },
+    centerButton: {
+      width: 58,
+      height: 58,
+      backgroundColor: '#1E293B',
+      borderRadius: 29,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: Platform.OS === 'android' ? 20 : 16,
+      borderWidth: 3.5,
+      borderColor: '#0F172A',
+      ...shadows.colored('#000000', 0.25),
+      elevation: 6,
+    },
+    centerButtonActive: {
+      backgroundColor: '#2563EB',
+      ...shadows.colored('#2563EB', 0.4),
+    },
+  });

@@ -12,11 +12,11 @@ import { AiPreventiveInsights } from './components/AiPreventiveInsights';
 import { AiChatMessages } from './components/AiChatMessages';
 import { AiChatInputBar } from './components/AiChatInputBar';
 import { AiHistoryModal } from './components/AiHistoryModal';
-
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemedStyles } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
 
 export default function AiAssistantScreen() {
-  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const navigation = useNavigation<BottomTabNavigationProp<AppTabParamList>>();
   const insets = useSafeAreaInsets();
   const { isUserComum, pet, insights, chat } = useAiAssistantScreen();
@@ -26,7 +26,7 @@ export default function AiAssistantScreen() {
 
   if (isUserComum) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={styles.container}>
         <AiHeader onGoBack={handleGoBack} />
         <PremiumLockCard
           title="Assistente IA Exclusivo Premium ⭐"
@@ -44,7 +44,7 @@ export default function AiAssistantScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: theme.background }]}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
     >
@@ -91,15 +91,16 @@ export default function AiAssistantScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 24,
-    gap: 16,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    scrollContent: {
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      paddingBottom: 24,
+      gap: 16,
+    },
+  });

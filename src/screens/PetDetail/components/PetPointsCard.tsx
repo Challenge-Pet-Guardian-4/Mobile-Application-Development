@@ -44,7 +44,7 @@ export function PetPointsCard({ pontos, isLoading = false }: PetPointsCardProps)
 
       <View style={styles.statsRow}>
         <View style={styles.statBox}>
-          <View style={[styles.iconBox, { backgroundColor: theme.badgePrimaryBg }]}>
+          <View style={[styles.iconBox, styles.iconBoxPrimary]}>
             <MaterialCommunityIcons name="clipboard-check-outline" size={18} color={theme.primary} />
           </View>
           <Text style={styles.statValue}>+{pontosTarefas} pts</Text>
@@ -52,7 +52,7 @@ export function PetPointsCard({ pontos, isLoading = false }: PetPointsCardProps)
         </View>
 
         <View style={styles.statBox}>
-          <View style={[styles.iconBox, { backgroundColor: theme.badgeSuccessBg }]}>
+          <View style={[styles.iconBox, styles.iconBoxSuccess]}>
             <MaterialCommunityIcons name="school-outline" size={18} color={colors.success[500]} />
           </View>
           <Text style={styles.statValue}>+{pontosAulas} pts</Text>
@@ -124,6 +124,12 @@ const createStyles = (theme: AppTheme) =>
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: 8,
+    },
+    iconBoxPrimary: {
+      backgroundColor: theme.badgePrimaryBg,
+    },
+    iconBoxSuccess: {
+      backgroundColor: theme.badgeSuccessBg,
     },
     statValue: {
       fontSize: 15,

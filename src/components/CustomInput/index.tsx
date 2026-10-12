@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import { View, Text, TextInput, StyleSheet, TextInputProps, ViewStyle } from 'react-native';
 import { shadows } from '../../utils/shadow';
-import { colors, borderRadius } from '../../constants/theme';
+import { colors, borderRadius, AppTheme } from '../../constants/theme';
+import { useThemedStyles, useTheme } from '../../contexts/ThemeContext';
 
 interface CustomInputProps extends TextInputProps {
   label?: string;
@@ -20,16 +21,18 @@ export const CustomInput = memo(function CustomInput({
   style,
   ...rest
 }: CustomInputProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const hasError = !!error;
 
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={[styles.inputWrapper, hasError && styles.inputError]}>
+      <View style={[styles.inputWrapper, hasError && styles.inputWrapperError]}>
         {leftIcon && <View style={styles.leftIconWrapper}>{leftIcon}</View>}
         <TextInput
           style={[styles.input, style]}
-          placeholderTextColor={colors.neutral[400]}
+          placeholderTextColor={rest.placeholderTextColor ?? theme.textMuted}
           {...rest}
         />
         {rightIcon && <View style={styles.rightIconWrapper}>{rightIcon}</View>}
@@ -39,51 +42,51 @@ export const CustomInput = memo(function CustomInput({
   );
 });
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 14,
-    width: '100%',
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.neutral[700],
-    marginBottom: 6,
-    marginLeft: 2,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.neutral.white,
-    borderWidth: 1,
-    borderColor: colors.neutral[200],
-    borderRadius: borderRadius.lg,
-    paddingHorizontal: 14,
-    minHeight: 50,
-    ...shadows.xs,
-    elevation: 1,
-  },
-  inputError: {
-    borderColor: colors.danger.default,
-    backgroundColor: colors.danger[50],
-  },
-  input: {
-    flex: 1,
-    fontSize: 14,
-    color: colors.neutral[900],
-    paddingVertical: 10,
-  },
-  leftIconWrapper: {
-    marginRight: 8,
-  },
-  rightIconWrapper: {
-    marginLeft: 8,
-  },
-  errorText: {
-    color: colors.danger.default,
-    fontSize: 11,
-    marginTop: 4,
-    marginLeft: 4,
-    fontWeight: '600',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      marginBottom: 14,
+      width: '100%',
+    },
+    label: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.text,
+      marginBottom: 6,
+      marginLeft: 2,
+    },
+    inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.isDark ? theme.surfaceSubtle : colors.neutral.white,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: borderRadius.lg,
+      paddingHorizontal: 14,
+      minHeight: 50,
+      ...shadows.xs,
+      elevation: 1,
+    },
+    inputWrapperError: {
+      borderColor: colors.danger.default,
+      backgroundColor: theme.isDark ? 'rgba(239, 68, 68, 0.15)' : colors.danger[50],
+    },
+    input: {
+      flex: 1,
+      fontSize: 14,
+      color: theme.text,
+      paddingVertical: 10,
+    },
+    leftIconWrapper: {
+      marginRight: 8,
+    },
+    rightIconWrapper: {
+      marginLeft: 8,
+    },
+    errorText: {
+      color: colors.danger.default,
+      fontSize: 11,
+      marginTop: 4,
+      marginLeft: 2,
+    },
+  });

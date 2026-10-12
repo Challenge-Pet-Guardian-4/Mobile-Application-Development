@@ -6,12 +6,16 @@ import { PasswordInput } from '../../../components/PasswordInput';
 import { CustomButton } from '../../../components/CustomButton';
 import { shadows } from '../../../utils/shadow';
 import { useRegisterForm } from '../../../hooks/useRegisterForm';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
+import { AppTheme } from '../../../constants/theme';
 
 interface RegisterFormProps {
   registerState: ReturnType<typeof useRegisterForm>;
 }
 
 export function RegisterForm({ registerState }: RegisterFormProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const {
     form,
     updateField,
@@ -26,15 +30,13 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
 
   return (
     <View style={styles.formContainer}>
-
-
       <CustomInput
         label="Nome Completo"
         placeholder="Ex: Carlos Eduardo"
         maxLength={60}
         value={form.nome}
         onChangeText={(t) => updateField('nome', t)}
-        leftIcon={<Ionicons name="person-outline" size={18} color="#94A3B8" />}
+        leftIcon={<Ionicons name="person-outline" size={18} color={theme.textMuted} />}
       />
 
       <CustomInput
@@ -45,7 +47,7 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
         maxLength={80}
         value={form.email}
         onChangeText={(t) => updateField('email', t)}
-        leftIcon={<Ionicons name="mail-outline" size={18} color="#94A3B8" />}
+        leftIcon={<Ionicons name="mail-outline" size={18} color={theme.textMuted} />}
       />
 
       <View style={styles.row}>
@@ -130,39 +132,40 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  formContainer: {
-    backgroundColor: '#FFFFFF',
-    padding: 24,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    ...shadows.sm,
-    elevation: 2,
-  },
-  row: {
-    flexDirection: 'row',
-  },
-  erroText: {
-    color: '#DC2626',
-    fontSize: 13,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  footerText: {
-    color: '#64748B',
-    fontSize: 13,
-  },
-  linkText: {
-    color: '#2563EB',
-    fontWeight: '800',
-    fontSize: 13,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    formContainer: {
+      backgroundColor: theme.card,
+      padding: 24,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...shadows.sm,
+      elevation: 2,
+    },
+    row: {
+      flexDirection: 'row',
+    },
+    erroText: {
+      color: '#DC2626',
+      fontSize: 13,
+      fontWeight: '600',
+      textAlign: 'center',
+      marginBottom: 8,
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      marginTop: 20,
+      alignItems: 'center',
+    },
+    footerText: {
+      color: theme.textSecondary,
+      fontSize: 13,
+    },
+    linkText: {
+      color: theme.primary,
+      fontWeight: '800',
+      fontSize: 13,
+    },
+  });

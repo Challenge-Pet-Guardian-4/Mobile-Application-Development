@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useSession } from '../../hooks/useSession';
 import { shadows } from '../../utils/shadow';
-import { colors, spacing } from '../../constants/theme';
-import { useTheme } from '../../contexts/ThemeContext';
+import { colors, spacing, AppTheme } from '../../constants/theme';
+import { useThemedStyles } from '../../contexts/ThemeContext';
 
 export type HeaderProps = {
   title?: string;
@@ -14,7 +14,7 @@ export type HeaderProps = {
 
 export function Header({ title, subtitle, onRightPress }: HeaderProps) {
   const { user } = useSession();
-  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const userName = user?.nome ? user.nome.split(' ')[0] : 'Tutor';
 
   return (
@@ -26,8 +26,8 @@ export function Header({ title, subtitle, onRightPress }: HeaderProps) {
           </View>
           <Text style={styles.brandText}>PetGuardian</Text>
         </View>
-        <Text style={[styles.pageTitle, { color: theme.text }]}>{title || `Olá, ${userName}`}</Text>
-        {subtitle ? <Text style={[styles.pageSubtitle, { color: theme.textSecondary }]}>{subtitle}</Text> : null}
+        <Text style={styles.pageTitle}>{title || `Olá, ${userName}`}</Text>
+        {subtitle ? <Text style={styles.pageSubtitle}>{subtitle}</Text> : null}
       </View>
 
       <TouchableOpacity
@@ -35,8 +35,8 @@ export function Header({ title, subtitle, onRightPress }: HeaderProps) {
         onPress={onRightPress}
         activeOpacity={0.8}
       >
-        <View style={[styles.avatarCircle, { backgroundColor: theme.isDark ? theme.surfaceMuted : colors.neutral[900], borderColor: theme.border, borderWidth: theme.isDark ? 1 : 0 }]}>
-          <Text style={[styles.avatarText, { color: theme.isDark ? theme.text : colors.neutral.white }]}>
+        <View style={styles.avatarCircle}>
+          <Text style={styles.avatarText}>
             {userName.substring(0, 2).toUpperCase()}
           </Text>
         </View>
@@ -45,64 +45,67 @@ export function Header({ title, subtitle, onRightPress }: HeaderProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.sm,
-    marginBottom: spacing.xs,
-  },
-  leftColumn: {
-    flex: 1,
-  },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 4,
-  },
-  brandIconWrapper: {
-    width: 22,
-    height: 22,
-    borderRadius: 7,
-    backgroundColor: colors.primary[50],
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  brandText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.primary[600],
-    letterSpacing: 0.3,
-  },
-  pageTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: colors.neutral[900],
-    letterSpacing: -0.5,
-  },
-  pageSubtitle: {
-    fontSize: 13,
-    color: colors.neutral[500],
-    marginTop: 2,
-  },
-  profileBadge: {
-    padding: 2,
-  },
-  avatarCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.neutral[900],
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...shadows.lg,
-    elevation: 3,
-  },
-  avatarText: {
-    color: colors.neutral.white,
-    fontSize: 13,
-    fontWeight: '800',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.sm,
+      marginBottom: spacing.xs,
+    },
+    leftColumn: {
+      flex: 1,
+    },
+    brandRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginBottom: 4,
+    },
+    brandIconWrapper: {
+      width: 22,
+      height: 22,
+      borderRadius: 7,
+      backgroundColor: colors.primary[50],
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    brandText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: colors.primary[600],
+      letterSpacing: 0.3,
+    },
+    pageTitle: {
+      fontSize: 22,
+      fontWeight: '900',
+      color: theme.text,
+      letterSpacing: -0.5,
+    },
+    pageSubtitle: {
+      fontSize: 13,
+      color: theme.textSecondary,
+      marginTop: 2,
+    },
+    profileBadge: {
+      padding: 2,
+    },
+    avatarCircle: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: theme.isDark ? theme.surfaceMuted : colors.neutral[900],
+      borderColor: theme.border,
+      borderWidth: theme.isDark ? 1 : 0,
+      justifyContent: 'center',
+      alignItems: 'center',
+      ...shadows.lg,
+      elevation: 3,
+    },
+    avatarText: {
+      color: theme.isDark ? theme.text : colors.neutral.white,
+      fontSize: 13,
+      fontWeight: '800',
+    },
+  });

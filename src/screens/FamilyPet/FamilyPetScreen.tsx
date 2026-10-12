@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-nativ
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FamilyStackParamList } from '../../routes/types';
 import { useFamilyCare } from '../../hooks/useFamilyCare';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, AppTheme } from '../../constants/theme';
 import { Header } from '../../components/Header';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { FamilySummaryCard } from './components/FamilySummaryCard';
@@ -11,15 +11,14 @@ import { FamilyPetsSection } from './components/FamilyPetsSection';
 import { FamilyRoutineSection } from './components/FamilyRoutineSection';
 import { FamilyCaregiversSection } from './components/FamilyCaregiversSection';
 import { FamilyPetModals } from './components/FamilyPetModals';
-
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemedStyles } from '../../contexts/ThemeContext';
 
 interface FamilyPetScreenProps {
   navigation: NativeStackNavigationProp<FamilyStackParamList>;
 }
 
 export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
-  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const familyCare = useFamilyCare();
   const { status, family, modals } = familyCare;
 
@@ -28,7 +27,7 @@ export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -88,14 +87,15 @@ export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.neutral[50],
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xs,
-    gap: spacing.md,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.xs,
+      gap: spacing.md,
+    },
+  });

@@ -9,6 +9,8 @@ import { PetSelector } from '../PetSelector';
 import { TaskSchema, formatZodError } from '../../utils/schemas';
 import { formatarIsoParaBr, obterPrazoFuturoPadraoBr, normalizarPrazoParaIso } from '../../utils/petUtils';
 import { TaskFormData } from '../../types/task';
+import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
 
 interface TaskFormModalProps {
   visible: boolean;
@@ -80,6 +82,7 @@ const TaskFormBody = memo(function TaskFormBody({
   onSubmit,
   isLoading = false,
 }: Omit<TaskFormModalProps, 'visible'>) {
+  const styles = useThemedStyles(createStyles);
   const [form, setForm] = useState<TaskFormState>(() =>
     getInitialForm(mode, initialData, initialPetId, pets)
   );
@@ -132,10 +135,8 @@ const TaskFormBody = memo(function TaskFormBody({
 
   return (
     <>
-      {/* Banner de Tarefa Expirada Modularizado */}
       {isExpiredEdit && <ExpiredTaskBanner />}
 
-      {/* Seletor Reutilizável de Pet */}
       <PetSelector
         label="Para qual Pet?"
         pets={pets}
@@ -168,7 +169,6 @@ const TaskFormBody = memo(function TaskFormBody({
         onChangeText={(p) => updateField('pontos', p.replace(/\D/g, ''))}
       />
 
-      {/* Data e Horário de Conclusão / Prazo */}
       <CustomDateInput
         label="Data e Horário de Conclusão Prevista (Prazo)"
         placeholder="DD/MM/AAAA HH:mm"
@@ -178,7 +178,6 @@ const TaskFormBody = memo(function TaskFormBody({
         onChangeDate={(prazo) => updateField('prazo', prazo)}
       />
 
-      {/* Controle de Status no modo Edição */}
       {mode === 'edit' && (
         <TaskStatusSelector
           status={form.status}
@@ -217,7 +216,6 @@ export function TaskFormModal({
   isLoading = false,
   taskId,
 }: TaskFormModalProps) {
-  // Chave estável baseada em id/identidade que reinicializa o formulário de forma pura (sem useEffect + setState)
   const formKey = visible
     ? (mode === 'edit'
         ? `edit_${taskId ?? initialData?.petId ?? 'default'}_${initialData?.titulo ?? 'default'}`
@@ -253,10 +251,13 @@ export function TaskFormModal({
 }
 
 function ExpiredTaskBanner() {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
+
   return (
     <View style={styles.expiredBanner}>
       <View style={styles.expiredIconBox}>
-        <Ionicons name="time-outline" size={20} color="#D97706" />
+        <Ionicons name="time-outline" size={20} color={theme.badgeWarningText} />
       </View>
       <View style={styles.expiredContent}>
         <Text style={styles.expiredTitle}>Tarefa Expirada</Text>
@@ -277,6 +278,8 @@ const TaskStatusSelector = memo(function TaskStatusSelector({
   status,
   onStatusChange,
 }: TaskStatusSelectorProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const isConcluido = status === 'CONCLUIDO';
 
   return (
@@ -291,7 +294,7 @@ const TaskStatusSelector = memo(function TaskStatusSelector({
           <Ionicons
             name={!isConcluido ? 'time' : 'time-outline'}
             size={18}
-            color={!isConcluido ? '#D97706' : '#64748B'}
+            color={!isConcluido ? theme.badgeWarningText : theme.textSecondary}
           />
           <Text style={[styles.statusBtnText, !isConcluido && styles.statusBtnTextPendenteActive]}>
             Pendente
@@ -306,7 +309,7 @@ const TaskStatusSelector = memo(function TaskStatusSelector({
           <Ionicons
             name={isConcluido ? 'checkmark-circle' : 'checkmark-circle-outline'}
             size={18}
-            color={isConcluido ? '#16A34A' : '#64748B'}
+            color={isConcluido ? theme.badgeSuccessText : theme.textSecondary}
           />
           <Text style={[styles.statusBtnText, isConcluido && styles.statusBtnTextConcluidoActive]}>
             Concluída
@@ -323,101 +326,102 @@ const TaskStatusSelector = memo(function TaskStatusSelector({
   );
 });
 
-const styles = StyleSheet.create({
-  modalButtonsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 10,
-    marginBottom: 6,
-  },
-  expiredBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FEF3C7',
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-    borderRadius: 14,
-    padding: 12,
-    gap: 10,
-    marginBottom: 16,
-  },
-  expiredIconBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#FDE68A',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  expiredContent: {
-    flex: 1,
-  },
-  expiredTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#92400E',
-    marginBottom: 2,
-  },
-  expiredDescription: {
-    fontSize: 12,
-    color: '#B45309',
-    lineHeight: 16,
-  },
-  statusContainer: {
-    marginTop: 6,
-    marginBottom: 12,
-  },
-  fieldLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#334155',
-    marginBottom: 8,
-    marginTop: 4,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 8,
-  },
-  statusBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-  },
-  statusBtnPendenteActive: {
-    backgroundColor: '#FEF3C7',
-    borderColor: '#F59E0B',
-  },
-  statusBtnConcluidoActive: {
-    backgroundColor: '#DCFCE7',
-    borderColor: '#22C55E',
-  },
-  statusBtnText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#64748B',
-  },
-  statusBtnTextPendenteActive: {
-    color: '#B45309',
-    fontWeight: '700',
-  },
-  statusBtnTextConcluidoActive: {
-    color: '#15803D',
-    fontWeight: '700',
-  },
-  statusHelpText: {
-    fontSize: 12,
-    color: '#64748B',
-    lineHeight: 16,
-    marginTop: 2,
-    marginBottom: 4,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    modalButtonsRow: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 10,
+      marginBottom: 6,
+    },
+    expiredBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.badgeWarningBg,
+      borderWidth: 1,
+      borderColor: theme.badgeWarningBorder,
+      borderRadius: 14,
+      padding: 12,
+      gap: 10,
+      marginBottom: 16,
+    },
+    expiredIconBox: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: theme.isDark ? 'rgba(245, 158, 11, 0.2)' : '#FDE68A',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    expiredContent: {
+      flex: 1,
+    },
+    expiredTitle: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.badgeWarningText,
+      marginBottom: 2,
+    },
+    expiredDescription: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      lineHeight: 16,
+    },
+    statusContainer: {
+      marginTop: 6,
+      marginBottom: 12,
+    },
+    fieldLabel: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.text,
+      marginBottom: 8,
+      marginTop: 4,
+    },
+    statusRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 8,
+    },
+    statusBtn: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 10,
+      paddingHorizontal: 8,
+      backgroundColor: theme.surfaceMuted,
+      borderRadius: 12,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+    },
+    statusBtnPendenteActive: {
+      backgroundColor: theme.badgeWarningBg,
+      borderColor: theme.badgeWarningBorder,
+    },
+    statusBtnConcluidoActive: {
+      backgroundColor: theme.badgeSuccessBg,
+      borderColor: theme.badgeSuccessBorder,
+    },
+    statusBtnText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: theme.textSecondary,
+    },
+    statusBtnTextPendenteActive: {
+      color: theme.badgeWarningText,
+      fontWeight: '700',
+    },
+    statusBtnTextConcluidoActive: {
+      color: theme.badgeSuccessText,
+      fontWeight: '700',
+    },
+    statusHelpText: {
+      fontSize: 12,
+      color: theme.textMuted,
+      lineHeight: 16,
+      marginTop: 2,
+      marginBottom: 4,
+    },
+  });

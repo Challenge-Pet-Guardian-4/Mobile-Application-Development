@@ -4,6 +4,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { CuidadorResumo } from '../../../types/user';
 import { PetResponse } from '../../../types/pet';
 import { BaseModal } from '../../../components/BaseModal';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
+import { AppTheme } from '../../../constants/theme';
 
 export interface ManageCaregiverModalProps {
   visible: boolean;
@@ -26,6 +28,9 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
   onRemoverDeTodosPets,
   isLoading = false,
 }: ManageCaregiverModalProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
+
   if (!cuidador) return null;
 
   const handlePressTransfer = (pet: PetResponse) => {
@@ -68,7 +73,7 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
     >
       {/* Badge Informativo de Regras */}
       <View style={styles.infoBadgeBox}>
-        <Ionicons name="shield-checkmark-outline" size={16} color="#2563EB" />
+        <Ionicons name="shield-checkmark-outline" size={16} color={theme.badgePrimaryText} />
         <Text style={styles.infoBadgeText}>
           Cada animal possui apenas 1 tutor principal. Marque abaixo com quais dos seus pets este cuidador colabora.
         </Text>
@@ -115,7 +120,7 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
                   activeOpacity={0.7}
                   disabled={isLoading}
                 >
-                  <MaterialCommunityIcons name="crown-outline" size={16} color="#D97706" />
+                  <MaterialCommunityIcons name="crown-outline" size={16} color={theme.badgeWarningText} />
                   <Text style={styles.btnTransferCrownText}>Passar Titularidade</Text>
                 </TouchableOpacity>
               )}
@@ -142,9 +147,13 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
       {/* Rodapé de Ação */}
       <View style={styles.footer}>
         {isLoading ? (
-          <ActivityIndicator color="#2563EB" style={{ marginVertical: 8 }} />
+          <ActivityIndicator color={theme.primary} style={{ marginVertical: 8 }} />
         ) : (
-          <TouchableOpacity style={styles.btnDone} onPress={onClose} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.btnDone}
+            onPress={onClose}
+            activeOpacity={0.8}
+          >
             <Text style={styles.btnDoneText}>Concluir</Text>
           </TouchableOpacity>
         )}
@@ -153,137 +162,138 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
   );
 });
 
-const styles = StyleSheet.create({
-  infoBadgeBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#EFF6FF',
-    padding: 10,
-    borderRadius: 14,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#DBEAFE',
-  },
-  infoBadgeText: {
-    flex: 1,
-    fontSize: 11,
-    color: '#1E40AF',
-    fontWeight: '600',
-    lineHeight: 15,
-  },
-  sectionSubtitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#334155',
-    marginBottom: 10,
-  },
-  emptyBox: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 12,
-    color: '#94A3B8',
-    textAlign: 'center',
-  },
-  petRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#F8FAFC',
-    padding: 12,
-    borderRadius: 14,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    gap: 8,
-  },
-  petRowActive: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#93C5FD',
-  },
-  petToggleLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: '#CBD5E1',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  checkboxActive: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
-  },
-  petName: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  petNameActive: {
-    color: '#0F172A',
-  },
-  petBreed: {
-    fontSize: 11,
-    color: '#94A3B8',
-    marginTop: 1,
-  },
-  btnTransferCrown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#FFFBEB',
-    paddingVertical: 5,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-  },
-  btnTransferCrownText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#B45309',
-  },
-  btnRemoveAll: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: '#FEF2F2',
-    paddingVertical: 10,
-    borderRadius: 12,
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: '#FEE2E2',
-  },
-  btnRemoveAllText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#DC2626',
-  },
-  footer: {
-    marginTop: 14,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
-  },
-  btnDone: {
-    backgroundColor: '#0F172A',
-    paddingVertical: 12,
-    borderRadius: 14,
-    alignItems: 'center',
-  },
-  btnDoneText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    infoBadgeBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: theme.badgePrimaryBg,
+      padding: 10,
+      borderRadius: 14,
+      marginBottom: 14,
+      borderWidth: 1,
+      borderColor: theme.badgePrimaryBorder,
+    },
+    infoBadgeText: {
+      flex: 1,
+      fontSize: 11,
+      color: theme.badgePrimaryText,
+      fontWeight: '600',
+      lineHeight: 15,
+    },
+    sectionSubtitle: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.textSecondary,
+      marginBottom: 10,
+    },
+    emptyBox: {
+      padding: 16,
+      alignItems: 'center',
+    },
+    emptyText: {
+      fontSize: 12,
+      color: theme.textMuted,
+      textAlign: 'center',
+    },
+    petRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: theme.surfaceMuted,
+      padding: 12,
+      borderRadius: 14,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+      gap: 8,
+    },
+    petRowActive: {
+      backgroundColor: theme.card,
+      borderColor: theme.primary,
+    },
+    petToggleLeft: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    checkbox: {
+      width: 20,
+      height: 20,
+      borderRadius: 6,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.surfaceMuted,
+    },
+    checkboxActive: {
+      backgroundColor: theme.primary,
+      borderColor: theme.primary,
+    },
+    petName: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.textSecondary,
+    },
+    petNameActive: {
+      color: theme.text,
+    },
+    petBreed: {
+      fontSize: 11,
+      color: theme.textMuted,
+      marginTop: 1,
+    },
+    btnTransferCrown: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: theme.badgeWarningBg,
+      paddingVertical: 5,
+      paddingHorizontal: 8,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.badgeWarningBorder,
+    },
+    btnTransferCrownText: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: theme.badgeWarningText,
+    },
+    btnRemoveAll: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      backgroundColor: theme.badgeDangerBg,
+      paddingVertical: 10,
+      borderRadius: 12,
+      marginTop: 12,
+      borderWidth: 1,
+      borderColor: theme.badgeDangerBorder,
+    },
+    btnRemoveAllText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.badgeDangerText,
+    },
+    footer: {
+      marginTop: 14,
+      paddingTop: 10,
+      borderTopWidth: 1,
+      borderTopColor: theme.border,
+    },
+    btnDone: {
+      backgroundColor: theme.isDark ? theme.primary : '#0F172A',
+      paddingVertical: 12,
+      borderRadius: 14,
+      alignItems: 'center',
+    },
+    btnDoneText: {
+      color: '#FFFFFF',
+      fontSize: 14,
+      fontWeight: '700',
+    },
+  });

@@ -11,11 +11,11 @@ import { TrilhasGamificacaoHeader } from './components/TrilhasGamificacaoHeader'
 import { TrilhaBannerProgresso } from './components/TrilhaBannerProgresso';
 import { SeletorTrilhasPills } from './components/SeletorTrilhasPills';
 import { TrilhasEmptyState } from './components/TrilhasEmptyState';
-
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemedStyles } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
 
 export default function TrainingEducationScreen() {
-  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { status, pet, trail, actions } = useTrainings();
   const { petAtivo } = pet;
   const { trilhaAtual } = trail;
@@ -23,7 +23,7 @@ export default function TrainingEducationScreen() {
   // Se o usuário for Comum, exibe mensagem amigável sobre o recurso Premium
   if (status.isUserComum) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={styles.container}>
         <View style={styles.headerPad}>
           <Header title="Trilhas & Treinamento" />
         </View>
@@ -44,7 +44,7 @@ export default function TrainingEducationScreen() {
   const temTrilhas = (trail?.trilhas?.length ?? 0) > 0;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={styles.container}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 130 }}
         showsVerticalScrollIndicator={false}
@@ -103,13 +103,14 @@ export default function TrainingEducationScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  headerPad: {
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 50 : 25,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    headerPad: {
+      paddingHorizontal: 20,
+      paddingTop: Platform.OS === 'ios' ? 50 : 25,
+    },
+  });

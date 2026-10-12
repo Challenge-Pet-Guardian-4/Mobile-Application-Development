@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-nativ
 import { Ionicons } from '@expo/vector-icons';
 import { CustomInput } from '../CustomInput';
 import { formatarDataHojeBr } from '../../utils/petUtils';
+import { useThemedStyles, useTheme } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
 
 interface CustomDateInputProps {
   label?: string;
@@ -36,6 +38,8 @@ export const CustomDateInput = memo(function CustomDateInput({
   showTime = false,
   quickTimePresets = false,
 }: CustomDateInputProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const defaultPlaceholder = showTime ? 'DD/MM/AAAA HH:mm' : 'DD/MM/AAAA';
 
   const handleChangeText = (text: string) => {
@@ -83,7 +87,7 @@ export const CustomDateInput = memo(function CustomDateInput({
         onChangeText={handleChangeText}
         error={error}
         editable={editable}
-        leftIcon={<Ionicons name={showTime ? 'time-outline' : 'calendar-outline'} size={18} color="#64748B" />}
+        leftIcon={<Ionicons name={showTime ? 'time-outline' : 'calendar-outline'} size={18} color={theme.textMuted} />}
       />
 
       {showTime && quickTimePresets && (
@@ -112,42 +116,43 @@ export const CustomDateInput = memo(function CustomDateInput({
   );
 });
 
-const styles = StyleSheet.create({
-  presetsRow: {
-    marginTop: -6,
-    marginBottom: 12,
-  },
-  presetsLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#64748B',
-    marginBottom: 5,
-    marginLeft: 2,
-  },
-  chipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  presetChip: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  presetChipActive: {
-    backgroundColor: '#0284C7',
-    borderColor: '#0284C7',
-  },
-  presetChipText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
-  },
-  presetChipTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    presetsRow: {
+      marginTop: -6,
+      marginBottom: 12,
+    },
+    presetsLabel: {
+      fontSize: 11,
+      fontWeight: '600',
+      color: theme.textSecondary,
+      marginBottom: 5,
+      marginLeft: 2,
+    },
+    chipsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+    },
+    presetChip: {
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      backgroundColor: theme.surfaceMuted,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    presetChipActive: {
+      backgroundColor: theme.primary,
+      borderColor: theme.primary,
+    },
+    presetChipText: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: theme.textSecondary,
+    },
+    presetChipTextActive: {
+      color: '#FFFFFF',
+      fontWeight: '700',
+    },
+  });

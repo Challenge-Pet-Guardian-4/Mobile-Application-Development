@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle, TouchableOpacityProps } from 'react-native';
 import { shadows } from '../../utils/shadow';
-import { colors, borderRadius } from '../../constants/theme';
+import { colors, borderRadius, AppTheme } from '../../constants/theme';
+import { useThemedStyles, useTheme } from '../../contexts/ThemeContext';
 
 interface CustomButtonProps extends TouchableOpacityProps {
   title: string;
@@ -22,6 +23,9 @@ export const CustomButton = memo(function CustomButton({
   disabled,
   ...rest
 }: CustomButtonProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
+
   const getButtonStyle = () => {
     switch (variant) {
       case 'success':
@@ -61,7 +65,7 @@ export const CustomButton = memo(function CustomButton({
       {...rest}
     >
       {isLoading ? (
-        <ActivityIndicator color={variant === 'outline' ? colors.neutral[900] : colors.neutral.white} size="small" />
+        <ActivityIndicator color={variant === 'outline' ? theme.text : colors.neutral.white} size="small" />
       ) : (
         <>
           {icon}
@@ -72,53 +76,55 @@ export const CustomButton = memo(function CustomButton({
   );
 });
 
-const styles = StyleSheet.create({
-  btnBase: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: borderRadius.lg,
-    gap: 8,
-  },
-  btnPrimary: {
-    backgroundColor: colors.neutral[900],
-    ...shadows.xl,
-    elevation: 3,
-  },
-  btnSuccess: {
-    backgroundColor: colors.success.default,
-    ...shadows.colored(colors.success.default, 0.25),
-    elevation: 3,
-  },
-  btnSecondary: {
-    backgroundColor: colors.primary[50],
-  },
-  btnOutline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: colors.neutral[200],
-  },
-  btnDanger: {
-    backgroundColor: colors.danger.default,
-  },
-  btnDisabled: {
-    opacity: 0.45,
-    elevation: 0,
-  },
-  textBase: {
-    fontSize: 15,
-    fontWeight: '800',
-    letterSpacing: -0.2,
-  },
-  textPrimary: {
-    color: colors.neutral.white,
-  },
-  textSecondary: {
-    color: colors.primary.default,
-  },
-  textOutline: {
-    color: colors.neutral[900],
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    btnBase: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 15,
+      paddingHorizontal: 20,
+      borderRadius: borderRadius.lg,
+      gap: 8,
+    },
+    btnPrimary: {
+      backgroundColor: theme.primary,
+      ...shadows.sm,
+      elevation: 2,
+    },
+    btnSecondary: {
+      backgroundColor: theme.badgePrimaryBg,
+    },
+    btnOutline: {
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      borderColor: theme.border,
+    },
+    btnDanger: {
+      backgroundColor: colors.danger.default,
+      ...shadows.sm,
+      elevation: 2,
+    },
+    btnSuccess: {
+      backgroundColor: colors.success.default,
+      ...shadows.sm,
+      elevation: 2,
+    },
+    btnDisabled: {
+      opacity: 0.6,
+    },
+    textBase: {
+      fontSize: 15,
+      fontWeight: '700',
+      letterSpacing: 0.2,
+    },
+    textPrimary: {
+      color: colors.neutral.white,
+    },
+    textSecondary: {
+      color: theme.badgePrimaryText,
+    },
+    textOutline: {
+      color: theme.text,
+    },
+  });

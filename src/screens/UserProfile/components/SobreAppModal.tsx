@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { BaseModal } from '../../../components/BaseModal';
 import { APP_VERSION_INFO } from '../../../config/version';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
+import { AppTheme } from '../../../constants/theme';
 
 interface SobreAppModalProps {
   visible: boolean;
@@ -10,6 +12,9 @@ interface SobreAppModalProps {
 }
 
 export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
+
   return (
     <BaseModal
       visible={visible}
@@ -31,10 +36,10 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
           </View>
         </View>
 
-        {/* Card de Identificação da Versão & Commit Hash Obrigatório do Edital */}
+        {/* Card de Identificação da Versão & Commit Hash */}
         <View style={styles.commitCard}>
           <View style={styles.commitHeaderRow}>
-            <Ionicons name="git-commit-outline" size={20} color="#2563EB" />
+            <Ionicons name="git-commit-outline" size={20} color={theme.primary} />
             <Text style={styles.commitCardTitle}>Hash do Commit de Referência</Text>
           </View>
 
@@ -53,7 +58,7 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
           {Boolean(APP_VERSION_INFO.commitMessage) && (
             <View style={styles.commitMessageBox}>
               <View style={styles.commitMessageHeader}>
-                <Ionicons name="chatbox-ellipses-outline" size={13} color="#2563EB" />
+                <Ionicons name="chatbox-ellipses-outline" size={13} color={theme.badgePrimaryText} />
                 <Text style={styles.commitMessageLabel}>Último Commit</Text>
               </View>
               <Text style={styles.commitMessageText} numberOfLines={2} ellipsizeMode="tail">
@@ -117,205 +122,206 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 16,
-    gap: 16,
-  },
-  appHeader: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#2563EB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-    elevation: 3,
-  },
-  appName: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-  appTagline: {
-    fontSize: 12,
-    color: '#64748B',
-    marginTop: 2,
-    textAlign: 'center',
-  },
-  badgeSprint: {
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  badgeSprintText: {
-    color: '#2563EB',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  commitCard: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1.5,
-    borderColor: '#3B82F6',
-  },
-  commitHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 6,
-  },
-  commitCardTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  commitExplica: {
-    fontSize: 12,
-    color: '#64748B',
-    marginBottom: 10,
-    lineHeight: 16,
-  },
-  hashBox: {
-    backgroundColor: '#0F172A',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  hashText: {
-    color: '#38BDF8',
-    fontFamily: 'monospace',
-    fontSize: 12,
-    fontWeight: '700',
-    textAlign: 'center',
-    letterSpacing: 0.5,
-  },
-  commitMessageBox: {
-    backgroundColor: '#EFF6FF',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  commitMessageHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 3,
-  },
-  commitMessageLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#1E40AF',
-    textTransform: 'uppercase',
-  },
-  commitMessageText: {
-    fontSize: 12,
-    color: '#1E293B',
-    fontStyle: 'italic',
-    lineHeight: 16,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-  },
-  metaItem: {
-    alignItems: 'center',
-  },
-  metaLabel: {
-    fontSize: 10,
-    color: '#94A3B8',
-    textTransform: 'uppercase',
-    fontWeight: '600',
-  },
-  metaValue: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#0F172A',
-    marginTop: 2,
-  },
-  metaDivider: {
-    width: 1,
-    height: 20,
-    backgroundColor: '#E2E8F0',
-  },
-  infoBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    gap: 6,
-  },
-  infoSectionTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#0F172A',
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  infoItem: {
-    fontSize: 12,
-    color: '#475569',
-    lineHeight: 18,
-  },
-  bold: {
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  teamBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    gap: 10,
-  },
-  memberRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  avatarMini: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#EFF6FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#DBEAFE',
-  },
-  avatarMiniText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#2563EB',
-  },
-  memberName: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1E293B',
-  },
-  memberRm: {
-    fontSize: 11,
-    color: '#64748B',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      paddingBottom: 16,
+      gap: 16,
+    },
+    appHeader: {
+      alignItems: 'center',
+      paddingVertical: 8,
+    },
+    iconCircle: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      backgroundColor: theme.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 10,
+      elevation: 3,
+    },
+    appName: {
+      fontSize: 22,
+      fontWeight: '800',
+      color: theme.text,
+    },
+    appTagline: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      marginTop: 2,
+      textAlign: 'center',
+    },
+    badgeSprint: {
+      backgroundColor: theme.badgePrimaryBg,
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+      borderRadius: 20,
+      marginTop: 8,
+      borderWidth: 1,
+      borderColor: theme.badgePrimaryBorder,
+    },
+    badgeSprintText: {
+      color: theme.badgePrimaryText,
+      fontSize: 12,
+      fontWeight: '700',
+    },
+    commitCard: {
+      backgroundColor: theme.cardSubtle,
+      borderRadius: 16,
+      padding: 16,
+      borderWidth: 1.5,
+      borderColor: theme.border,
+    },
+    commitHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 6,
+    },
+    commitCardTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.text,
+    },
+    commitExplica: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      marginBottom: 10,
+      lineHeight: 16,
+    },
+    hashBox: {
+      backgroundColor: theme.isDark ? '#0A0F1D' : '#0F172A',
+      borderRadius: 10,
+      padding: 12,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    hashText: {
+      color: '#38BDF8',
+      fontFamily: 'monospace',
+      fontSize: 12,
+      fontWeight: '700',
+      textAlign: 'center',
+      letterSpacing: 0.5,
+    },
+    commitMessageBox: {
+      backgroundColor: theme.badgePrimaryBg,
+      borderRadius: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: theme.badgePrimaryBorder,
+    },
+    commitMessageHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginBottom: 3,
+    },
+    commitMessageLabel: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: theme.badgePrimaryText,
+      textTransform: 'uppercase',
+    },
+    commitMessageText: {
+      fontSize: 12,
+      color: theme.text,
+      fontStyle: 'italic',
+      lineHeight: 16,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      paddingTop: 8,
+      borderTopWidth: 1,
+      borderTopColor: theme.border,
+    },
+    metaItem: {
+      alignItems: 'center',
+    },
+    metaLabel: {
+      fontSize: 10,
+      color: theme.textMuted,
+      textTransform: 'uppercase',
+      fontWeight: '600',
+    },
+    metaValue: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.text,
+      marginTop: 2,
+    },
+    metaDivider: {
+      width: 1,
+      height: 20,
+      backgroundColor: theme.border,
+    },
+    infoBox: {
+      backgroundColor: theme.cardSubtle,
+      borderRadius: 14,
+      padding: 14,
+      borderWidth: 1,
+      borderColor: theme.border,
+      gap: 6,
+    },
+    infoSectionTitle: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.text,
+      marginBottom: 4,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    infoItem: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      lineHeight: 18,
+    },
+    bold: {
+      fontWeight: '700',
+      color: theme.text,
+    },
+    teamBox: {
+      backgroundColor: theme.cardSubtle,
+      borderRadius: 14,
+      padding: 14,
+      borderWidth: 1,
+      borderColor: theme.border,
+      gap: 10,
+    },
+    memberRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    avatarMini: {
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      backgroundColor: theme.badgePrimaryBg,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: theme.badgePrimaryBorder,
+    },
+    avatarMiniText: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.badgePrimaryText,
+    },
+    memberName: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: theme.text,
+    },
+    memberRm: {
+      fontSize: 11,
+      color: theme.textSecondary,
+    },
+  });

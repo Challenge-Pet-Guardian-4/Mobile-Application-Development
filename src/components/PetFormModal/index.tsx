@@ -6,6 +6,8 @@ import { CustomDateInput } from '../CustomDateInput';
 import { CustomButton } from '../CustomButton';
 import { PetPorte, PetFormData } from '../../types/pet';
 import { PetSchema, formatZodError } from '../../utils/schemas';
+import { useThemedStyles } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
 
 interface PetFormModalProps {
   visible: boolean;
@@ -41,6 +43,7 @@ const PetFormBody = memo(function PetFormBody({
   isLoading?: boolean;
   buttonTitle: string;
 }) {
+  const styles = useThemedStyles(createStyles);
   const [form, setForm] = useState<PetFormData>(() => ({
     ...INITIAL_PET_FORM,
     ...initialData,
@@ -92,22 +95,20 @@ const PetFormBody = memo(function PetFormBody({
       {/* Porte */}
       <Text style={styles.fieldLabel}>Porte do Animal</Text>
       <View style={styles.porteRow}>
-        {(['PEQUENO', 'MEDIO', 'GRANDE'] as PetPorte[]).map((p) => (
-          <TouchableOpacity
-            key={p}
-            style={[styles.porteBtn, form.porte === p && styles.porteBtnSelected]}
-            onPress={() => updateField('porte', p)}
-          >
-            <Text
-              style={[
-                styles.porteBtnText,
-                form.porte === p && styles.porteBtnTextSelected,
-              ]}
+        {(['PEQUENO', 'MEDIO', 'GRANDE'] as PetPorte[]).map((p) => {
+          const isSelected = form.porte === p;
+          return (
+            <TouchableOpacity
+              key={p}
+              style={[styles.porteBtn, isSelected && styles.porteBtnSelected]}
+              onPress={() => updateField('porte', p)}
             >
-              {p}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text style={[styles.porteBtnText, isSelected && styles.porteBtnTextSelected]}>
+                {p}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       {/* Sexo */}
@@ -117,9 +118,7 @@ const PetFormBody = memo(function PetFormBody({
           style={[styles.porteBtn, form.sexo === 'M' && styles.porteBtnSelected]}
           onPress={() => updateField('sexo', 'M')}
         >
-          <Text
-            style={[styles.porteBtnText, form.sexo === 'M' && styles.porteBtnTextSelected]}
-          >
+          <Text style={[styles.porteBtnText, form.sexo === 'M' && styles.porteBtnTextSelected]}>
             Macho
           </Text>
         </TouchableOpacity>
@@ -128,9 +127,7 @@ const PetFormBody = memo(function PetFormBody({
           style={[styles.porteBtn, form.sexo === 'F' && styles.porteBtnSelected]}
           onPress={() => updateField('sexo', 'F')}
         >
-          <Text
-            style={[styles.porteBtnText, form.sexo === 'F' && styles.porteBtnTextSelected]}
-          >
+          <Text style={[styles.porteBtnText, form.sexo === 'F' && styles.porteBtnTextSelected]}>
             Fêmea
           </Text>
         </TouchableOpacity>
@@ -143,9 +140,7 @@ const PetFormBody = memo(function PetFormBody({
           style={[styles.porteBtn, form.castrado && styles.porteBtnSelected]}
           onPress={() => updateField('castrado', true)}
         >
-          <Text
-            style={[styles.porteBtnText, form.castrado && styles.porteBtnTextSelected]}
-          >
+          <Text style={[styles.porteBtnText, form.castrado && styles.porteBtnTextSelected]}>
             Sim
           </Text>
         </TouchableOpacity>
@@ -154,9 +149,7 @@ const PetFormBody = memo(function PetFormBody({
           style={[styles.porteBtn, !form.castrado && styles.porteBtnSelected]}
           onPress={() => updateField('castrado', false)}
         >
-          <Text
-            style={[styles.porteBtnText, !form.castrado && styles.porteBtnTextSelected]}
-          >
+          <Text style={[styles.porteBtnText, !form.castrado && styles.porteBtnTextSelected]}>
             Não
           </Text>
         </TouchableOpacity>
@@ -228,44 +221,45 @@ export function PetFormModal({
   );
 }
 
-const styles = StyleSheet.create({
-  fieldLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#334155',
-    marginBottom: 8,
-    marginTop: 4,
-  },
-  porteRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
-  },
-  porteBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  porteBtnSelected: {
-    backgroundColor: '#0284C7',
-    borderColor: '#0284C7',
-  },
-  porteBtnText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#64748B',
-  },
-  porteBtnTextSelected: {
-    color: '#FFFFFF',
-  },
-  modalButtonsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 10,
-    marginBottom: 6,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    fieldLabel: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.text,
+      marginBottom: 8,
+      marginTop: 4,
+    },
+    porteRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 16,
+    },
+    porteBtn: {
+      flex: 1,
+      paddingVertical: 10,
+      backgroundColor: theme.surfaceMuted,
+      borderRadius: 12,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    porteBtnSelected: {
+      backgroundColor: theme.primary,
+      borderColor: theme.primary,
+    },
+    porteBtnText: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.textSecondary,
+    },
+    porteBtnTextSelected: {
+      color: '#FFFFFF',
+    },
+    modalButtonsRow: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 10,
+      marginBottom: 6,
+    },
+  });

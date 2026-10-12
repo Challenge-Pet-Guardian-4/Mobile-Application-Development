@@ -13,13 +13,13 @@ import { PetDetailHeader } from './components/PetDetailHeader';
 import { PetEmptyState } from './components/PetEmptyState';
 import { PetCaregiversSection } from './components/PetCaregiversSection';
 import { PetDetailModals } from './components/PetDetailModals';
-
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemedStyles } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
 
 type PetDetailScreenProps = NativeStackScreenProps<FamilyStackParamList, 'PetDetail'>;
 
 export default function PetDetailScreen({ route, navigation }: PetDetailScreenProps) {
-  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const routePetId = route?.params?.petId;
   const { user } = useSession();
 
@@ -36,7 +36,7 @@ export default function PetDetailScreen({ route, navigation }: PetDetailScreenPr
 
   if ((pet?.list?.length ?? 0) === 0) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={styles.container}>
         <PetDetailHeader onGoBack={handleGoBack} subtitle="Prontuário & Histórico de Cuidados" />
         <PetEmptyState />
       </View>
@@ -44,7 +44,7 @@ export default function PetDetailScreen({ route, navigation }: PetDetailScreenPr
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         <PetDetailHeader onGoBack={handleGoBack} />
 
@@ -104,14 +104,15 @@ export default function PetDetailScreen({ route, navigation }: PetDetailScreenPr
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  contentPadding: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    gap: 16,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    contentPadding: {
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      gap: 16,
+    },
+  });

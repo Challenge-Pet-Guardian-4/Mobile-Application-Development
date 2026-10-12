@@ -6,8 +6,9 @@ import { CustomDateInput } from '../CustomDateInput';
 import { CustomButton } from '../CustomButton';
 import { HistoricoSchema, formatZodError } from '../../utils/schemas';
 import { formatarIsoParaBr, normalizarDataNascParaIso, formatarDataHojeBr } from '../../utils/petUtils';
-
 import { HistoricoFormSubmitData } from '../../types/historico';
+import { useThemedStyles } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
 
 interface HistoricoFormModalProps {
   visible: boolean;
@@ -46,6 +47,7 @@ const HistoricoFormBody = memo(function HistoricoFormBody({
   onSubmit,
   isLoading = false,
 }: Omit<HistoricoFormModalProps, 'visible'>) {
+  const styles = useThemedStyles(createStyles);
   const [form, setForm] = useState<HistoricoFormState>(() => {
     if (initialData) {
       return {
@@ -98,26 +100,21 @@ const HistoricoFormBody = memo(function HistoricoFormBody({
       {/* Chips de Sugestão Rápida */}
       <Text style={styles.suggestionsLabel}>Sugestões Rápidas:</Text>
       <View style={styles.chipsRow}>
-        {SUGESTOES_EVENTOS.map((sugestao) => (
-          <TouchableOpacity
-            key={sugestao}
-            style={[
-              styles.chip,
-              form.tipoHist === sugestao && styles.chipSelected,
-            ]}
-            onPress={() => updateField('tipoHist', sugestao)}
-            activeOpacity={0.7}
-          >
-            <Text
-              style={[
-                styles.chipText,
-                form.tipoHist === sugestao && styles.chipTextSelected,
-              ]}
+        {SUGESTOES_EVENTOS.map((sugestao) => {
+          const isSelected = form.tipoHist === sugestao;
+          return (
+            <TouchableOpacity
+              key={sugestao}
+              style={[styles.chip, isSelected && styles.chipSelected]}
+              onPress={() => updateField('tipoHist', sugestao)}
+              activeOpacity={0.7}
             >
-              {sugestao}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+                {sugestao}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       <CustomDateInput
@@ -183,45 +180,46 @@ export function HistoricoFormModal({
   );
 }
 
-const styles = StyleSheet.create({
-  suggestionsLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#64748B',
-    marginBottom: 6,
-    marginTop: -4,
-  },
-  chipsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: 14,
-  },
-  chip: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  chipSelected: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#2563EB',
-  },
-  chipText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#475569',
-  },
-  chipTextSelected: {
-    color: '#2563EB',
-    fontWeight: '700',
-  },
-  modalButtonsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 10,
-    marginBottom: 6,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    suggestionsLabel: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.textSecondary,
+      marginBottom: 6,
+      marginTop: -4,
+    },
+    chipsRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+      marginBottom: 14,
+    },
+    chip: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      backgroundColor: theme.surfaceMuted,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    chipSelected: {
+      backgroundColor: theme.badgePrimaryBg,
+      borderColor: theme.badgePrimaryBorder,
+    },
+    chipText: {
+      fontSize: 11,
+      fontWeight: '600',
+      color: theme.textSecondary,
+    },
+    chipTextSelected: {
+      color: theme.badgePrimaryText,
+      fontWeight: '700',
+    },
+    modalButtonsRow: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 10,
+      marginBottom: 6,
+    },
+  });

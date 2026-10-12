@@ -4,9 +4,9 @@
  */
 
 export const GIT_COMMIT_INFO = {
-  commitHash: '21ee0570b83ab33caa6786d826392f671876d4c0',
-  shortCommitHash: '21ee057',
+  commitHash: '4bf7d1f23d1ba904d578fa8469c3198efc687b87',
+  shortCommitHash: '4bf7d1f',
   branch: 'main',
-  commitDate: '2026-10-12T11:52:34-03:00',
-  commitMessage: 'feat: Add mensagem de commit da aplicação',
+  commitDate: '2026-10-12T14:58:58-03:00',
+  commitMessage: 'fix: Alguns ajustes em notificações',
 } as const;

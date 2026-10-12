@@ -5,8 +5,9 @@ import { shadows } from '../../utils/shadow';
 import { TarefaResponse } from '../../types/task';
 import { PetResponse } from '../../types/pet';
 import { RoutineCard } from './RoutineCard';
-import { colors, spacing, borderRadius } from '../../constants/theme';
+import { colors, spacing, borderRadius, AppTheme } from '../../constants/theme';
 import { PaginationControls } from '../PaginationControls';
+import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
 
 export { RoutineCard } from './RoutineCard';
 
@@ -45,9 +46,6 @@ export interface TasksRoutineSectionProps extends Partial<TasksRoutineData> {
     isLoading?: boolean;
   };
 }
-
-import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
-import { AppTheme } from '../../constants/theme';
 
 export const TasksRoutineSection = memo(function TasksRoutineSection(props: TasksRoutineSectionProps) {
   const { theme } = useTheme();
@@ -127,18 +125,18 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
       {/* Cabeçalho da Seção */}
       <View style={styles.sectionHeader}>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>{effectiveTitle}</Text>
-          {effectiveSubtitle ? <Text style={[styles.sectionSubtitle, { color: theme.textSecondary }]}>{effectiveSubtitle}</Text> : null}
+          <Text style={styles.sectionTitle}>{effectiveTitle}</Text>
+          {effectiveSubtitle ? <Text style={styles.sectionSubtitle}>{effectiveSubtitle}</Text> : null}
         </View>
 
         {headerButton && (
           <TouchableOpacity
-            style={isLinkButton ? [styles.headerButtonLink, { backgroundColor: theme.badgePrimaryBg }] : styles.headerButtonPrimary}
+            style={isLinkButton ? styles.headerButtonLink : styles.headerButtonPrimary}
             onPress={headerButton.onPress}
             activeOpacity={0.7}
           >
             {headerButton.icon === 'add' && <Ionicons name="add" size={16} color={colors.neutral.white} />}
-            <Text style={isLinkButton ? [styles.headerButtonLinkText, { color: theme.badgePrimaryText }] : styles.headerButtonPrimaryText}>
+            <Text style={isLinkButton ? styles.headerButtonLinkText : styles.headerButtonPrimaryText}>
               {headerButton.label}
             </Text>
             {headerButton.icon === 'chevron-forward' && (
@@ -149,11 +147,11 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
       </View>
 
       {/* Abas de Filtro: Hoje vs Todas */}
-      <View style={[styles.filterTabsRow, { backgroundColor: theme.surfaceSubtle, borderColor: theme.border }]}>
+      <View style={styles.filterTabsRow}>
         <TouchableOpacity
           style={[
             styles.filterTab,
-            effectiveFilter === 'HOJE' && [styles.filterTabActive, { backgroundColor: theme.card }],
+            effectiveFilter === 'HOJE' && styles.filterTabActive,
           ]}
           onPress={() => effectiveOnFilterChange('HOJE')}
           activeOpacity={0.7}
@@ -166,8 +164,7 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
           <Text
             style={[
               styles.filterTabText,
-              { color: theme.textSecondary },
-              effectiveFilter === 'HOJE' && [styles.filterTabTextActive, { color: theme.primary }],
+              effectiveFilter === 'HOJE' && styles.filterTabTextActive,
             ]}
           >
             Hoje ({effectiveCountHoje})
@@ -177,7 +174,7 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
         <TouchableOpacity
           style={[
             styles.filterTab,
-            effectiveFilter === 'TODAS' && [styles.filterTabActive, { backgroundColor: theme.card }],
+            effectiveFilter === 'TODAS' && styles.filterTabActive,
           ]}
           onPress={() => effectiveOnFilterChange('TODAS')}
           activeOpacity={0.7}
@@ -190,8 +187,7 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
           <Text
             style={[
               styles.filterTabText,
-              { color: theme.textSecondary },
-              effectiveFilter === 'TODAS' && [styles.filterTabTextActive, { color: theme.primary }],
+              effectiveFilter === 'TODAS' && styles.filterTabTextActive,
             ]}
           >
             Todas ({effectiveCountTodas})
@@ -203,8 +199,8 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
       {effectiveTasks.length === 0 ? (
         <View style={styles.emptyBox}>
           <MaterialCommunityIcons name="clipboard-check-outline" size={32} color={theme.textMuted} />
-          <Text style={[styles.emptyTitle, { color: theme.text }]}>{emptyTitle || defaultEmptyTitle}</Text>
-          <Text style={[styles.emptyDesc, { color: theme.textSecondary }]}>{emptyDesc || defaultEmptyDesc}</Text>
+          <Text style={styles.emptyTitle}>{emptyTitle || defaultEmptyTitle}</Text>
+          <Text style={styles.emptyDesc}>{emptyDesc || defaultEmptyDesc}</Text>
         </View>
       ) : (
         <View style={styles.tasksList}>
@@ -245,108 +241,108 @@ const createStyles = (theme: AppTheme) =>
       ...shadows.sm,
       elevation: 2,
     },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: theme.text,
-  },
-  sectionSubtitle: {
-    fontSize: 12,
-    color: theme.textSecondary,
-    marginTop: 2,
-    fontWeight: '500',
-  },
-  headerButtonPrimary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.success.default,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: borderRadius.md,
-    gap: 4,
-  },
-  headerButtonPrimaryText: {
-    color: colors.neutral.white,
-    fontWeight: '800',
-    fontSize: 12,
-  },
-  headerButtonLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: theme.badgePrimaryBg,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: 10,
-    borderRadius: borderRadius.md,
-  },
-  headerButtonLinkText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: theme.badgePrimaryText,
-  },
-  filterTabsRow: {
-    flexDirection: 'row',
-    backgroundColor: theme.surfaceSubtle,
-    borderRadius: borderRadius.md,
-    padding: 4,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: theme.border,
-    gap: spacing.xs,
-  },
-  filterTab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.sm,
-  },
-  filterTabActive: {
-    backgroundColor: theme.card,
-    ...shadows.sm,
-  },
-  filterTabText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: theme.textSecondary,
-  },
-  filterTabTextActive: {
-    color: theme.primary,
-    fontWeight: '700',
-  },
-  emptyBox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xxl,
-    paddingHorizontal: spacing.md,
-    backgroundColor: theme.surfaceSubtle,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: theme.border,
-    borderStyle: 'dashed',
-  },
-  emptyTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: theme.text,
-    marginTop: spacing.sm,
-  },
-  emptyDesc: {
-    fontSize: 12,
-    color: theme.textSecondary,
-    textAlign: 'center',
-    marginTop: 4,
-    lineHeight: 18,
-  },
-  tasksList: {
-    gap: 4,
-  },
-});
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: '800',
+      color: theme.text,
+    },
+    sectionSubtitle: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      marginTop: 2,
+      fontWeight: '500',
+    },
+    headerButtonPrimary: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.success.default,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.sm,
+      borderRadius: borderRadius.md,
+      gap: 4,
+    },
+    headerButtonPrimaryText: {
+      color: colors.neutral.white,
+      fontWeight: '800',
+      fontSize: 12,
+    },
+    headerButtonLink: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: theme.badgePrimaryBg,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: 10,
+      borderRadius: borderRadius.md,
+    },
+    headerButtonLinkText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: theme.badgePrimaryText,
+    },
+    filterTabsRow: {
+      flexDirection: 'row',
+      backgroundColor: theme.surfaceSubtle,
+      borderRadius: borderRadius.md,
+      padding: 4,
+      marginBottom: spacing.md,
+      borderWidth: 1,
+      borderColor: theme.border,
+      gap: spacing.xs,
+    },
+    filterTab: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.sm,
+    },
+    filterTabActive: {
+      backgroundColor: theme.card,
+      ...shadows.sm,
+    },
+    filterTabText: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: theme.textSecondary,
+    },
+    filterTabTextActive: {
+      color: theme.primary,
+      fontWeight: '700',
+    },
+    emptyBox: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.xxl,
+      paddingHorizontal: spacing.md,
+      backgroundColor: theme.surfaceSubtle,
+      borderRadius: borderRadius.lg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderStyle: 'dashed',
+    },
+    emptyTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.text,
+      marginTop: spacing.sm,
+    },
+    emptyDesc: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      textAlign: 'center',
+      marginTop: 4,
+      lineHeight: 18,
+    },
+    tasksList: {
+      gap: 4,
+    },
+  });

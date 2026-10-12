@@ -17,7 +17,8 @@ import { ContaESuporte } from './components/ContaESuporte';
 import { NotificationSettingsModal } from './components/NotificationSettingsModal';
 import { SobreAppModal } from './components/SobreAppModal';
 import { useNotifications } from '../../hooks/useNotifications';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
 
 interface UserProfileScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList>;
@@ -27,13 +28,14 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
   const { status, profile, modals, actions } = useUserProfile();
   const { settings, recarregar: recarregarNotificacoes } = useNotifications();
   const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
 
   const subtituloNotificacoes = settings.ativado
     ? `Lembretes ativos • ${settings.minutosAntecedencia === 0 ? 'No horário' : `${settings.minutosAntecedencia} min antes`}`
     : 'Lembretes desativados';
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -119,15 +121,16 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-    paddingTop: Platform.OS === 'ios' ? 50 : 25,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    gap: 16,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+      paddingTop: Platform.OS === 'ios' ? 50 : 25,
+    },
+    scrollContent: {
+      paddingHorizontal: 20,
+      paddingTop: 10,
+      gap: 16,
+    },
+  });

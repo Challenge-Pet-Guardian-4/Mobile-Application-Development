@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { shadows } from '../../../utils/shadow';
+import { useThemedStyles } from '../../../contexts/ThemeContext';
+import { AppTheme } from '../../../constants/theme';
 
 export interface FamilySummaryCardProps {
   tutorNome?: string;
@@ -10,8 +12,6 @@ export interface FamilySummaryCardProps {
   pontosAcumulados: number;
 }
 
-import { useTheme } from '../../../contexts/ThemeContext';
-
 export function FamilySummaryCard({
   tutorNome,
   petsCount,
@@ -19,20 +19,11 @@ export function FamilySummaryCard({
   tarefasConcluidas,
   pontosAcumulados,
 }: FamilySummaryCardProps) {
-  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const primeiroNome = tutorNome?.split(' ')[0] || 'Tutor';
 
   return (
-    <View
-      style={[
-        styles.summaryCard,
-        {
-          backgroundColor: theme.isDark ? theme.card : '#0F172A',
-          borderColor: theme.border,
-          borderWidth: theme.isDark ? 1 : 0,
-        },
-      ]}
-    >
+    <View style={styles.summaryCard}>
       <View style={styles.summaryTop}>
         <View style={{ flex: 1, paddingRight: 8 }}>
           <Text style={styles.summaryTitle}>Família de {primeiroNome}</Text>
@@ -49,44 +40,47 @@ export function FamilySummaryCard({
   );
 }
 
-const styles = StyleSheet.create({
-  summaryCard: {
-    backgroundColor: '#0F172A',
-    borderRadius: 24,
-    padding: 22,
-    ...shadows.lg,
-    elevation: 3,
-  },
-  summaryTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  summaryTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#FFFFFF',
-  },
-  summarySub: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 4,
-  },
-  xpCircle: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  xpCircleVal: {
-    fontSize: 17,
-    fontWeight: '900',
-    color: '#FFFFFF',
-  },
-  xpCircleLabel: {
-    fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '700',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    summaryCard: {
+      backgroundColor: theme.isDark ? theme.card : '#0F172A',
+      borderColor: theme.border,
+      borderWidth: theme.isDark ? 1 : 0,
+      borderRadius: 24,
+      padding: 22,
+      ...shadows.lg,
+      elevation: 3,
+    },
+    summaryTop: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    summaryTitle: {
+      fontSize: 18,
+      fontWeight: '900',
+      color: '#FFFFFF',
+    },
+    summarySub: {
+      fontSize: 12,
+      color: 'rgba(255, 255, 255, 0.7)',
+      marginTop: 4,
+    },
+    xpCircle: {
+      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+      paddingVertical: 8,
+      paddingHorizontal: 14,
+      borderRadius: 16,
+      alignItems: 'center',
+    },
+    xpCircleVal: {
+      fontSize: 17,
+      fontWeight: '900',
+      color: '#FFFFFF',
+    },
+    xpCircleLabel: {
+      fontSize: 10,
+      color: 'rgba(255, 255, 255, 0.8)',
+      fontWeight: '700',
+    },
+  });

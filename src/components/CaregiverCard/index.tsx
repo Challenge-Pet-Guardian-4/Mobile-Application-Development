@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, spacing, borderRadius } from '../../constants/theme';
-import { useTheme } from '../../contexts/ThemeContext';
+import { spacing, borderRadius, AppTheme } from '../../constants/theme';
+import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
 
 export interface CaregiverCardProps {
   key?: React.Key;
@@ -27,6 +27,7 @@ export function CaregiverCard({
   onRemove,
 }: CaregiverCardProps) {
   const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const initials = (nome || 'TU').substring(0, 2).toUpperCase();
   const displayName = isCurrentUser ? `${nome} (Você)` : nome;
   const displayRole = roleText || (isPrincipal ? 'Tutor Principal' : email || 'Co-cuidador');
@@ -34,49 +35,29 @@ export function CaregiverCard({
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
+      style={styles.card}
       onPress={onPress}
       disabled={!onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
-      <View
-        style={[
-          styles.avatar,
-          !isPrincipal && { backgroundColor: theme.surfaceMuted },
-        ]}
-      >
-        <Text
-          style={[
-            styles.initials,
-            !isPrincipal && { color: theme.textSecondary },
-          ]}
-        >
+      <View style={[styles.avatar, isPrincipal && styles.avatarPrincipal]}>
+        <Text style={[styles.initials, isPrincipal && styles.initialsPrincipal]}>
           {initials}
         </Text>
       </View>
 
       <View style={styles.infoWrapper}>
         <View style={styles.nameRow}>
-          <Text style={[styles.name, { color: theme.text }]} numberOfLines={1}>
+          <Text style={styles.name} numberOfLines={1}>
             {displayName}
           </Text>
-          <View
-            style={[
-              styles.roleBadge,
-              !isPrincipal && { backgroundColor: theme.surfaceMuted },
-            ]}
-          >
-            <Text
-              style={[
-                styles.roleBadgeText,
-                !isPrincipal && { color: theme.textSecondary },
-              ]}
-            >
+          <View style={[styles.roleBadge, isPrincipal && styles.roleBadgePrincipal]}>
+            <Text style={[styles.roleBadgeText, isPrincipal && styles.roleBadgeTextPrincipal]}>
               {badgeLabel}
             </Text>
           </View>
         </View>
-        <Text style={[styles.role, { color: theme.textSecondary }]} numberOfLines={2}>
+        <Text style={styles.role} numberOfLines={2}>
           {displayRole}
         </Text>
       </View>
@@ -91,7 +72,11 @@ export function CaregiverCard({
               activeOpacity={0.7}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <MaterialCommunityIcons name="crown-outline" size={16} color={colors.warning[600]} />
+              <MaterialCommunityIcons
+                name="crown-outline"
+                size={16}
+                color={theme.badgeWarningText}
+              />
             </TouchableOpacity>
           )}
 
@@ -105,7 +90,7 @@ export function CaregiverCard({
               <Ionicons
                 name={isCurrentUser ? 'exit-outline' : 'trash-outline'}
                 size={15}
-                color={colors.danger[500]}
+                color={theme.badgeDangerText}
               />
             </TouchableOpacity>
           )}
@@ -113,85 +98,98 @@ export function CaregiverCard({
       )}
 
       {onPress && !onTransfer && !onRemove && (
-        <Ionicons name="chevron-forward" size={18} color={colors.neutral[400]} />
+        <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
       )}
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[100],
-    gap: spacing.md,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primary[50],
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  initials: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: colors.primary[600],
-  },
-  infoWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  name: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.neutral[800],
-    flexShrink: 1,
-  },
-  role: {
-    fontSize: 11,
-    color: colors.neutral[500],
-    marginTop: 2,
-  },
-  roleBadge: {
-    backgroundColor: colors.primary[50],
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: borderRadius.xs,
-  },
-  roleBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: colors.primary[600],
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  actionBtnTransfer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.warning[100],
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  actionBtnRemove: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.danger[100],
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
-
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.border,
+      backgroundColor: theme.card,
+      gap: spacing.md,
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: theme.surfaceMuted,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    avatarPrincipal: {
+      backgroundColor: theme.badgePrimaryBg,
+    },
+    initials: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: theme.textSecondary,
+    },
+    initialsPrincipal: {
+      color: theme.badgePrimaryText,
+    },
+    infoWrapper: {
+      flex: 1,
+      justifyContent: 'center',
+    },
+    nameRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    name: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.text,
+      flexShrink: 1,
+    },
+    role: {
+      fontSize: 11,
+      color: theme.textSecondary,
+      marginTop: 2,
+    },
+    roleBadge: {
+      backgroundColor: theme.surfaceMuted,
+      paddingVertical: 2,
+      paddingHorizontal: 6,
+      borderRadius: borderRadius.xs,
+    },
+    roleBadgePrincipal: {
+      backgroundColor: theme.badgePrimaryBg,
+    },
+    roleBadgeText: {
+      fontSize: 9,
+      fontWeight: '700',
+      color: theme.textSecondary,
+    },
+    roleBadgeTextPrincipal: {
+      color: theme.badgePrimaryText,
+    },
+    actionsContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    actionBtnTransfer: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: theme.badgeWarningBg,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    actionBtnRemove: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: theme.badgeDangerBg,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });

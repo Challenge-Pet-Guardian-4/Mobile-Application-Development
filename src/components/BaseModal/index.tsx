@@ -2,8 +2,8 @@ import React, { ReactNode, useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, KeyboardAvoidingView, Platform, ScrollView, DimensionValue, Keyboard, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../utils/shadow';
-import { colors, layout, borderRadius } from '../../constants/theme';
-import { useTheme } from '../../contexts/ThemeContext';
+import { colors, layout, borderRadius, AppTheme } from '../../constants/theme';
+import { useThemedStyles, useTheme } from '../../contexts/ThemeContext';
 
 export type ModalSize = 'sm' | 'md' | 'lg';
 
@@ -28,7 +28,8 @@ export function BaseModal({
   size = 'md',
   maxHeight,
 }: BaseModalProps) {
-  const { theme, isDark } = useTheme();
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
@@ -78,30 +79,26 @@ export function BaseModal({
       <View
         style={[
           styles.overlay,
-          isKeyboardVisible && {
-            justifyContent: 'flex-start',
-            paddingTop: Platform.OS === 'ios' ? 56 : 38,
-            paddingBottom: 10,
-          },
+          isKeyboardVisible && styles.overlayKeyboard,
         ]}
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.keyboardAvoid}
         >
-          <View style={[styles.card, { maxWidth: computedMaxWidth, backgroundColor: theme.card, borderColor: theme.border, borderWidth: isDark ? 1 : 0 }]}>
+          <View style={[styles.card, { maxWidth: computedMaxWidth }]}>
             <View style={styles.header}>
               <View style={styles.titleWrapper}>
-                <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
-                {subtitle ? <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{subtitle}</Text> : null}
+                <Text style={styles.title}>{title}</Text>
+                {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
               </View>
               {showCloseButton ? (
                 <TouchableOpacity
-                  style={[styles.closeBtn, { backgroundColor: isDark ? '#1E293B' : '#F1F5F9' }]}
+                  style={styles.closeBtn}
                   onPress={onClose}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Ionicons name="close" size={20} color={isDark ? '#94A3B8' : colors.neutral[500]} />
+                  <Ionicons name="close" size={20} color={theme.textMuted} />
                 </TouchableOpacity>
               ) : null}
             </View>
@@ -123,51 +120,64 @@ export function BaseModal({
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: colors.overlay.dark,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  keyboardAvoid: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  card: {
-    backgroundColor: colors.neutral.white,
-    borderRadius: borderRadius.xxl,
-    padding: layout.modal.cardPadding,
-    width: '100%',
-    elevation: 10,
-    ...shadows.xl,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 14,
-  },
-  titleWrapper: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#0F172A',
-  },
-  subtitle: {
-    fontSize: 12,
-    color: '#64748B',
-    marginTop: 2,
-  },
-  closeBtn: {
-    padding: 4,
-    borderRadius: 12,
-    backgroundColor: '#F1F5F9',
-    marginLeft: 8,
-  },
-  body: {
-    paddingVertical: 2,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: colors.overlay.dark,
+      justifyContent: 'center',
+      padding: 20,
+    },
+    overlayKeyboard: {
+      justifyContent: 'flex-start',
+      paddingTop: Platform.OS === 'ios' ? 56 : 38,
+      paddingBottom: 10,
+    },
+    keyboardAvoid: {
+      width: '100%',
+      alignItems: 'center',
+    },
+    card: {
+      backgroundColor: theme.card,
+      borderRadius: borderRadius.xxl,
+      borderColor: theme.border,
+      borderWidth: theme.isDark ? 1 : 0,
+      padding: layout.modal.cardPadding,
+      width: '100%',
+      elevation: 10,
+      ...shadows.xl,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      marginBottom: 14,
+    },
+    titleWrapper: {
+      flex: 1,
+      marginRight: 12,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: '800',
+      color: theme.text,
+      letterSpacing: -0.3,
+    },
+    subtitle: {
+      fontSize: 13,
+      color: theme.textSecondary,
+      marginTop: 2,
+      lineHeight: 18,
+    },
+    closeBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: theme.surfaceMuted,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    body: {
+      paddingBottom: 6,
+    },
+  });

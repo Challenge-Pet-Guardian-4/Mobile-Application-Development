@@ -5,6 +5,8 @@ import { TrainingLesson } from '../../../types/training';
 import { useConteudoAula } from '../../../hooks/useTrainings';
 import { BaseModal } from '../../../components/BaseModal';
 import { renderMarkdownContent } from '../../../utils/markdownUtils';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
+import { AppTheme } from '../../../constants/theme';
 
 interface LessonDetailModalProps {
   visible: boolean;
@@ -23,6 +25,8 @@ export function LessonDetailModal({
   onClose,
   onConcluir,
 }: LessonDetailModalProps) {
+  const { theme, isDark } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { data: conteudoNoSql, isLoading: isLoadingConteudo } = useConteudoAula(licao?.id, visible);
 
   if (!visible || !licao) return null;
@@ -68,12 +72,12 @@ export function LessonDetailModal({
       ) : textoConteudo ? (
         <View style={styles.conteudoNoSqlContainer}>
           <View style={styles.conteudoNoSqlHeader}>
-            <MaterialCommunityIcons name="book-open-page-variant" size={18} color="#0F766E" />
+            <MaterialCommunityIcons name="book-open-page-variant" size={18} color={isDark ? '#2DD4BF' : '#0F766E'} />
             <Text style={styles.conteudoNoSqlTitle}>Conteúdo Pedagógico Aprofundado</Text>
           </View>
 
           <View style={styles.markdownWrapper}>
-            {renderMarkdownContent(textoConteudo, corTrilha)}
+            {renderMarkdownContent(textoConteudo, corTrilha, isDark)}
           </View>
 
           {conteudoNoSql?.linksRecursos && conteudoNoSql.linksRecursos.length > 0 && (
@@ -86,11 +90,11 @@ export function LessonDetailModal({
                   onPress={() => handleOpenLink(link)}
                   activeOpacity={0.7}
                 >
-                  <Ionicons name="link-outline" size={16} color="#2563EB" />
+                  <Ionicons name="link-outline" size={16} color={theme.primary} />
                   <Text style={styles.linkButtonText} numberOfLines={1}>
                     {link}
                   </Text>
-                  <Ionicons name="open-outline" size={14} color="#94A3B8" />
+                  <Ionicons name="open-outline" size={14} color={theme.textMuted} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -143,166 +147,166 @@ export function LessonDetailModal({
   );
 }
 
-const styles = StyleSheet.create({
-  duoBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 14,
-  },
-  duoBadgeXP: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#FFFBEB',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-  },
-  duoBadgeXPText: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: '#D97706',
-  },
-  badgeMongo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: '#F0FDF4',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-  },
-  badgeMongoText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#15803D',
-    textTransform: 'uppercase',
-  },
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    gap: 8,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  loadingText: {
-    fontSize: 12,
-    color: '#64748B',
-    fontWeight: '600',
-  },
-  conteudoNoSqlContainer: {
-    backgroundColor: '#F0FDFA',
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#CCFBF1',
-  },
-  conteudoNoSqlHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
-  },
-  conteudoNoSqlTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#0F766E',
-  },
-  markdownWrapper: {
-    gap: 6,
-  },
-  linksContainer: {
-    marginTop: 12,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#CCFBF1',
-  },
-  linksHeader: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#0F766E',
-    marginBottom: 6,
-  },
-  linkButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  linkButtonText: {
-    flex: 1,
-    fontSize: 12,
-    color: '#2563EB',
-    fontWeight: '600',
-  },
-  passosContainer: {
-    marginBottom: 10,
-  },
-  passosHeader: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#334155',
-    marginBottom: 10,
-  },
-  passoCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    padding: 12,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-  },
-  passoCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  passoNumber: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#FFF',
-  },
-  passoText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#334155',
-    fontWeight: '500',
-  },
-  btnCompletarDuo: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 15,
-    borderRadius: 20,
-    marginTop: 18,
-    marginBottom: 16,
-    borderBottomWidth: 4,
-    borderBottomColor: 'rgba(0,0,0,0.2)',
-  },
-  btnCompletarDuoText: {
-    fontSize: 15,
-    fontWeight: '900',
-    color: '#FFF',
-  },
-});
-
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    duoBadgeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 14,
+    },
+    duoBadgeXP: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: theme.badgeWarningBg,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: theme.badgeWarningBorder,
+    },
+    duoBadgeXPText: {
+      fontSize: 12,
+      fontWeight: '900',
+      color: theme.badgeWarningText,
+    },
+    badgeMongo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      backgroundColor: theme.badgeSuccessBg,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: theme.badgeSuccessBorder,
+    },
+    badgeMongoText: {
+      fontSize: 11,
+      fontWeight: '800',
+      color: theme.badgeSuccessText,
+      textTransform: 'uppercase',
+    },
+    loadingContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 12,
+      gap: 8,
+      backgroundColor: theme.cardSubtle,
+      borderRadius: 12,
+      marginBottom: 12,
+    },
+    loadingText: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      fontWeight: '600',
+    },
+    conteudoNoSqlContainer: {
+      backgroundColor: theme.isDark ? theme.surfaceMuted : '#F0FDFA',
+      borderRadius: 16,
+      padding: 14,
+      marginBottom: 14,
+      borderWidth: 1,
+      borderColor: theme.isDark ? theme.border : '#CCFBF1',
+    },
+    conteudoNoSqlHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginBottom: 8,
+    },
+    conteudoNoSqlTitle: {
+      fontSize: 13,
+      fontWeight: '800',
+      color: theme.isDark ? '#2DD4BF' : '#0F766E',
+    },
+    markdownWrapper: {
+      gap: 6,
+    },
+    linksContainer: {
+      marginTop: 12,
+      paddingTop: 10,
+      borderTopWidth: 1,
+      borderTopColor: theme.isDark ? theme.border : '#CCFBF1',
+    },
+    linksHeader: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.isDark ? '#2DD4BF' : '#0F766E',
+      marginBottom: 6,
+    },
+    linkButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: theme.card,
+      paddingVertical: 8,
+      paddingHorizontal: 10,
+      borderRadius: 10,
+      marginBottom: 6,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    linkButtonText: {
+      flex: 1,
+      fontSize: 12,
+      color: theme.primary,
+      fontWeight: '600',
+    },
+    passosContainer: {
+      marginBottom: 10,
+    },
+    passosHeader: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: theme.text,
+      marginBottom: 10,
+    },
+    passoCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.cardSubtle,
+      borderRadius: 14,
+      padding: 12,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    passoCircle: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    passoNumber: {
+      fontSize: 12,
+      fontWeight: 'bold',
+      color: '#FFF',
+    },
+    passoText: {
+      flex: 1,
+      fontSize: 13,
+      color: theme.text,
+      fontWeight: '500',
+    },
+    btnCompletarDuo: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: 15,
+      borderRadius: 20,
+      marginTop: 18,
+      marginBottom: 16,
+      borderBottomWidth: 4,
+      borderBottomColor: 'rgba(0,0,0,0.2)',
+    },
+    btnCompletarDuoText: {
+      fontSize: 15,
+      fontWeight: '900',
+      color: '#FFF',
+    },
+  });
