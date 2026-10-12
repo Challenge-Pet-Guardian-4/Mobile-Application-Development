@@ -22,29 +22,43 @@ export function renderMarkdownContent(
 
     if (!line) continue;
 
-    // 1. Título H1 (# Título)
-    if (line.startsWith('# ')) {
+    // 1. Linha horizontal / divisor (---, ***, ___)
+    if (/^[-*_]{3,}$/.test(line)) {
       elements.push(
-        <Text key={idx} style={[styles.mdH1, { color: primaryTextColor }]}>
-          {line.replace(/^#\s+/, '')}
-        </Text>
+        <View
+          key={idx}
+          style={[styles.mdDivider, isDark && styles.mdDividerDark]}
+        />
       );
       continue;
     }
 
-    // 2. Título H2 ou H3 (## ou ###)
-    if (line.startsWith('## ') || line.startsWith('### ')) {
-      elements.push(
-        <Text key={idx} style={[styles.mdH2, { color: corTema }]}>
-          {line.replace(/^#{2,3}\s+/, '')}
-        </Text>
-      );
+    // 2. Títulos H1 a H6 (# até ######)
+    const headerMatch = line.match(/^(#{1,6})\s*(.*)/);
+    if (headerMatch) {
+      const level = headerMatch[1].length;
+      const headerText = headerMatch[2].replace(/\*\*/g, '').trim();
+      if (headerText) {
+        if (level === 1) {
+          elements.push(
+            <Text key={idx} style={[styles.mdH1, { color: primaryTextColor }]}>
+              {headerText}
+            </Text>
+          );
+        } else {
+          elements.push(
+            <Text key={idx} style={[styles.mdH2, { color: corTema }]}>
+              {headerText}
+            </Text>
+          );
+        }
+      }
       continue;
     }
 
     // 3. Blockquote / Dica de Ouro (> ...)
     if (line.startsWith('>')) {
-      const calloutText = line.replace(/^>\s*/, '').replace(/\*\*/g, '');
+      const calloutText = line.replace(/^>\s*/, '').replace(/\*\*/g, '').trim();
       elements.push(
         <View
           key={idx}
@@ -60,11 +74,11 @@ export function renderMarkdownContent(
       continue;
     }
 
-    // 4. Lista numerada (1. , 2. )
-    const numMatch = line.match(/^(\d+)\.\s+(.*)/);
+    // 4. Lista numerada (1. , 1) )
+    const numMatch = line.match(/^(\d+)[\.\)]\s+(.*)/);
     if (numMatch) {
       const num = numMatch[1];
-      const stepText = numMatch[2].replace(/\*\*/g, '');
+      const stepText = numMatch[2].replace(/\*\*/g, '').trim();
       elements.push(
         <View key={idx} style={styles.mdStepRow}>
           <View style={[styles.mdStepBadge, { backgroundColor: corTema }]}>
@@ -76,9 +90,10 @@ export function renderMarkdownContent(
       continue;
     }
 
-    // 5. Lista com marcadores (- ou *)
-    if (line.startsWith('- ') || line.startsWith('* ')) {
-      const bulletText = line.replace(/^[-*]\s+/, '').replace(/\*\*/g, '');
+    // 5. Lista com marcadores (- , * , • )
+    const bulletMatch = line.match(/^[-*•]\s+(.*)/);
+    if (bulletMatch) {
+      const bulletText = bulletMatch[1].replace(/\*\*/g, '').trim();
       elements.push(
         <View key={idx} style={styles.mdBulletRow}>
           <Text style={[styles.mdBulletDot, { color: corTema }]}>•</Text>
@@ -89,12 +104,17 @@ export function renderMarkdownContent(
     }
 
     // 6. Parágrafo comum
-    const paragraphText = line.replace(/\*\*/g, '');
-    elements.push(
-      <Text key={idx} style={[styles.mdParagraph, { color: bodyTextColor }]}>
-        {paragraphText}
-      </Text>
-    );
+    const paragraphText = line
+      .replace(/\*\*/g, '')
+      .replace(/^#{1,6}\s*/, '')
+      .trim();
+    if (paragraphText) {
+      elements.push(
+        <Text key={idx} style={[styles.mdParagraph, { color: bodyTextColor }]}>
+          {paragraphText}
+        </Text>
+      );
+    }
   }
 
   return elements;
@@ -113,6 +133,14 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginTop: 8,
     marginBottom: 4,
+  },
+  mdDivider: {
+    height: 1,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 8,
+  },
+  mdDividerDark: {
+    backgroundColor: '#334155',
   },
   mdParagraph: {
     fontSize: 13,

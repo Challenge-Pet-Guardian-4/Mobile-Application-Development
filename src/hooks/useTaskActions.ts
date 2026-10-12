@@ -48,20 +48,10 @@ export function useTaskActions() {
     [obterNomeDoPet]
   );
 
-  // Helper DRY para celebrar conclusão e limpar lembrete pendente
-  const notificarConclusao = useCallback(
-    (t: TarefaResponse) => {
-      NotificationService.cancelarNotificacaoTarefa(t.id);
-      NotificationService.notificarConclusaoTarefa({
-        tarefaId: t.id,
-        titulo: t.titulo,
-        nomePet: obterNomeDoPet(t.petId),
-        petId: t.petId,
-        pontos: t.pontosTarefa,
-      });
-    },
-    [obterNomeDoPet]
-  );
+  // Helper para cancelar o lembrete pendente ao concluir a tarefa
+  const limparLembreteConcluido = useCallback((t: TarefaResponse) => {
+    NotificationService.cancelarNotificacaoTarefa(t.id);
+  }, []);
 
   // Helper para exibir opções ou alerta de tarefa expirada
   const tratarTarefaExpirada = useCallback(
@@ -116,14 +106,14 @@ export function useTaskActions() {
           createMutationCallbacks('Erro ao Concluir', 'Não foi possível concluir a tarefa.', {
             ...options,
             onSuccess: () => {
-              notificarConclusao(tarefa);
+              limparLembreteConcluido(tarefa);
               options?.onSuccess?.();
             },
           })
         );
       }
     },
-    [completeTaskMutation, uncompleteTaskMutation, agendarLembrete, notificarConclusao, tratarTarefaExpirada]
+    [completeTaskMutation, uncompleteTaskMutation, agendarLembrete, limparLembreteConcluido, tratarTarefaExpirada]
   );
 
   const excluirComConfirmacao = useCallback(

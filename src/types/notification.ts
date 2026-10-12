@@ -38,11 +38,3 @@ export interface AgendarNotificacaoTarefaParams {
   pontos?: number;
   status?: string;
 }
-
-export interface NotificarConclusaoTarefaParams {
-  tarefaId: number;
-  titulo: string;
-  nomePet: string;
-  petId: number;
-  pontos: number;
-}

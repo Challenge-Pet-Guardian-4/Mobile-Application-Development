@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { AntecedenciaMinutos, NotificationSettings, NotificationPayloadData, OpcaoAntecedencia, PermissaoNativaStatus, PermissaoNativaResponse, AgendarNotificacaoTarefaParams, NotificarConclusaoTarefaParams } from '../types/notification';
+import type { AntecedenciaMinutos, NotificationSettings, NotificationPayloadData, OpcaoAntecedencia, PermissaoNativaStatus, PermissaoNativaResponse, AgendarNotificacaoTarefaParams } from '../types/notification';
 import type { TarefaResponse } from '../types/task';
 import type { PetOption, PetResponse } from '../types/pet';
 
@@ -326,37 +326,6 @@ export const NotificationService = {
       );
     } catch (error) {
       console.warn('Erro ao sincronizar notificações de tarefas:', error);
-    }
-  },
-
-  /**
-   * Dispara notificação imediata celebrando a conclusão da tarefa e o ganho de XP do pet.
-   */
-  async notificarConclusaoTarefa(params: NotificarConclusaoTarefaParams): Promise<string | null> {
-    try {
-      const { tarefaId, titulo, nomePet, petId, pontos } = params;
-
-      const trigger = Platform.OS === 'android' ? { channelId: CHANNEL_ID } : null;
-
-      const id = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: `🎉 Rotina Cumprida: ${titulo}!`,
-          body: `Parabéns! Você cuidou de ${nomePet} e somou +${pontos} XP ao score de bem-estar da família!`,
-          sound: true,
-          data: {
-            tipo: 'TAREFA_CONCLUIDA',
-            tarefaId,
-            petId,
-            rota: 'Family',
-          } satisfies NotificationPayloadData,
-        },
-        trigger,
-      });
-
-      return id;
-    } catch (error) {
-      console.warn('Erro ao disparar notificação de conclusão:', error);
-      return null;
     }
   },
 
