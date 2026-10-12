@@ -2,7 +2,7 @@ import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 
 import { queryClient } from './src/lib/queryClient';
 import { AuthProvider } from './src/contexts/AuthContext';
@@ -13,10 +13,22 @@ import { useNotifications } from './src/hooks/useNotifications';
 
 function AppContent() {
   useNotifications();
-  const { isDark } = useTheme();
+  const { theme, isDark } = useTheme();
+
+  const navigationTheme = {
+    ...(isDark ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+      background: theme.background,
+      card: theme.card,
+      text: theme.text,
+      border: theme.border,
+      primary: theme.primary,
+    },
+  };
 
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer ref={navigationRef} theme={navigationTheme}>
       <MainStack />
       <StatusBar style={isDark ? 'light' : 'dark'} />
     </NavigationContainer>

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, KeyboardAvoidingView, 
 import { Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../utils/shadow';
 import { colors, layout, borderRadius } from '../../constants/theme';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export type ModalSize = 'sm' | 'md' | 'lg';
 

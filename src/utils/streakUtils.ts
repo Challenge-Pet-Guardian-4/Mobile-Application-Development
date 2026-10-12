@@ -180,3 +180,30 @@ export function calcularTotalOfensiva(
 
   return streak;
 }
+
+/**
+ * Retorna os 7 dias da semana atual como objetos DiaOfensiva vazios (padrão neutro).
+ */
+export function getDiasDaSemanaVazios(): DiaOfensiva[] {
+  const hoje = new Date();
+  const diaSemanaIndex = (hoje.getDay() + 6) % 7;
+
+  const segunda = new Date(hoje);
+  segunda.setDate(hoje.getDate() - diaSemanaIndex);
+
+  return DIAS_SEMANA_LABELS.map((label, idx) => {
+    const dataDia = new Date(segunda);
+    dataDia.setDate(segunda.getDate() + idx);
+    const dayNumber = String(dataDia.getDate());
+    const isToday = idx === diaSemanaIndex;
+
+    return {
+      id: `dia_${idx}_${dayNumber}`,
+      dayLabel: label,
+      dayNumber,
+      done: false,
+      isToday,
+      missed: false,
+    };
+  });
+}

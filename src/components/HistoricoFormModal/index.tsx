@@ -7,8 +7,7 @@ import { CustomButton } from '../CustomButton';
 import { HistoricoSchema, formatZodError } from '../../utils/schemas';
 import { formatarIsoParaBr, normalizarDataNascParaIso, formatarDataHojeBr } from '../../utils/petUtils';
 
-import { HistoricoFormData, HistoricoFormSubmitData } from '../../types/historico';
-export type { HistoricoFormData, HistoricoFormSubmitData };
+import { HistoricoFormSubmitData } from '../../types/historico';
 
 interface HistoricoFormModalProps {
   visible: boolean;

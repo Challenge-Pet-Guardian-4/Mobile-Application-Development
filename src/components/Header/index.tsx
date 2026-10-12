@@ -4,7 +4,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { useSession } from '../../hooks/useSession';
 import { shadows } from '../../utils/shadow';
 import { colors, spacing } from '../../constants/theme';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export type HeaderProps = {
   title?: string;

@@ -2,42 +2,13 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { shadows } from '../../../utils/shadow';
-import { DiaOfensiva } from '../../../types/models';
-import { TarefaResponse } from '../../../types/task';
-import { calcularDiasSemanaAtual, calcularTotalOfensiva } from '../../../utils/streakUtils';
-
-interface StreakCardProps {
-  streakDays?: DiaOfensiva[];
-  totalStreak?: number;
-  tasks?: TarefaResponse[];
-}
-
-function getDiasDaSemanaVazios(): DiaOfensiva[] {
-  const labels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-  const hoje = new Date();
-  const diaSemanaIndex = (hoje.getDay() + 6) % 7;
-
-  const segunda = new Date(hoje);
-  segunda.setDate(hoje.getDate() - diaSemanaIndex);
-
-  return labels.map((label, idx) => {
-    const dataDia = new Date(segunda);
-    dataDia.setDate(segunda.getDate() + idx);
-    const dayNumber = String(dataDia.getDate());
-    const isToday = idx === diaSemanaIndex;
-
-    return {
-      id: `dia_${idx}_${dayNumber}`,
-      dayLabel: label,
-      dayNumber,
-      done: false,
-      isToday,
-      missed: false,
-    };
-  });
-}
+import { StreakCardProps } from '../../../types/models';
+import { calcularDiasSemanaAtual, calcularTotalOfensiva, getDiasDaSemanaVazios } from '../../../utils/streakUtils';
+import { useThemedStyles } from '../../../contexts/ThemeContext';
+import { AppTheme } from '../../../constants/theme';
 
 export function HomeStreakCard({ streakDays, totalStreak, tasks }: StreakCardProps) {
+  const styles = useThemedStyles(createStyles);
   const { diasExibidos, streakExibido } = useMemo(() => {
     if (tasks) {
       return {
@@ -105,99 +76,100 @@ export function HomeStreakCard({ streakDays, totalStreak, tasks }: StreakCardPro
   );
 }
 
-const styles = StyleSheet.create({
-  streakCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    ...shadows.sm,
-    elevation: 2,
-  },
-  streakHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  titleRow: {
-    gap: 2,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-  sectionSubtitle: {
-    fontSize: 12,
-    color: '#64748B',
-  },
-  totalStreakBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF7ED',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#FFEDD5',
-    gap: 4,
-  },
-  totalStreakText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#C2410C',
-  },
-  streakRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  streakColumn: {
-    alignItems: 'center',
-    gap: 6,
-  },
-  streakDayCircle: {
-    width: 38,
-    height: 48,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  streakCompleted: {
-    backgroundColor: '#10B981',
-    borderColor: '#10B981',
-  },
-  streakToday: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#93C5FD',
-    borderWidth: 1.5,
-  },
-  streakMissed: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
-    borderWidth: 1.5,
-  },
-  streakDayNumber: {
-    color: '#94A3B8',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  streakDayLabel: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '600',
-  },
-  streakDayLabelToday: {
-    color: '#2563EB',
-    fontWeight: '800',
-  },
-  streakDayLabelMissed: {
-    color: '#EF4444',
-    fontWeight: '700',
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    streakCard: {
+      backgroundColor: theme.card,
+      borderRadius: 24,
+      padding: 20,
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...shadows.sm,
+      elevation: 2,
+    },
+    streakHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    titleRow: {
+      gap: 2,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: '800',
+      color: theme.text,
+    },
+    sectionSubtitle: {
+      fontSize: 12,
+      color: theme.textSecondary,
+    },
+    totalStreakBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.badgeWarningBg,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: theme.badgeWarningBorder,
+      gap: 4,
+    },
+    totalStreakText: {
+      fontSize: 13,
+      fontWeight: '800',
+      color: '#C2410C',
+    },
+    streakRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    streakColumn: {
+      alignItems: 'center',
+      gap: 6,
+    },
+    streakDayCircle: {
+      width: 38,
+      height: 48,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.surfaceMuted,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    streakCompleted: {
+      backgroundColor: '#10B981',
+      borderColor: '#10B981',
+    },
+    streakToday: {
+      backgroundColor: theme.badgePrimaryBg,
+      borderColor: '#93C5FD',
+      borderWidth: 1.5,
+    },
+    streakMissed: {
+      backgroundColor: theme.badgeDangerBg,
+      borderColor: '#FECACA',
+      borderWidth: 1.5,
+    },
+    streakDayNumber: {
+      color: theme.textSecondary,
+      fontSize: 12,
+      fontWeight: '700',
+    },
+    streakDayLabel: {
+      fontSize: 11,
+      color: theme.textSecondary,
+      fontWeight: '600',
+    },
+    streakDayLabelToday: {
+      color: '#2563EB',
+      fontWeight: '800',
+    },
+    streakDayLabelMissed: {
+      color: '#EF4444',
+      fontWeight: '700',
+    },
+  });

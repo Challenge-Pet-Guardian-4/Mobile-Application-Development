@@ -13,6 +13,7 @@ import UserProfileScreen from '../screens/UserProfile/UserProfileScreen';
 import AiAssistantScreen from '../screens/AiAssistant/AiAssistantScreen';
 
 import { AppTabParamList, FamilyStackParamList, ProfileStackParamList } from './types';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Tab = createBottomTabNavigator<AppTabParamList>();
 const FamilyStackNav = createNativeStackNavigator<FamilyStackParamList>();
@@ -37,14 +38,23 @@ function ProfileStack() {
 }
 
 export default function Tabs() {
+  const { theme } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: '#38BDF8',
-        tabBarInactiveTintColor: '#64748B',
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            backgroundColor: theme.tabBarBg,
+            borderColor: theme.tabBarBorder,
+            borderWidth: theme.isDark ? 1 : 0,
+          },
+        ],
+        tabBarActiveTintColor: theme.tabBarActive,
+        tabBarInactiveTintColor: theme.tabBarInactive,
         tabBarLabelStyle: styles.tabBarLabel,
       }}
     >

@@ -1,12 +1,13 @@
 import { useCallback } from 'react';
 import { Alert } from 'react-native';
-import { useUpdatePet, useDeletePet, useInviteCaregiver, useRemoveCaregiver, useTransferResponsibility } from './usePets';
+import { useUpdatePet, useDeletePet, useCaregiverActions } from './usePets';
 import { useCreateHistorico, useUpdateHistorico, useDeleteHistorico } from './useHistoricos';
 import { PetResponse, PetFormData } from '../types/pet';
 import { UsuarioResponse } from '../types/user';
 import { normalizarDataNascParaIso } from '../utils/petUtils';
 import { PetSchema, formatZodError } from '../utils/schemas';
-import { createMutationCallbacks, ActionCallbacks } from '../utils/apiError';
+import { ActionCallbacks } from '../types/api';
+import { createMutationCallbacks } from '../utils/apiError';
 import { confirmarAcao } from '../utils/dialogUtils';
 
 interface UsePetDetailActionsProps {
@@ -25,9 +26,7 @@ export function usePetDetailActions({
   // Mutações de Pet e Co-cuidadores
   const updatePetMutation = useUpdatePet();
   const deletePetMutation = useDeletePet();
-  const inviteCaregiverMutation = useInviteCaregiver();
-  const removeCaregiverMutation = useRemoveCaregiver();
-  const transferResponsibilityMutation = useTransferResponsibility();
+  const caregiverActions = useCaregiverActions();
 
   // Mutações de Histórico Clínico (/historicos)
   const createHistoricoMutation = useCreateHistorico();
@@ -36,10 +35,7 @@ export function usePetDetailActions({
 
   const salvarEdicaoPet = useCallback(
     (formData: PetFormData, callbacks?: ActionCallbacks) => {
-      if (!activePet || !user) {
-        Alert.alert('Erro', 'Sessão inválida ou nenhum pet selecionado.');
-        return;
-      }
+      if (!activePet) return;
       if (!isResponsavelPrincipal) {
         Alert.alert('Acesso Negado', 'Somente o tutor principal pode editar as informações cadastrais deste pet.');
         return;
@@ -66,7 +62,7 @@ export function usePetDetailActions({
         createMutationCallbacks('Erro ao Atualizar Pet', 'Não foi possível atualizar o pet na API.', callbacks)
       );
     },
-    [activePet, user, isResponsavelPrincipal, updatePetMutation]
+    [activePet, isResponsavelPrincipal, updatePetMutation]
   );
 
   const excluirPet = useCallback(
@@ -100,28 +96,22 @@ export function usePetDetailActions({
 
   const convidarCuidador = useCallback(
     (email: string, callbacks?: ActionCallbacks) => {
-      if (!activePet || !user) return;
+      if (!activePet) return;
       if (!isResponsavelPrincipal) {
         Alert.alert('Acesso Negado', 'Somente o tutor principal tem permissão para convidar novos cuidadores para este pet.');
         return;
       }
 
-      inviteCaregiverMutation.mutate(
-        {
-          petId: activePet.id,
-          email: email.trim().toLowerCase(),
-        },
-        createMutationCallbacks('Erro ao Convidar Cuidador', 'Não foi possível enviar o convite. Verifique se o e-mail está cadastrado.', callbacks)
-      );
+      caregiverActions.convidar(activePet.id, email, callbacks);
     },
-    [activePet, user, isResponsavelPrincipal, inviteCaregiverMutation]
+    [activePet, isResponsavelPrincipal, caregiverActions]
   );
 
   const removerCuidador = useCallback(
     (cuidadorEmail: string, nomeCuidador: string, callbacks?: ActionCallbacks) => {
-      if (!activePet || !user) return;
+      if (!activePet) return;
 
-      const isSelf = cuidadorEmail.toLowerCase() === user.email.toLowerCase();
+      const isSelf = Boolean(user?.email && cuidadorEmail.toLowerCase() === user.email.toLowerCase());
       const title = isSelf ? 'Sair do Cuidado' : 'Remover Cuidador';
       const msg = isSelf
         ? `Deseja deixar de cuidar de ${activePet.nome}?`
@@ -130,35 +120,25 @@ export function usePetDetailActions({
       confirmarAcao(
         title,
         msg,
-        () => {
-          removeCaregiverMutation.mutate(
-            { petId: activePet.id, email: cuidadorEmail },
-            createMutationCallbacks('Erro ao Desvincular Cuidador', 'Não foi possível desvincular o cuidador.', callbacks)
-          );
-        },
+        () => caregiverActions.remover(activePet.id, cuidadorEmail, callbacks),
         { textoConfirmar: isSelf ? 'Sair' : 'Remover', destrutivo: true }
       );
     },
-    [activePet, user, removeCaregiverMutation]
+    [activePet, user?.email, caregiverActions]
   );
 
   const transferirResponsabilidade = useCallback(
     (novoResponsavelEmail: string, nomeNovoResponsavel: string, callbacks?: ActionCallbacks) => {
-      if (!activePet || !user) return;
+      if (!activePet) return;
 
       confirmarAcao(
         'Transferir Titularidade',
         `Deseja transferir a responsabilidade principal de ${activePet.nome} para ${nomeNovoResponsavel}? Você passará a ser um co-cuidador.`,
-        () => {
-          transferResponsibilityMutation.mutate(
-            { petId: activePet.id, novoResponsavelEmail },
-            createMutationCallbacks('Erro na Transferência', 'Não foi possível transferir a responsabilidade principal.', callbacks)
-          );
-        },
+        () => caregiverActions.transferir(activePet.id, novoResponsavelEmail, callbacks),
         { textoConfirmar: 'Transferir', destrutivo: false }
       );
     },
-    [activePet, user, transferResponsibilityMutation]
+    [activePet, caregiverActions]
   );
 
   const criarHistorico = useCallback(
@@ -226,9 +206,9 @@ export function usePetDetailActions({
     excluirHistorico,
     isUpdatingPet: updatePetMutation.isPending,
     isDeletingPet: deletePetMutation.isPending,
-    isInvitingCaregiver: inviteCaregiverMutation.isPending,
-    isRemovingCaregiver: removeCaregiverMutation.isPending,
-    isTransferringResponsibility: transferResponsibilityMutation.isPending,
+    isInvitingCaregiver: caregiverActions.isInviting,
+    isRemovingCaregiver: caregiverActions.isRemoving,
+    isTransferringResponsibility: caregiverActions.isTransferring,
     isSavingHistorico: createHistoricoMutation.isPending || updateHistoricoMutation.isPending,
   };
 }

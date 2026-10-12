@@ -1,28 +1,21 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useSession } from './useSession';
-import { usePets, usePetsPontosMap, useCreatePet, useInviteCaregiver, PETS_PAGE_SIZE } from './usePets';
-import { useUserTasks, useCreateTask, DEFAULT_TASKS_PAGE_SIZE } from './useTasks';
+import { usePets, usePetsPontosMap, useCreatePet, useCaregiverActions, PETS_PAGE_SIZE } from './usePets';
+import { useUserTasks, DEFAULT_TASKS_PAGE_SIZE } from './useTasks';
 import { useTaskActions } from './useTaskActions';
-import { useRedeCuidado } from './useRedeCuidado';
+import { useRedeCuidado } from './useUsers';
 import { useFamilyModals } from './useFamilyModals';
-import { normalizarDataNascParaIso, normalizarPrazoParaIso } from '../utils/petUtils';
+import { normalizarDataNascParaIso } from '../utils/petUtils';
 import { PetResponse, PetFormData } from '../types/pet';
-import { TarefaResponse, TaskFormData } from '../types/task';
+import { TarefaResponse } from '../types/task';
 import { RedeCuidadoResponse, InviteCaregiverData } from '../types/user';
-import { PetSchema, TaskSchema, InviteCaregiverSchema, formatZodError } from '../utils/schemas';
-import { createMutationCallbacks, ActionCallbacks } from '../utils/apiError';
+import { ActionCallbacks } from '../types/api';
+import { PetSchema, InviteCaregiverSchema, formatZodError } from '../utils/schemas';
+import { createMutationCallbacks } from '../utils/apiError';
 import { formatarDataIsoYmd } from '../utils/streakUtils';
 import { filtrarTarefasHoje, ordenarTarefasRotina } from '../utils/taskUtils';
-import {
-  mesclarPetsComMetadados,
-  formatarListaCoCuidadores,
-  construirCuidadorUsuarioLogado,
-  construirResumoFamiliar,
-} from '../utils/familyCareUtils';
-import { NotificationService } from '../services/notifications';
-
-export type { ActionCallbacks };
+import { mesclarPetsComMetadados, formatarListaCoCuidadores, construirCuidadorUsuarioLogado, construirResumoFamiliar } from '../utils/familyCareUtils';
 
 export function useFamilyCare() {
   const { user } = useSession();
@@ -46,11 +39,10 @@ export function useFamilyCare() {
   // Pontuação individual dos animais calculada pelas procedures Oracle
   const pontosMap = usePetsPontosMap();
 
-  // Mutations
+  // Mutations e Ações de Domínio
   const createPetMutation = useCreatePet();
-  const createTaskMutation = useCreateTask();
-  const inviteMutation = useInviteCaregiver();
   const taskActions = useTaskActions();
+  const caregiverActions = useCaregiverActions();
 
   // Rotina do dia e filtragem
   const hojeYmd = useMemo(() => formatarDataIsoYmd(new Date()), []);
@@ -77,7 +69,6 @@ export function useFamilyCare() {
   // Ações de formulários e modais
   const cadastrarPet = useCallback(
     (data: PetFormData, callbacks?: ActionCallbacks) => {
-      if (!user) return Alert.alert('Sessão expirada', 'Faça login novamente para cadastrar um pet.');
       const validacao = PetSchema.safeParse(data);
       if (!validacao.success) return Alert.alert('Dados Inválidos', formatZodError(validacao.error));
 
@@ -93,69 +84,23 @@ export function useFamilyCare() {
         createMutationCallbacks('Erro ao Cadastrar Pet', 'Não foi possível cadastrar o pet na API.', callbacks)
       );
     },
-    [user, createPetMutation]
-  );
-
-  // Cadastrar nova rotina/tarefa para um pet (POST /tarefas)
-  const cadastrarTarefa = useCallback(
-    (data: TaskFormData, callbacks?: ActionCallbacks) => {
-      if (!user) return Alert.alert('Sessão expirada', 'Faça login novamente para criar uma tarefa.');
-      const validacao = TaskSchema.safeParse(data);
-      if (!validacao.success) return Alert.alert('Dados da Tarefa', formatZodError(validacao.error));
-
-      createTaskMutation.mutate(
-        {
-          titulo: data.titulo.trim(),
-          descricao: data.descricao.trim(),
-          pontosTarefa: Number(data.pontos),
-          prazo: normalizarPrazoParaIso(data.prazo),
-          petId: data.petId,
-          status: data.status || 'PENDENTE',
-        },
-        createMutationCallbacks('Erro ao Cadastrar Tarefa', 'Não foi possível cadastrar a tarefa na API.', {
-          ...callbacks,
-          onSuccess: () => {
-            const petAssociado = todosOsPets.find((p) => p.id === data.petId);
-            const prazoIso = normalizarPrazoParaIso(data.prazo);
-            NotificationService.agendarNotificacaoTarefa({
-              tarefaId: Date.now(),
-              titulo: data.titulo.trim(),
-              nomePet: petAssociado?.nome || 'seu pet',
-              petId: data.petId,
-              prazoIso,
-              pontos: Number(data.pontos),
-              status: data.status || 'PENDENTE',
-            });
-            callbacks?.onSuccess?.();
-          },
-        })
-      );
-    },
-    [user, createTaskMutation, todosOsPets]
+    [createPetMutation]
   );
 
   // Enviar convite de co-cuidador (POST /pets/{id}/cuidadores)
   const convidarCuidador = useCallback(
     (data: InviteCaregiverData, callbacks?: ActionCallbacks) => {
-      if (!user) return Alert.alert('Sessão expirada', 'Faça login novamente para enviar convite.');
       const validacao = InviteCaregiverSchema.safeParse(data);
       if (!validacao.success) return Alert.alert('Dados do Convite', formatZodError(validacao.error));
 
-      inviteMutation.mutate(
-        {
-          petId: validacao.data.petId,
-          email: data.email.trim().toLowerCase(),
-        },
-        createMutationCallbacks('Erro ao Convidar Cuidador', 'Não foi possível enviar o convite.', callbacks)
-      );
+      caregiverActions.convidar(validacao.data.petId, data.email, callbacks);
     },
-    [user, inviteMutation]
+    [caregiverActions]
   );
 
   const modals = useFamilyModals({
-    user,
     petsOndeSouPrincipal,
-    cadastrarTarefa,
+    cadastrarTarefa: taskActions.cadastrar,
     atualizarTarefa: taskActions.atualizar,
   });
 
@@ -247,9 +192,9 @@ export function useFamilyCare() {
       removerTarefa,
       alternarStatusTarefa,
       isCreatingPet: createPetMutation.isPending,
-      isCreatingTask: createTaskMutation.isPending,
+      isCreatingTask: taskActions.isCreating,
       isUpdatingTask: taskActions.isUpdating,
-      isInvitingCaregiver: inviteMutation.isPending,
+      isInvitingCaregiver: caregiverActions.isInviting,
       isDeletingTask: taskActions.isDeleting,
     },
   };

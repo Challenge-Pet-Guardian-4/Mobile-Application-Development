@@ -46,7 +46,10 @@ export interface TasksRoutineSectionProps extends Partial<TasksRoutineData> {
   };
 }
 
+import { useTheme } from '../../contexts/ThemeContext';
+
 export const TasksRoutineSection = memo(function TasksRoutineSection(props: TasksRoutineSectionProps) {
+  const { theme } = useTheme();
   const {
     routineData,
     pets,
@@ -122,55 +125,73 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
       {/* Cabeçalho da Seção */}
       <View style={styles.sectionHeader}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.sectionTitle}>{effectiveTitle}</Text>
-          {effectiveSubtitle ? <Text style={styles.sectionSubtitle}>{effectiveSubtitle}</Text> : null}
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>{effectiveTitle}</Text>
+          {effectiveSubtitle ? <Text style={[styles.sectionSubtitle, { color: theme.textSecondary }]}>{effectiveSubtitle}</Text> : null}
         </View>
 
         {headerButton && (
           <TouchableOpacity
-            style={isLinkButton ? styles.headerButtonLink : styles.headerButtonPrimary}
+            style={isLinkButton ? [styles.headerButtonLink, { backgroundColor: theme.badgePrimaryBg }] : styles.headerButtonPrimary}
             onPress={headerButton.onPress}
             activeOpacity={0.7}
           >
             {headerButton.icon === 'add' && <Ionicons name="add" size={16} color={colors.neutral.white} />}
-            <Text style={isLinkButton ? styles.headerButtonLinkText : styles.headerButtonPrimaryText}>
+            <Text style={isLinkButton ? [styles.headerButtonLinkText, { color: theme.badgePrimaryText }] : styles.headerButtonPrimaryText}>
               {headerButton.label}
             </Text>
             {headerButton.icon === 'chevron-forward' && (
-              <Ionicons name="chevron-forward" size={14} color={colors.primary[600]} />
+              <Ionicons name="chevron-forward" size={14} color={theme.primary} />
             )}
           </TouchableOpacity>
         )}
       </View>
 
       {/* Abas de Filtro: Hoje vs Todas */}
-      <View style={styles.filterTabsRow}>
+      <View style={[styles.filterTabsRow, { backgroundColor: theme.surfaceSubtle, borderColor: theme.border }]}>
         <TouchableOpacity
-          style={[styles.filterTab, effectiveFilter === 'HOJE' && styles.filterTabActive]}
+          style={[
+            styles.filterTab,
+            effectiveFilter === 'HOJE' && [styles.filterTabActive, { backgroundColor: theme.card }],
+          ]}
           onPress={() => effectiveOnFilterChange('HOJE')}
           activeOpacity={0.7}
         >
           <MaterialCommunityIcons
             name="calendar-today"
             size={14}
-            color={effectiveFilter === 'HOJE' ? colors.primary[600] : colors.neutral[500]}
+            color={effectiveFilter === 'HOJE' ? theme.primary : theme.textSecondary}
           />
-          <Text style={[styles.filterTabText, effectiveFilter === 'HOJE' && styles.filterTabTextActive]}>
+          <Text
+            style={[
+              styles.filterTabText,
+              { color: theme.textSecondary },
+              effectiveFilter === 'HOJE' && [styles.filterTabTextActive, { color: theme.primary }],
+            ]}
+          >
             Hoje ({effectiveCountHoje})
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.filterTab, effectiveFilter === 'TODAS' && styles.filterTabActive]}
+          style={[
+            styles.filterTab,
+            effectiveFilter === 'TODAS' && [styles.filterTabActive, { backgroundColor: theme.card }],
+          ]}
           onPress={() => effectiveOnFilterChange('TODAS')}
           activeOpacity={0.7}
         >
           <MaterialCommunityIcons
             name="format-list-bulleted"
             size={14}
-            color={effectiveFilter === 'TODAS' ? colors.primary[600] : colors.neutral[500]}
+            color={effectiveFilter === 'TODAS' ? theme.primary : theme.textSecondary}
           />
-          <Text style={[styles.filterTabText, effectiveFilter === 'TODAS' && styles.filterTabTextActive]}>
+          <Text
+            style={[
+              styles.filterTabText,
+              { color: theme.textSecondary },
+              effectiveFilter === 'TODAS' && [styles.filterTabTextActive, { color: theme.primary }],
+            ]}
+          >
             Todas ({effectiveCountTodas})
           </Text>
         </TouchableOpacity>
@@ -179,9 +200,9 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
       {/* Conteúdo / Lista de Tarefas */}
       {effectiveTasks.length === 0 ? (
         <View style={styles.emptyBox}>
-          <MaterialCommunityIcons name="clipboard-check-outline" size={32} color={colors.neutral[300]} />
-          <Text style={styles.emptyTitle}>{emptyTitle || defaultEmptyTitle}</Text>
-          <Text style={styles.emptyDesc}>{emptyDesc || defaultEmptyDesc}</Text>
+          <MaterialCommunityIcons name="clipboard-check-outline" size={32} color={theme.textMuted} />
+          <Text style={[styles.emptyTitle, { color: theme.text }]}>{emptyTitle || defaultEmptyTitle}</Text>
+          <Text style={[styles.emptyDesc, { color: theme.textSecondary }]}>{emptyDesc || defaultEmptyDesc}</Text>
         </View>
       ) : (
         <View style={styles.tasksList}>

@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { PetResponse } from '../../../types/pet';
-import { colors, spacing, borderRadius } from '../../../constants/theme';
+import { AppTheme, colors, spacing, borderRadius } from '../../../constants/theme';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 export interface PetCardProps {
   pet: PetResponse;
@@ -13,6 +14,9 @@ export interface PetCardProps {
 }
 
 export function PetCard({ pet, isResponsavelPrincipal, tarefasCount, pontosTotais, onPress }: PetCardProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -28,7 +32,7 @@ export function PetCard({ pet, isResponsavelPrincipal, tarefasCount, pontosTotai
       )}
 
       <View style={styles.avatarWrapper}>
-        <MaterialCommunityIcons name="paw" size={24} color={colors.primary[600]} />
+        <MaterialCommunityIcons name="paw" size={24} color={theme.primary} />
       </View>
 
       <Text style={styles.name} numberOfLines={1}>
@@ -40,19 +44,19 @@ export function PetCard({ pet, isResponsavelPrincipal, tarefasCount, pontosTotai
       </Text>
 
       <View style={styles.badgesRow}>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>Porte {pet.porte}</Text>
+        <View style={styles.badgeMuted}>
+          <Text style={styles.badgeMutedText}>Porte {pet.porte}</Text>
         </View>
         {tarefasCount !== undefined && tarefasCount > 0 ? (
-          <View style={[styles.badge, { backgroundColor: colors.primary[50] }]}>
-            <Text style={[styles.badgeText, { color: colors.primary[600] }]}>
+          <View style={styles.badgePrimary}>
+            <Text style={styles.badgePrimaryText}>
               {tarefasCount} {tarefasCount === 1 ? 'tarefa' : 'tarefas'}
             </Text>
           </View>
         ) : null}
         {pontosTotais !== undefined ? (
-          <View style={[styles.badge, { backgroundColor: colors.warning[50] }]}>
-            <Text style={[styles.badgeText, { color: colors.warning[600] }]}>
+          <View style={styles.badgeWarning}>
+            <Text style={styles.badgeWarningText}>
               {pontosTotais} XP
             </Text>
           </View>
@@ -62,71 +66,95 @@ export function PetCard({ pet, isResponsavelPrincipal, tarefasCount, pontosTotai
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    position: 'relative',
-    width: '48%',
-    backgroundColor: colors.neutral[50],
-    padding: 14,
-    borderRadius: borderRadius.xl,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.neutral[200],
-  },
-  principalBadge: {
-    position: 'absolute',
-    top: spacing.xs,
-    right: spacing.xs,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: colors.success[600],
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: borderRadius.xs,
-    zIndex: 2,
-  },
-  principalBadgeText: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: colors.neutral.white,
-  },
-  avatarWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: colors.primary[50],
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-    marginBottom: spacing.xs,
-  },
-  name: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: colors.neutral[800],
-  },
-  breed: {
-    fontSize: 11,
-    color: colors.neutral[500],
-    marginTop: 2,
-    marginBottom: spacing.xs,
-  },
-  badgesRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  badge: {
-    backgroundColor: colors.neutral[200],
-    paddingVertical: 3,
-    paddingHorizontal: spacing.xs,
-    borderRadius: borderRadius.sm,
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.neutral[600],
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    card: {
+      position: 'relative',
+      width: '48%',
+      backgroundColor: theme.card,
+      padding: 14,
+      borderRadius: borderRadius.xl,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    principalBadge: {
+      position: 'absolute',
+      top: spacing.xs,
+      right: spacing.xs,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      backgroundColor: colors.success[600],
+      paddingVertical: 2,
+      paddingHorizontal: 6,
+      borderRadius: borderRadius.xs,
+      zIndex: 2,
+    },
+    principalBadgeText: {
+      fontSize: 9,
+      fontWeight: '800',
+      color: colors.neutral.white,
+    },
+    avatarWrapper: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: theme.badgePrimaryBg,
+      justifyContent: 'center',
+      alignItems: 'center',
+      overflow: 'hidden',
+      marginBottom: spacing.xs,
+    },
+    name: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: theme.text,
+    },
+    breed: {
+      fontSize: 11,
+      color: theme.textSecondary,
+      marginTop: 2,
+      marginBottom: spacing.xs,
+    },
+    badgesRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: 4,
+    },
+    badgeMuted: {
+      backgroundColor: theme.surfaceMuted,
+      paddingVertical: 3,
+      paddingHorizontal: spacing.xs,
+      borderRadius: borderRadius.sm,
+    },
+    badgeMutedText: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: theme.textSecondary,
+    },
+    badgePrimary: {
+      backgroundColor: theme.badgePrimaryBg,
+      paddingVertical: 3,
+      paddingHorizontal: spacing.xs,
+      borderRadius: borderRadius.sm,
+    },
+    badgePrimaryText: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: theme.badgePrimaryText,
+    },
+    badgeWarning: {
+      backgroundColor: theme.badgeWarningBg,
+      paddingVertical: 3,
+      paddingHorizontal: spacing.xs,
+      borderRadius: borderRadius.sm,
+    },
+    badgeWarningText: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: theme.badgeWarningText,
+    },
+  });
+

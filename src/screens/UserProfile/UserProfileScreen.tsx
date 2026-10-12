@@ -17,7 +17,7 @@ import { ContaESuporte } from './components/ContaESuporte';
 import { NotificationSettingsModal } from './components/NotificationSettingsModal';
 import { SobreAppModal } from './components/SobreAppModal';
 import { useNotifications } from '../../hooks/useNotifications';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface UserProfileScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList>;

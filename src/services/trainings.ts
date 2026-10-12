@@ -1,5 +1,5 @@
 import { http } from './http';
-import { TrainingTrack, AulaCompletaResponse, ConteudoAulaApiResponse, TrilhaCompletaResponse, } from '../types/training';
+import { TrainingTrack, AulaCompletaResponse, ConteudoAulaApiResponse, TrilhaCompletaResponse } from '../types/training';
 import { mapearAulaParaLicao, mapearTrilhaParaTrack } from '../utils/trainingUtils';
 
 /**

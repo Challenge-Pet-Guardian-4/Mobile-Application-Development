@@ -1,20 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
-import { useSession } from './useSession';
-import { useCompleteTask, useUncompleteTask, useUpdateTask, useDeleteTask } from './useTasks';
+import { useCreateTask, useCompleteTask, useUncompleteTask, useUpdateTask, useDeleteTask } from './useTasks';
 import { usePets } from './usePets';
-import { TarefaResponse, TaskFormData } from '../types/task';
+import { TarefaResponse, TaskFormData, AlternarStatusOptions } from '../types/task';
+import { ActionCallbacks } from '../types/api';
 import { TaskSchema, formatZodError } from '../utils/schemas';
 import { normalizarPrazoParaIso } from '../utils/petUtils';
-import { ActionCallbacks, createMutationCallbacks } from '../utils/apiError';
+import { createMutationCallbacks } from '../utils/apiError';
 import { NotificationService } from '../services/notifications';
-
-export type { ActionCallbacks };
-
-export interface AlternarStatusOptions extends ActionCallbacks {
-  onExpired?: (tarefa: TarefaResponse) => void;
-  onEdit?: (tarefa: TarefaResponse) => void;
-}
 
 interface LembreteParams {
   id: number;
@@ -26,10 +19,9 @@ interface LembreteParams {
 
 /**
  * Hook de domínio reutilizável para centralizar o ciclo de vida e mutações de tarefas,
- * integrando validações com Zod, checagem de sessão, feedback nativo e notificações locais.
+ * integrando validações com Zod, feedback nativo e notificações locais.
  */
 export function useTaskActions() {
-  const { user } = useSession();
   const { data: petsData } = usePets();
 
   const petMap = useMemo(() => {
@@ -42,6 +34,7 @@ export function useTaskActions() {
     [petMap]
   );
 
+  const createTaskMutation = useCreateTask();
   const completeTaskMutation = useCompleteTask();
   const uncompleteTaskMutation = useUncompleteTask();
   const updateTaskMutation = useUpdateTask();
@@ -109,11 +102,6 @@ export function useTaskActions() {
 
   const alternarStatus = useCallback(
     (taskId: number, tarefas: TarefaResponse[], options?: AlternarStatusOptions) => {
-      if (!user) {
-        Alert.alert('Sessão expirada', 'Faça login novamente para atualizar tarefas.');
-        return;
-      }
-
       const tarefa = tarefas.find((t) => t.id === taskId);
       if (!tarefa) return;
 
@@ -143,7 +131,7 @@ export function useTaskActions() {
         );
       }
     },
-    [user, completeTaskMutation, uncompleteTaskMutation, agendarLembrete, notificarConclusao, tratarTarefaExpirada]
+    [completeTaskMutation, uncompleteTaskMutation, agendarLembrete, notificarConclusao, tratarTarefaExpirada]
   );
 
   const excluirComConfirmacao = useCallback(
@@ -173,11 +161,6 @@ export function useTaskActions() {
 
   const atualizar = useCallback(
     (taskId: number, data: TaskFormData, callbacks?: ActionCallbacks) => {
-      if (!user) {
-        Alert.alert('Sessão expirada', 'Faça login novamente para atualizar uma tarefa.');
-        return;
-      }
-
       const validacao = TaskSchema.safeParse(data);
       if (!validacao.success) {
         Alert.alert('Dados da Tarefa', formatZodError(validacao.error));
@@ -223,18 +206,61 @@ export function useTaskActions() {
         })
       );
     },
-    [user, updateTaskMutation, agendarLembrete]
+    [updateTaskMutation, agendarLembrete]
+  );
+
+  const cadastrar = useCallback(
+    (data: TaskFormData, callbacks?: ActionCallbacks) => {
+      const validacao = TaskSchema.safeParse(data);
+      if (!validacao.success) {
+        Alert.alert('Dados da Tarefa', formatZodError(validacao.error));
+        return;
+      }
+
+      const statusFinal = data.status || 'PENDENTE';
+      const prazoIso = normalizarPrazoParaIso(data.prazo);
+
+      createTaskMutation.mutate(
+        {
+          titulo: data.titulo.trim(),
+          descricao: data.descricao.trim(),
+          pontosTarefa: Number(data.pontos),
+          prazo: prazoIso,
+          petId: data.petId,
+          status: statusFinal,
+        },
+        createMutationCallbacks('Erro ao Cadastrar Tarefa', 'Não foi possível cadastrar a tarefa na API.', {
+          ...callbacks,
+          onSuccess: () => {
+            if (statusFinal === 'PENDENTE') {
+              agendarLembrete({
+                id: Date.now(),
+                titulo: data.titulo.trim(),
+                petId: data.petId,
+                prazo: prazoIso,
+                pontosTarefa: Number(data.pontos),
+              });
+            }
+            callbacks?.onSuccess?.();
+          },
+        })
+      );
+    },
+    [createTaskMutation, agendarLembrete]
   );
 
   return {
+    cadastrar,
     alternarStatus,
     excluirComConfirmacao,
     atualizar,
+    isCreating: createTaskMutation.isPending,
     isUpdating: updateTaskMutation.isPending,
     isDeleting: deleteTaskMutation.isPending,
     isCompleting: completeTaskMutation.isPending,
     isUncompleting: uncompleteTaskMutation.isPending,
     isPending:
+      createTaskMutation.isPending ||
       completeTaskMutation.isPending ||
       uncompleteTaskMutation.isPending ||
       updateTaskMutation.isPending ||

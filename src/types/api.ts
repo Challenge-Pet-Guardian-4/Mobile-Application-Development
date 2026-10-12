@@ -1,3 +1,8 @@
+export interface ActionCallbacks {
+  onSuccess?: () => void;
+  onError?: (error: unknown) => void;
+}
+
 export interface PageableSort {
   sorted: boolean;
   unsorted: boolean;

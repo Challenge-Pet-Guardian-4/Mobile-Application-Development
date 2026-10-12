@@ -12,7 +12,10 @@ import { TrilhaBannerProgresso } from './components/TrilhaBannerProgresso';
 import { SeletorTrilhasPills } from './components/SeletorTrilhasPills';
 import { TrilhasEmptyState } from './components/TrilhasEmptyState';
 
+import { useTheme } from '../../contexts/ThemeContext';
+
 export default function TrainingEducationScreen() {
+  const { theme } = useTheme();
   const { status, pet, trail, actions } = useTrainings();
   const { petAtivo } = pet;
   const { trilhaAtual } = trail;
@@ -20,7 +23,7 @@ export default function TrainingEducationScreen() {
   // Se o usuário for Comum, exibe mensagem amigável sobre o recurso Premium
   if (status.isUserComum) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
         <View style={styles.headerPad}>
           <Header title="Trilhas & Treinamento" />
         </View>
@@ -41,7 +44,7 @@ export default function TrainingEducationScreen() {
   const temTrilhas = (trail?.trilhas?.length ?? 0) > 0;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 130 }}
         showsVerticalScrollIndicator={false}

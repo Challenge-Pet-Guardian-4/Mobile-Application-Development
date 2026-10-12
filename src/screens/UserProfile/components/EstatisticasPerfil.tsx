@@ -3,7 +3,8 @@ import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { shadows } from '../../../utils/shadow';
 import { useUserProfile } from '../../../hooks/useUserProfile';
-import { useTheme } from '../../../hooks/useTheme';
+import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
+import { AppTheme, colors } from '../../../constants/theme';
 
 interface StatCardProps {
   iconName: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -11,18 +12,17 @@ interface StatCardProps {
   iconBgColor: string;
   value: string | number;
   label: string;
+  styles: ReturnType<typeof createStyles>;
 }
 
-function StatCard({ iconName, iconColor, iconBgColor, value, label }: StatCardProps) {
-  const { theme } = useTheme();
-
+function StatCard({ iconName, iconColor, iconBgColor, value, label, styles }: StatCardProps) {
   return (
-    <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
+    <View style={styles.card}>
       <View style={[styles.iconBox, { backgroundColor: iconBgColor }]}>
         <MaterialCommunityIcons name={iconName} size={18} color={iconColor} />
       </View>
-      <Text style={[styles.value, { color: theme.text }]}>{value}</Text>
-      <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text>
+      <Text style={styles.value}>{value}</Text>
+      <Text style={styles.label}>{label}</Text>
     </View>
   );
 }
@@ -32,69 +32,75 @@ interface EstatisticasPerfilProps {
 }
 
 export function EstatisticasPerfil({ profile }: EstatisticasPerfilProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { pontosTotais, redeCuidado } = profile;
 
   return (
     <View style={styles.statsRow}>
       <StatCard
         iconName="star"
-        iconColor="#D97706"
-        iconBgColor="#FFF7ED"
+        iconColor={colors.warning[600]}
+        iconBgColor={theme.badgeWarningBg}
         value={pontosTotais !== undefined ? `${pontosTotais}` : '0'}
         label="Pontos XP"
+        styles={styles}
       />
       <StatCard
         iconName="paw"
-        iconColor="#2563EB"
-        iconBgColor="#EFF6FF"
+        iconColor={theme.primary}
+        iconBgColor={theme.badgePrimaryBg}
         value={redeCuidado?.pets?.length ? `${redeCuidado.pets.length}` : '0'}
         label="Pets Família"
+        styles={styles}
       />
       <StatCard
         iconName="check-circle"
-        iconColor="#059669"
-        iconBgColor="#ECFDF5"
+        iconColor={colors.success.default}
+        iconBgColor={theme.badgeSuccessBg}
         value={redeCuidado?.totalTarefasConcluidas ? `${redeCuidado.totalTarefasConcluidas}` : '0'}
         label="Concluídas"
+        styles={styles}
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  statsRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  card: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    paddingVertical: 14,
-    paddingHorizontal: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
-    ...shadows.xs,
-    elevation: 1,
-  },
-  iconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  value: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#0F172A',
-  },
-  label: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '600',
-    marginTop: 2,
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    statsRow: {
+      flexDirection: 'row',
+      gap: 10,
+    },
+    card: {
+      flex: 1,
+      backgroundColor: theme.card,
+      borderRadius: 20,
+      paddingVertical: 14,
+      paddingHorizontal: 10,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...shadows.xs,
+      elevation: 1,
+    },
+    iconBox: {
+      width: 36,
+      height: 36,
+      borderRadius: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    value: {
+      fontSize: 18,
+      fontWeight: '900',
+      color: theme.text,
+    },
+    label: {
+      fontSize: 11,
+      color: theme.textSecondary,
+      fontWeight: '600',
+      marginTop: 2,
+    },
+  });

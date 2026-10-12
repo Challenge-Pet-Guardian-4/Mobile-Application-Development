@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "sync-git": "node scripts/sync-git.js",
+    "prestart": "node scripts/sync-git.js",
     "start": "expo start",
+    "preandroid": "node scripts/sync-git.js",
     "android": "expo run:android",
+    "preios": "node scripts/sync-git.js",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "type-check": "tsc --noEmit",

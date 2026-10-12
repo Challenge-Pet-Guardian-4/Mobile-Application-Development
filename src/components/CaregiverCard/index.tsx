@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export interface CaregiverCardProps {
   key?: React.Key;
@@ -25,6 +26,7 @@ export function CaregiverCard({
   onTransfer,
   onRemove,
 }: CaregiverCardProps) {
+  const { theme } = useTheme();
   const initials = (nome || 'TU').substring(0, 2).toUpperCase();
   const displayName = isCurrentUser ? `${nome} (Você)` : nome;
   const displayRole = roleText || (isPrincipal ? 'Tutor Principal' : email || 'Co-cuidador');
@@ -34,20 +36,20 @@ export function CaregiverCard({
 
   return (
     <CardWrapper
-      style={styles.card}
+      style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
       onPress={onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
       <View
         style={[
           styles.avatar,
-          !isPrincipal && { backgroundColor: colors.neutral[100] },
+          !isPrincipal && { backgroundColor: theme.surfaceMuted },
         ]}
       >
         <Text
           style={[
             styles.initials,
-            !isPrincipal && { color: colors.neutral[600] },
+            !isPrincipal && { color: theme.textSecondary },
           ]}
         >
           {initials}
@@ -56,26 +58,26 @@ export function CaregiverCard({
 
       <View style={styles.infoWrapper}>
         <View style={styles.nameRow}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text style={[styles.name, { color: theme.text }]} numberOfLines={1}>
             {displayName}
           </Text>
           <View
             style={[
               styles.roleBadge,
-              !isPrincipal && { backgroundColor: colors.neutral[100] },
+              !isPrincipal && { backgroundColor: theme.surfaceMuted },
             ]}
           >
             <Text
               style={[
                 styles.roleBadgeText,
-                !isPrincipal && { color: colors.neutral[500] },
+                !isPrincipal && { color: theme.textSecondary },
               ]}
             >
               {badgeLabel}
             </Text>
           </View>
         </View>
-        <Text style={styles.role} numberOfLines={2}>
+        <Text style={[styles.role, { color: theme.textSecondary }]} numberOfLines={2}>
           {displayRole}
         </Text>
       </View>

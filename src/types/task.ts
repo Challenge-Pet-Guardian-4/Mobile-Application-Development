@@ -1,3 +1,11 @@
+import { PetResponse } from './pet';
+import { ActionCallbacks } from './api';
+
+export interface AlternarStatusOptions extends ActionCallbacks {
+  onExpired?: (tarefa: TarefaResponse) => void;
+  onEdit?: (tarefa: TarefaResponse) => void;
+}
+
 export type EnumStatus = 'PENDENTE' | 'CONCLUIDO' | 'EXPIRADO';
 
 export interface TarefaRequest {
@@ -9,7 +17,6 @@ export interface TarefaRequest {
   status: EnumStatus;
   conclusao?: string | null;
 }
-
 
 export interface TarefaResponse {
   id: number;
@@ -45,5 +52,36 @@ export interface RotinaHomeView {
   subtitle: string;
   emptyTitle: string;
   emptyDesc: string;
+}
+
+export interface MetricasTarefas {
+  concluidas: TarefaResponse[];
+  pendentes: TarefaResponse[];
+  expiradas: TarefaResponse[];
+  ativas: TarefaResponse[];
+  total: number;
+}
+
+export interface StatusScoreBar {
+  percentage: number;
+  statusTexto: string;
+  statusCor: string;
+  statusBg: string;
+  progressColor: string;
+}
+
+export interface HomeScoreBarProps {
+  pets?: {
+    active?: PetResponse;
+    [key: string]: unknown;
+  };
+  routine?: {
+    score?: number;
+    completedToday?: TarefaResponse[];
+    expiredToday?: TarefaResponse[];
+    todayTasks?: TarefaResponse[];
+    [key: string]: unknown;
+  };
+  onPress: () => void;
 }
 

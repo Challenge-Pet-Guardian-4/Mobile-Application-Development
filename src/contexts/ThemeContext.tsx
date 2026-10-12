@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { useColorScheme } from 'react-native';
+import { useColorScheme, ViewStyle, TextStyle, ImageStyle } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightTheme, darkTheme, AppTheme } from '../constants/theme';
 
@@ -81,4 +81,16 @@ export function useTheme() {
     throw new Error('useTheme deve ser utilizado dentro de um ThemeProvider');
   }
   return context;
+}
+
+type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle };
+
+/**
+ * Hook utilitário centralizado para criar StyleSheets dinâmicos tipados a partir do tema ativo.
+ */
+export function useThemedStyles<T extends NamedStyles<T>>(
+  factory: (theme: AppTheme) => T
+): T {
+  const { theme } = useTheme();
+  return useMemo(() => factory(theme), [theme]);
 }

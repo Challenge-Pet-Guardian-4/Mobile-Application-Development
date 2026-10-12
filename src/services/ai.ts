@@ -3,6 +3,7 @@ import { env } from '../config/env';
 import { AiMessage, AiPetInsight, AiChatResponsePayload, AiPetContextPayload, AiChatSession } from '../types/ai';
 import { PetResponse } from '../types/pet';
 import { calcularIdadePet } from '../utils/petUtils';
+import { createThrottledPing } from '../utils/throttleUtils';
 
 const pythonClient = axios.create({
   baseURL: env.aiUrl,
@@ -27,10 +28,6 @@ function formatPetContext(pet?: PetResponse): AiPetContextPayload | undefined {
   };
 }
 
-let inFlightAiPing: Promise<boolean> | null = null;
-let lastAiPingTimestamp = 0;
-const AI_PING_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutos de intervalo mínimo
-
 interface MensagemBancoRaw {
   id: number;
   session_id: string;
@@ -54,31 +51,7 @@ function mapMensagemBancoToAiMessage(m: MensagemBancoRaw): AiMessage {
 export const AiService = {
   // Realiza um ping leve no servidor Python para acordar a instância no Render (warm-up de cold start)
   // Possui deduplicação estrita de promessa em voo e cooldown de 10 minutos para evitar requisições redundantes.
-  async ping(): Promise<boolean> {
-    const now = Date.now();
-
-    if (now - lastAiPingTimestamp < AI_PING_COOLDOWN_MS) {
-      return true;
-    }
-
-    if (inFlightAiPing) {
-      return inFlightAiPing;
-    }
-
-    inFlightAiPing = (async () => {
-      try {
-        await pythonClient.get('/');
-        lastAiPingTimestamp = Date.now();
-        return true;
-      } catch {
-        return false;
-      } finally {
-        inFlightAiPing = null;
-      }
-    })();
-
-    return inFlightAiPing;
-  },
+  ping: createThrottledPing(() => pythonClient.get('/')),
 
   // Consulta o microserviço Python para obter insights preventivos gerados por IA
   async getInsightsDoPet(pet?: PetResponse): Promise<AiPetInsight[]> {

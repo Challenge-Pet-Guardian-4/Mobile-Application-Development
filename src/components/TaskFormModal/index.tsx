@@ -9,7 +9,6 @@ import { PetSelector } from '../PetSelector';
 import { TaskSchema, formatZodError } from '../../utils/schemas';
 import { formatarIsoParaBr, obterPrazoFuturoPadraoBr, normalizarPrazoParaIso } from '../../utils/petUtils';
 import { TaskFormData } from '../../types/task';
-export type { TaskFormData };
 
 interface TaskFormModalProps {
   visible: boolean;

@@ -6,9 +6,6 @@ import { usePetDetailModals } from './usePetDetailModals';
 import { usePetDetailActions } from './usePetDetailActions';
 import { CoCuidadorResponse, PetResponse } from '../types/pet';
 import { formatarIsoParaBr } from '../utils/petUtils';
-import { ActionCallbacks } from '../utils/apiError';
-
-export type { ActionCallbacks };
 
 export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
   const { user } = useSession();

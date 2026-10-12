@@ -7,7 +7,6 @@ import { PetSelector } from '../PetSelector';
 import { InviteCaregiverSchema, formatZodError } from '../../utils/schemas';
 
 import { InviteCaregiverData } from '../../types/user';
-export type { InviteCaregiverData };
 
 interface InviteCaregiverModalProps {
   visible: boolean;

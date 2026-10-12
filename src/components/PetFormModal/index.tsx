@@ -6,7 +6,6 @@ import { CustomDateInput } from '../CustomDateInput';
 import { CustomButton } from '../CustomButton';
 import { PetPorte, PetFormData } from '../../types/pet';
 import { PetSchema, formatZodError } from '../../utils/schemas';
-export type { PetFormData };
 
 interface PetFormModalProps {
   visible: boolean;

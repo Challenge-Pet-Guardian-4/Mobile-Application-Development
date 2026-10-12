@@ -10,6 +10,7 @@ export * from './task';
 export * from './training';
 export * from './ai';
 export * from './historico';
+export * from './notification';
 
 // Aliases de conveniência
 export type Pet = PetResponse;
@@ -23,4 +24,10 @@ export interface DiaOfensiva {
   done: boolean;
   isToday?: boolean;
   missed?: boolean;
+}
+
+export interface StreakCardProps {
+  streakDays?: DiaOfensiva[];
+  totalStreak?: number;
+  tasks?: TarefaResponse[];
 }

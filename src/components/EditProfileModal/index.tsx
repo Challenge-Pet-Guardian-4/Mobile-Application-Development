@@ -7,7 +7,6 @@ import { CustomButton } from '../CustomButton';
 import { EditProfileFormData } from '../../types/user';
 
 import { ProfileEditSchema, formatZodError } from '../../utils/schemas';
-export type { EditProfileFormData };
 
 const INITIAL_PROFILE_FORM: EditProfileFormData = {
   nome: '',

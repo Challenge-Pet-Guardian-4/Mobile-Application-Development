@@ -1,11 +1,6 @@
 import { Alert } from 'react-native';
 import axios, { AxiosError } from 'axios';
-import { ApiError, ApiErrorResponse } from '../types/api';
-
-export interface ActionCallbacks {
-  onSuccess?: () => void;
-  onError?: (error: unknown) => void;
-}
+import { ApiError, ApiErrorResponse, ActionCallbacks } from '../types/api';
 
 /**
  * Normaliza qualquer erro (AxiosError, ApiError, Error nativo ou desconhecido)

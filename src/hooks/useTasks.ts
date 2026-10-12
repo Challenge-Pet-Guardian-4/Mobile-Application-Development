@@ -1,10 +1,60 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, QueryClient } from '@tanstack/react-query';
 import { TaskService } from '../services/tasks';
 import { queryKeys } from '../lib/queryKeys';
 import { Page } from '../types/api';
 import { TarefaRequest, TarefaResponse } from '../types/task';
 
 export const DEFAULT_TASKS_PAGE_SIZE = 100;
+
+function invalidarQueriesTarefas(queryClient: QueryClient) {
+  queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
+}
+
+interface PreviousTasksContext {
+  previousTasksQueries: [readonly unknown[], Page<TarefaResponse> | undefined][];
+}
+
+function criarMutacaoStatusOtimista(
+  queryClient: QueryClient,
+  mutationFn: (id: number) => Promise<TarefaResponse>,
+  atualizarTarefa: (task: TarefaResponse) => TarefaResponse
+) {
+  return {
+    mutationFn,
+    onMutate: async (id: number): Promise<PreviousTasksContext> => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.tasks.all });
+
+      const previousTasksQueries = queryClient.getQueriesData<Page<TarefaResponse>>({
+        queryKey: queryKeys.tasks.all,
+      });
+
+      queryClient.setQueriesData<Page<TarefaResponse>>(
+        { queryKey: queryKeys.tasks.all },
+        (old) => {
+          if (!old || !old.content) return old;
+          return {
+            ...old,
+            content: old.content.map((task) => (task.id === id ? atualizarTarefa(task) : task)),
+          };
+        }
+      );
+
+      return { previousTasksQueries };
+    },
+    onError: (_err: unknown, _variables: number, context?: PreviousTasksContext) => {
+      if (context?.previousTasksQueries) {
+        context.previousTasksQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
+    onSettled: () => {
+      invalidarQueriesTarefas(queryClient);
+    },
+  };
+}
 
 export function useUserTasks(page = 0, size = DEFAULT_TASKS_PAGE_SIZE, status = 'ALL') {
   return useQuery({
@@ -19,9 +69,7 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: (request: TarefaRequest) => TaskService.createTarefa(request),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
+      invalidarQueriesTarefas(queryClient);
     },
   });
 }
@@ -41,85 +89,25 @@ export function useUpdateTask() {
 export function useCompleteTask() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id: number) => TaskService.concluirTarefa(id),
-    onMutate: async (id: number) => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.tasks.all });
-
-      const previousTasksQueries = queryClient.getQueriesData<Page<TarefaResponse>>({
-        queryKey: queryKeys.tasks.all,
-      });
-
-      queryClient.setQueriesData<Page<TarefaResponse>>(
-        { queryKey: queryKeys.tasks.all },
-        (old) => {
-          if (!old || !old.content) return old;
-          return {
-            ...old,
-            content: old.content.map((task) =>
-              task.id === id ? { ...task, status: 'CONCLUIDO' as const } : task
-            ),
-          };
-        }
-      );
-
-      return { previousTasksQueries };
-    },
-    onError: (_err, _variables, context) => {
-      if (context?.previousTasksQueries) {
-        context.previousTasksQueries.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
-    },
-  });
+  return useMutation(
+    criarMutacaoStatusOtimista(
+      queryClient,
+      (id) => TaskService.concluirTarefa(id),
+      (task) => ({ ...task, status: 'CONCLUIDO' })
+    )
+  );
 }
 
 export function useUncompleteTask() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id: number) => TaskService.desmarcarTarefa(id),
-    onMutate: async (id: number) => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.tasks.all });
-
-      const previousTasksQueries = queryClient.getQueriesData<Page<TarefaResponse>>({
-        queryKey: queryKeys.tasks.all,
-      });
-
-      queryClient.setQueriesData<Page<TarefaResponse>>(
-        { queryKey: queryKeys.tasks.all },
-        (old) => {
-          if (!old || !old.content) return old;
-          return {
-            ...old,
-            content: old.content.map((task) =>
-              task.id === id ? { ...task, status: 'PENDENTE' as const, conclusao: null } : task
-            ),
-          };
-        }
-      );
-
-      return { previousTasksQueries };
-    },
-    onError: (_err, _variables, context) => {
-      if (context?.previousTasksQueries) {
-        context.previousTasksQueries.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
-    },
-  });
+  return useMutation(
+    criarMutacaoStatusOtimista(
+      queryClient,
+      (id) => TaskService.desmarcarTarefa(id),
+      (task) => ({ ...task, status: 'PENDENTE', conclusao: null })
+    )
+  );
 }
 
 export function useDeleteTask() {
@@ -128,9 +116,7 @@ export function useDeleteTask() {
   return useMutation({
     mutationFn: (id: number) => TaskService.deleteTarefa(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.pets.all });
+      invalidarQueriesTarefas(queryClient);
     },
   });
 }

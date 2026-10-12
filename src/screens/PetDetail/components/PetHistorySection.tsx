@@ -44,12 +44,7 @@ function getEventIcon(tipo: string): keyof typeof MaterialCommunityIcons.glyphMa
 
 function formatarDataConclusao(dataStr?: string | null): string {
   if (!dataStr) return 'Concluído';
-  try {
-    const d = new Date(dataStr);
-    return isNaN(d.getTime()) ? 'Concluído' : d.toLocaleDateString('pt-BR');
-  } catch {
-    return 'Concluído';
-  }
+  return formatarIsoParaBr(dataStr) || 'Concluído';
 }
 
 export function PetHistorySection(props: PetHistorySectionProps) {

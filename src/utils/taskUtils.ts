@@ -1,13 +1,5 @@
-import { TarefaResponse } from '../types/task';
+import { TarefaResponse, MetricasTarefas } from '../types/task';
 import { formatarDataIsoYmd } from './streakUtils';
-
-export interface MetricasTarefas {
-  concluidas: TarefaResponse[];
-  pendentes: TarefaResponse[];
-  expiradas: TarefaResponse[];
-  ativas: TarefaResponse[];
-  total: number;
-}
 
 /**
  * Categoriza uma lista de tarefas por status em concluídas, pendentes, expiradas e ativas.

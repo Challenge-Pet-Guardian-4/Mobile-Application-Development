@@ -19,6 +19,7 @@ export const colors = {
   success: {
     50: '#ECFDF5',
     100: '#D1FAE5',
+    200: '#A7F3D0',
     500: '#10B981',
     600: '#059669',
     700: '#047857',
@@ -29,6 +30,7 @@ export const colors = {
   danger: {
     50: '#FEF2F2',
     100: '#FEE2E2',
+    200: '#FECACA',
     500: '#EF4444',
     600: '#DC2626',
     700: '#B91C1C',
@@ -123,49 +125,7 @@ export const layout = {
   headerHeight: 60,
 } as const;
 
-/**
- * Paleta de Modo Claro (Light Mode)
- */
-export const lightTheme = {
-  isDark: false,
-  background: '#F8FAFC',
-  card: '#FFFFFF',
-  cardSubtle: '#F1F5F9',
-  border: '#E2E8F0',
-  borderSubtle: '#F1F5F9',
-  text: '#0F172A',
-  textSecondary: '#64748B',
-  textMuted: '#94A3B8',
-  primary: colors.primary[600],
-  statusBar: 'dark' as const,
-  colors,
-  spacing,
-  borderRadius,
-  layout,
-};
-
-/**
- * Paleta de Modo Escuro (Dark Mode)
- */
-export const darkTheme = {
-  isDark: true,
-  background: '#090D16',
-  card: '#131D31',
-  cardSubtle: '#1E293B',
-  border: '#334155',
-  borderSubtle: '#1E293B',
-  text: '#F8FAFC',
-  textSecondary: '#94A3B8',
-  textMuted: '#64748B',
-  primary: colors.primary[500],
-  statusBar: 'light' as const,
-  colors,
-  spacing,
-  borderRadius,
-  layout,
-};
-
-export type AppTheme = {
+export interface AppTheme {
   isDark: boolean;
   background: string;
   card: string;
@@ -176,11 +136,167 @@ export type AppTheme = {
   textSecondary: string;
   textMuted: string;
   primary: string;
-  statusBar: 'light' | 'dark';
+  statusBar: 'dark' | 'light';
+
+  // Superfícies secundárias e neutras (pills, badges, círculos de avatares)
+  surfaceMuted: string;
+  surfaceSubtle: string;
+  pillActiveBg: string;
+  pillActiveBorder: string;
+  pillActiveText: string;
+
+  // Status e Badges Semânticas
+  badgePrimaryBg: string;
+  badgePrimaryText: string;
+  badgePrimaryBorder: string;
+
+  badgeSuccessBg: string;
+  badgeSuccessText: string;
+  badgeSuccessBorder: string;
+
+  badgeWarningBg: string;
+  badgeWarningText: string;
+  badgeWarningBorder: string;
+
+  badgeDangerBg: string;
+  badgeDangerText: string;
+  badgeDangerBorder: string;
+
+  // Estados de Tarefas
+  taskDoneBg: string;
+  taskDoneBorder: string;
+  taskDoneText: string;
+  taskExpiredBg: string;
+  taskExpiredBorder: string;
+
+  // Barra de Abas Inferior (Tabs)
+  tabBarBg: string;
+  tabBarBorder: string;
+  tabBarInactive: string;
+  tabBarActive: string;
+
   colors: typeof colors;
   spacing: typeof spacing;
   borderRadius: typeof borderRadius;
   layout: typeof layout;
+}
+
+/**
+ * Paleta de Modo Claro (Light Mode)
+ */
+export const lightTheme: AppTheme = {
+  isDark: false,
+  background: '#F8FAFC',
+  card: '#FFFFFF',
+  cardSubtle: '#F1F5F9',
+  border: '#E2E8F0',
+  borderSubtle: '#F1F5F9',
+  text: '#0F172A',
+  textSecondary: '#64748B',
+  textMuted: '#94A3B8',
+  primary: colors.primary[600],
+  statusBar: 'dark',
+
+  // Superfícies secundárias e neutras (pills, badges, círculos de avatares)
+  surfaceMuted: '#F1F5F9',
+  surfaceSubtle: '#F8FAFC',
+  pillActiveBg: '#0F172A',
+  pillActiveBorder: '#0F172A',
+  pillActiveText: '#FFFFFF',
+
+  // Status e Badges Semânticas
+  badgePrimaryBg: colors.primary[50],
+  badgePrimaryText: colors.primary[700],
+  badgePrimaryBorder: colors.primary[200],
+
+  badgeSuccessBg: colors.success[50],
+  badgeSuccessText: colors.success[700],
+  badgeSuccessBorder: colors.success[200],
+
+  badgeWarningBg: colors.warning[50],
+  badgeWarningText: colors.warning[700],
+  badgeWarningBorder: colors.warning[200],
+
+  badgeDangerBg: colors.danger[50],
+  badgeDangerText: colors.danger[700],
+  badgeDangerBorder: colors.danger[200],
+
+  // Estados de Tarefas
+  taskDoneBg: '#F8FAFC',
+  taskDoneBorder: '#E2E8F0',
+  taskDoneText: '#94A3B8',
+  taskExpiredBg: colors.warning[50],
+  taskExpiredBorder: colors.warning[200],
+
+  // Barra de Abas Inferior (Tabs)
+  tabBarBg: '#0F172A',
+  tabBarBorder: 'transparent',
+  tabBarInactive: '#64748B',
+  tabBarActive: '#38BDF8',
+
+  colors,
+  spacing,
+  borderRadius,
+  layout,
+};
+
+/**
+ * Paleta de Modo Escuro (Dark Mode)
+ */
+export const darkTheme: AppTheme = {
+  isDark: true,
+  background: '#090D16',
+  card: '#131D31',
+  cardSubtle: '#1E293B',
+  border: '#334155',
+  borderSubtle: '#1E293B',
+  text: '#F8FAFC',
+  textSecondary: '#94A3B8',
+  textMuted: '#64748B',
+  primary: colors.primary[500],
+  statusBar: 'light',
+
+  // Superfícies secundárias e neutras (pills, badges, círculos de avatares)
+  surfaceMuted: '#1E293B',
+  surfaceSubtle: '#131D31',
+  pillActiveBg: '#2563EB',
+  pillActiveBorder: '#3B82F6',
+  pillActiveText: '#FFFFFF',
+
+  // Status e Badges Semânticas
+  badgePrimaryBg: '#1E3A8A',
+  badgePrimaryText: '#93C5FD',
+  badgePrimaryBorder: '#2563EB',
+
+  badgeSuccessBg: '#064E3B',
+  badgeSuccessText: '#6EE7B7',
+  badgeSuccessBorder: '#059669',
+
+  badgeWarningBg: '#451A03',
+  badgeWarningText: '#FDE68A',
+  badgeWarningBorder: '#78350F',
+
+  badgeDangerBg: '#450A0A',
+  badgeDangerText: '#FCA5A5',
+  badgeDangerBorder: '#991B1B',
+
+  // Estados de Tarefas
+  taskDoneBg: '#0D1524',
+  taskDoneBorder: '#1E293B',
+  taskDoneText: '#64748B',
+  taskExpiredBg: '#2D150B',
+  taskExpiredBorder: '#78350F',
+
+  // Barra de Abas Inferior (Tabs)
+  tabBarBg: '#0A0F1D',
+  tabBarBorder: '#1E293B',
+  tabBarInactive: '#94A3B8',
+  tabBarActive: '#38BDF8',
+
+  colors,
+  spacing,
+  borderRadius,
+  layout,
 };
 
 export const theme = lightTheme;

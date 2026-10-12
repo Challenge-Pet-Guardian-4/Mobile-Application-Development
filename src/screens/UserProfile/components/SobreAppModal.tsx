@@ -39,7 +39,7 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
           </View>
 
           <Text style={styles.commitExplica}>
-            Hash do commit no GitHub Classroom correspondente à versão publicada no Firebase App Distribution:
+            Hash do commit no repositório GitHub correspondente à versão da entrega:
           </Text>
 
           {/* Caixa de Destaque com o Hash Completo */}
@@ -61,8 +61,8 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
             </View>
             <View style={styles.metaDivider} />
             <View style={styles.metaItem}>
-              <Text style={styles.metaLabel}>Distribuição</Text>
-              <Text style={styles.metaValue}>Firebase</Text>
+              <Text style={styles.metaLabel}>Origem</Text>
+              <Text style={styles.metaValue}>GitHub</Text>
             </View>
           </View>
         </View>

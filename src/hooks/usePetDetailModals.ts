@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { PetResponse, PetFormData } from '../types/pet';
 import { HistoricoResponse, HistoricoFormSubmitData } from '../types/historico';
 import { InviteCaregiverData } from '../types/user';
-import { ActionCallbacks } from '../utils/apiError';
+import { ActionCallbacks } from '../types/api';
 
 interface UsePetDetailModalsProps {
   activePet: PetResponse | undefined;

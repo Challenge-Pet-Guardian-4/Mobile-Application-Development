@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { AntecedenciaMinutos, NotificationSettings, NotificationPayloadData, OpcaoAntecedencia } from '../types/notification';
 
 /**
  * PetGuardian - Serviço de Notificações Locais e Gerenciamento de Lembretes de Tarefas
@@ -21,32 +22,18 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export type AntecedenciaMinutos = 0 | 5 | 15 | 30 | 60;
-
-export interface NotificationSettings {
-  ativado: boolean;
-  minutosAntecedencia: AntecedenciaMinutos;
-}
-
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   ativado: true,
   minutosAntecedencia: 15,
 };
 
-export const OPCOES_ANTECEDENCIA: { valor: AntecedenciaMinutos; rotulo: string; descricao: string }[] = [
+export const OPCOES_ANTECEDENCIA: OpcaoAntecedencia[] = [
   { valor: 0, rotulo: 'No horário', descricao: 'Exatamente no horário de vencimento' },
   { valor: 5, rotulo: '5 min antes', descricao: 'Aviso rápido antes de vencer' },
   { valor: 15, rotulo: '15 min antes', descricao: 'Recomendado para alimentação e cuidados' },
   { valor: 30, rotulo: '30 min antes', descricao: 'Ideal para passeios e medicações' },
   { valor: 60, rotulo: '1 hora antes', descricao: 'Aviso com ampla antecedência' },
 ];
-
-export interface NotificationPayloadData {
-  tipo: 'ROTINA_LEMBRETE' | 'TAREFA_CONCLUIDA' | 'PET_SCORE_UP';
-  tarefaId?: number;
-  petId?: number;
-  rota?: string;
-}
 
 function getTaskNotificationIdentifier(tarefaId: number): string {
   return `task_${tarefaId}`;
@@ -108,7 +95,6 @@ export const NotificationService = {
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
           lightColor: '#2563EB',
-          sound: 'default',
           enableVibrate: true,
           showBadge: true,
         });

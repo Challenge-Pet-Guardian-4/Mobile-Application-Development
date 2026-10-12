@@ -1,9 +1,15 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserService } from '../services/users';
 import { queryKeys } from '../lib/queryKeys';
 import { UsuarioRequest } from '../types/user';
 import { useSession } from './useSession';
-import { useRedeCuidado } from './useRedeCuidado';
+
+export function useRedeCuidado() {
+  return useQuery({
+    queryKey: queryKeys.users.redeCuidado,
+    queryFn: () => UserService.getMyRedeCuidado(),
+  });
+}
 
 export function useUserProfileData() {
   const { data: redeCuidado, isLoading, isFetching, refetch: refetchRede } = useRedeCuidado();

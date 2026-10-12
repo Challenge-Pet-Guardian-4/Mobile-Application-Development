@@ -1,13 +1,7 @@
 import { http } from './http';
 import { StorageService } from './storage';
 import { Page } from '../types/api';
-import {
-  CoCuidadorResponse,
-  PetDetailResponse,
-  PetPontuacaoAgregadaResponse,
-  PetRequest,
-  PetResponse,
-} from '../types/pet';
+import { CoCuidadorResponse, PetDetailResponse, PetPontuacaoAgregadaResponse, PetRequest, PetResponse } from '../types/pet';
 
 export const PetService = {
   // Busca a ficha consolidada do pet com pontuação, cuidadores, tarefas e prontuário (GET /pets/{id}/detalhe)

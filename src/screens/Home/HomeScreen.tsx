@@ -7,7 +7,7 @@ import { colors, spacing } from '../../constants/theme';
 import { Header } from '../../components/Header';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { useHomeData } from '../../hooks/useHomeData';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { HomePetSelector } from './components/HomePetSelector';
 import { HomeScoreBar } from './components/HomeScoreBar';
 import { HomeRoutineSection } from './components/HomeRoutineSection';

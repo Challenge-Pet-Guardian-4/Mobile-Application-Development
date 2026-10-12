@@ -1,10 +1,4 @@
-/**
- * PetGuardian - Metadados de Versão e Publicação (Sprint 4)
- * Atende aos requisitos avaliativos da Entrega Final:
- * 1. Identificação clara da versão e build publicado no Firebase App Distribution
- * 2. Hash do commit de referência da versão entregue para avaliação
- * 3. Integrantes da equipe de desenvolvimento e informações da disciplina
- */
+import { GIT_COMMIT_INFO } from './gitCommit';
 
 export const APP_VERSION_INFO = {
   appName: 'PetGuardian',
@@ -15,10 +9,12 @@ export const APP_VERSION_INFO = {
   disciplina: 'Mobile Application Development',
   instituicao: 'FIAP - 2TDSPG',
   challenge: 'Challenge Clyvo 2026',
-  // Hash do commit de referência no repositório GitHub Classroom
-  commitHash: 'fc8ca3c652cfb729c32ba6a042c1645ce393be4f',
-  shortCommitHash: 'fc8ca3c',
-  target: 'Firebase App Distribution / Android APK Release',
+  // Metadados dinâmicos sincronizados com o Git HEAD
+  commitHash: GIT_COMMIT_INFO.commitHash,
+  shortCommitHash: GIT_COMMIT_INFO.shortCommitHash,
+  commitDate: GIT_COMMIT_INFO.commitDate,
+  branch: GIT_COMMIT_INFO.branch,
+  target: 'GitHub Release / APK Android',
   repositorio: 'https://github.com/Challenge-Pet-Guardian-4/Mobile-Application-Development',
   equipe: [
     { nome: 'Enzo Okuizumi', rm: '561432' },

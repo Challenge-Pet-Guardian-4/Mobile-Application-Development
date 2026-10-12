@@ -14,6 +14,9 @@ export interface RoutineCardProps {
   petNome?: string;
 }
 
+import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
+import { AppTheme } from '../../constants/theme';
+
 export const RoutineCard = memo(function RoutineCard({
   tarefa,
   onToggle,
@@ -21,6 +24,8 @@ export const RoutineCard = memo(function RoutineCard({
   onDelete,
   petNome,
 }: RoutineCardProps) {
+  const { theme } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const isDone = tarefa.status === 'CONCLUIDO';
   const isExpired = tarefa.status === 'EXPIRADO';
 
@@ -38,13 +43,7 @@ export const RoutineCard = memo(function RoutineCard({
         disabled={!onToggle}
         activeOpacity={0.7}
       >
-        <View
-          style={[
-            styles.checkbox,
-            isDone && styles.checkboxDone,
-            isExpired && styles.checkboxExpired,
-          ]}
-        >
+        <View style={[styles.checkbox, isDone && styles.checkboxDone, isExpired && styles.checkboxExpired]}>
           {isDone ? (
             <Ionicons name="checkmark" size={16} color={colors.neutral.white} />
           ) : isExpired ? (
@@ -53,7 +52,7 @@ export const RoutineCard = memo(function RoutineCard({
         </View>
 
         <View style={styles.textContainer}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View style={styles.titleRow}>
             <Text style={[styles.title, isDone && styles.titleDone]} numberOfLines={1}>
               {tarefa.titulo}
             </Text>
@@ -71,7 +70,7 @@ export const RoutineCard = memo(function RoutineCard({
           <View style={styles.metaRow}>
             {petNome ? (
               <View style={styles.petBadge}>
-                <Ionicons name="paw" size={10} color={colors.primary.default} />
+                <Ionicons name="paw" size={10} color={theme.badgePrimaryText} />
                 <Text style={styles.petBadgeText} numberOfLines={1}>
                   {petNome}
                 </Text>
@@ -79,7 +78,7 @@ export const RoutineCard = memo(function RoutineCard({
             ) : null}
             {tarefa.prazo ? (
               <View style={styles.prazoRow}>
-                <Ionicons name="time-outline" size={12} color={isDone ? colors.neutral[400] : colors.primary.default} />
+                <Ionicons name="time-outline" size={12} color={isDone ? theme.taskDoneText : theme.primary} />
                 <Text style={[styles.prazoText, isDone && styles.prazoTextDone]}>
                   {formatarPrazoAmigavel(tarefa.prazo)}
                 </Text>
@@ -87,7 +86,11 @@ export const RoutineCard = memo(function RoutineCard({
             ) : null}
             {tarefa.usuarioNome ? (
               <View style={[styles.userBadge, isDone && styles.userBadgeDone]}>
-                <Ionicons name="person-outline" size={10} color={isDone ? colors.success[600] : colors.neutral[500]} />
+                <Ionicons
+                  name="person-outline"
+                  size={10}
+                  color={isDone ? theme.badgeSuccessText : theme.textSecondary}
+                />
                 <Text style={[styles.userBadgeText, isDone && styles.userBadgeTextDone]} numberOfLines={1}>
                   {tarefa.usuarioNome}
                 </Text>
@@ -99,7 +102,9 @@ export const RoutineCard = memo(function RoutineCard({
 
       <View style={styles.rightContainer}>
         <View style={[styles.xpBadge, isDone && styles.xpBadgeDone]}>
-          <Text style={[styles.xpText, isDone && styles.xpTextDone]}>+{tarefa.pontosTarefa} XP</Text>
+          <Text style={[styles.xpText, isDone && styles.xpTextDone]}>
+            +{tarefa.pontosTarefa} XP
+          </Text>
         </View>
 
         {onEdit && (
@@ -108,7 +113,7 @@ export const RoutineCard = memo(function RoutineCard({
             onPress={() => onEdit(tarefa)}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Ionicons name="pencil-outline" size={16} color={colors.neutral[400]} />
+            <Ionicons name="pencil-outline" size={16} color={theme.textMuted} />
           </TouchableOpacity>
         )}
 
@@ -126,165 +131,171 @@ export const RoutineCard = memo(function RoutineCard({
   );
 });
 
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.neutral.white,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: borderRadius.lg,
-    marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.neutral[200],
-    ...shadows.xs,
-    elevation: 1,
-  },
-  cardDone: {
-    backgroundColor: colors.neutral[50],
-    borderColor: colors.neutral[200],
-    opacity: 0.85,
-  },
-  cardExpired: {
-    backgroundColor: colors.warning[50],
-    borderColor: colors.warning[200],
-  },
-  contentLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: spacing.md,
-  },
-  checkbox: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    borderWidth: 2,
-    borderColor: colors.neutral[300],
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.neutral.white,
-  },
-  checkboxDone: {
-    backgroundColor: colors.success.default,
-    borderColor: colors.success.default,
-  },
-  checkboxExpired: {
-    backgroundColor: colors.danger[50],
-    borderColor: colors.danger.default,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.neutral[800],
-  },
-  titleDone: {
-    textDecorationLine: 'line-through',
-    color: colors.neutral[400],
-  },
-  expiredBadge: {
-    backgroundColor: colors.danger[100],
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: borderRadius.xs,
-  },
-  expiredBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.danger.default,
-  },
-  description: {
-    fontSize: 12,
-    color: colors.neutral[500],
-    marginTop: 2,
-  },
-  descriptionDone: {
-    color: colors.neutral[300],
-  },
-  rightContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  xpBadge: {
-    backgroundColor: colors.primary[50],
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 10,
-  },
-  xpBadgeDone: {
-    backgroundColor: colors.success[50],
-  },
-  xpText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: colors.primary.default,
-  },
-  xpTextDone: {
-    color: colors.success[600],
-  },
-  actionButton: {
-    padding: 4,
-  },
-  deleteButton: {
-    padding: 2,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: 4,
-    flexWrap: 'wrap',
-  },
-  petBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: colors.primary[50],
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: borderRadius.xs,
-  },
-  petBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.primary.default,
-  },
-  prazoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  prazoText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.primary[600],
-  },
-  prazoTextDone: {
-    color: colors.neutral[400],
-  },
-  userBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: colors.neutral[100],
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: borderRadius.xs,
-  },
-  userBadgeDone: {
-    backgroundColor: colors.success[50],
-  },
-  userBadgeText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: colors.neutral[600],
-  },
-  userBadgeTextDone: {
-    color: colors.success[700],
-  },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: theme.card,
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      borderRadius: borderRadius.lg,
+      marginBottom: spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...shadows.xs,
+      elevation: 1,
+    },
+    cardDone: {
+      backgroundColor: theme.taskDoneBg,
+      borderColor: theme.taskDoneBorder,
+      opacity: 0.85,
+    },
+    cardExpired: {
+      backgroundColor: theme.taskExpiredBg,
+      borderColor: theme.taskExpiredBorder,
+    },
+    contentLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+      gap: spacing.md,
+    },
+    checkbox: {
+      width: 26,
+      height: 26,
+      borderRadius: 13,
+      borderWidth: 2,
+      borderColor: theme.border,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.surfaceMuted,
+    },
+    checkboxDone: {
+      backgroundColor: colors.success.default,
+      borderColor: colors.success.default,
+    },
+    checkboxExpired: {
+      backgroundColor: theme.badgeDangerBg,
+      borderColor: colors.danger.default,
+    },
+    textContainer: {
+      flex: 1,
+    },
+    titleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    title: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.text,
+    },
+    titleDone: {
+      textDecorationLine: 'line-through',
+      color: theme.taskDoneText,
+    },
+    expiredBadge: {
+      backgroundColor: theme.badgeDangerBg,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: borderRadius.xs,
+    },
+    expiredBadgeText: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: theme.badgeDangerText,
+    },
+    description: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      marginTop: 2,
+    },
+    descriptionDone: {
+      color: theme.taskDoneText,
+    },
+    rightContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    xpBadge: {
+      backgroundColor: theme.badgePrimaryBg,
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      borderRadius: 10,
+    },
+    xpBadgeDone: {
+      backgroundColor: theme.badgeSuccessBg,
+    },
+    xpText: {
+      fontSize: 11,
+      fontWeight: '800',
+      color: theme.badgePrimaryText,
+    },
+    xpTextDone: {
+      color: theme.badgeSuccessText,
+    },
+    actionButton: {
+      padding: 4,
+    },
+    deleteButton: {
+      padding: 2,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginTop: 4,
+      flexWrap: 'wrap',
+    },
+    petBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      backgroundColor: theme.badgePrimaryBg,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: borderRadius.xs,
+    },
+    petBadgeText: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: theme.badgePrimaryText,
+    },
+    prazoRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    prazoText: {
+      fontSize: 11,
+      fontWeight: '600',
+      color: theme.primary,
+    },
+    prazoTextDone: {
+      color: theme.taskDoneText,
+    },
+    userBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      backgroundColor: theme.surfaceMuted,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: borderRadius.xs,
+    },
+    userBadgeDone: {
+      backgroundColor: theme.badgeSuccessBg,
+    },
+    userBadgeText: {
+      fontSize: 10,
+      fontWeight: '600',
+      color: theme.textSecondary,
+    },
+    userBadgeTextDone: {
+      color: theme.badgeSuccessText,
+    },
+  });

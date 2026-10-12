@@ -156,9 +156,11 @@ src/
    - Preferências salvas de forma resiliente no `AsyncStorage` (`@petguardian:notification_settings`).
    - Redirecionamento nativo e seguro ao tocar na notificação utilizando `navigationRef.navigate('Tabs', { screen: 'Home' })`.
    - Sem métodos ou botões de teste/mock em produção.
+   - **Compatibilidade Expo Go & Dev Build:** Script automatizado (`scripts/patch-expo-notifications.js`) integrado ao `postinstall` e `prestart` que suaviza a checagem interna do `expo-notifications` no Android (introduzida no SDK 53), permitindo testes transparentes no Expo Go enquanto mantém a arquitetura 100% nativa.
 2. **Tema Claro / Modo Escuro (`ThemeContext`):**
    - Provedor reativo encapsulado em `ThemeProvider`, expondo `theme`, `isDark`, `themeMode` e `toggleTheme()`.
    - Tokens consolidados em `src/constants/theme.ts` (`lightTheme` e `darkTheme`).
    - Sincronização automática com a `StatusBar` (`light` no escuro, `dark` no claro).
-3. **Metadados de Versão & Avaliação FIAP (`SobreAppModal` & `version.ts`):**
-   - Centralização de metadados obrigatórios do edital: Nome da aplicação, versão `1.0.0`, número da build `#4`, hash de commit de referência do GitHub Classroom, lista de membros com RMs e canal de distribuição (Firebase App Distribution).
+3. **Metadados de Versão & Avaliação FIAP (`SobreAppModal`, `version.ts` & `scripts/sync-git.js`):**
+   - Centralização de metadados obrigatórios do edital: Nome da aplicação, versão `1.0.0`, número da build `#4`, lista de membros com RMs e canal de distribuição (GitHub Release / APK Android).
+   - **Sincronização Dinâmica do Commit Git:** Script automatizado (`scripts/sync-git.js`) integrado aos hooks de ciclo de vida do npm (`prestart`, `preandroid`, `preios`) e hook Git `post-commit`, capturando automaticamente o HEAD do repositório em `src/config/gitCommit.ts` e garantindo que o hash exibido na aplicação reflita sempre o commit real da entrega sem dependência de edições manuais.

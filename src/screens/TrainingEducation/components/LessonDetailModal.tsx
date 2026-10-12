@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { TrainingLesson } from '../../../types/training';
-import { useConteudoAula } from '../../../hooks/useTrainingQueries';
+import { useConteudoAula } from '../../../hooks/useTrainings';
 import { BaseModal } from '../../../components/BaseModal';
 import { renderMarkdownContent } from '../../../utils/markdownUtils';
 

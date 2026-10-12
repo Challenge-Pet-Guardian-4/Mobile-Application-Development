@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import * as Notifications from 'expo-notifications';
-import { NotificationService, NotificationPayloadData, NotificationSettings, DEFAULT_NOTIFICATION_SETTINGS } from '../services/notifications';
+import { NotificationService, DEFAULT_NOTIFICATION_SETTINGS } from '../services/notifications';
+import { NotificationPayloadData, NotificationSettings } from '../types/notification';
 import { navigationRef } from '../routes/navigationRef';
 
 /**

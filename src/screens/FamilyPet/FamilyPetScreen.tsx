@@ -12,11 +12,14 @@ import { FamilyRoutineSection } from './components/FamilyRoutineSection';
 import { FamilyCaregiversSection } from './components/FamilyCaregiversSection';
 import { FamilyPetModals } from './components/FamilyPetModals';
 
+import { useTheme } from '../../contexts/ThemeContext';
+
 interface FamilyPetScreenProps {
   navigation: NativeStackNavigationProp<FamilyStackParamList>;
 }
 
 export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
+  const { theme } = useTheme();
   const familyCare = useFamilyCare();
   const { status, family, modals } = familyCare;
 
@@ -25,7 +28,7 @@ export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}

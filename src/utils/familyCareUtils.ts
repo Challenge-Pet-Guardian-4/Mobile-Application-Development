@@ -3,8 +3,6 @@ import { TarefaResponse } from '../types/task';
 import { CuidadorResumo, CuidadorFamiliarItem, RedeCuidadoResponse, UsuarioResponse, CurrentUserCaregiver, FamilySummary } from '../types/user';
 import { formatarPapelCuidador } from './petUtils';
 
-export type { PetComMetadados, CurrentUserCaregiver, FamilySummary };
-
 /**
  * Mescla a lista base de animais com os dados de titularidade da rede de cuidado
  * e pontuação consolidada do Oracle Database.

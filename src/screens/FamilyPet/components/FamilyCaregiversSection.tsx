@@ -13,18 +13,21 @@ interface FamilyCaregiversSectionProps {
   onManageCaregiver: (caregiver: CuidadorFamiliarItem) => void;
 }
 
+import { useTheme } from '../../../contexts/ThemeContext';
+
 export function FamilyCaregiversSection({
   family,
   onInvite,
   onManageCaregiver,
 }: FamilyCaregiversSectionProps) {
+  const { theme } = useTheme();
   const { currentUserCaregiver, coCuidadores } = family;
   const isPrincipal = currentUserCaregiver?.isPrincipal ?? false;
 
   return (
     <View style={styles.sectionBox}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Rede de Cuidados</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>Rede de Cuidados</Text>
         {isPrincipal && (
           <TouchableOpacity style={styles.btnInvite} onPress={onInvite} activeOpacity={0.8}>
             <Ionicons name="person-add" size={14} color="#2563EB" />

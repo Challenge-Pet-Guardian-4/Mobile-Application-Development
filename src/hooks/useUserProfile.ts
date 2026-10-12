@@ -4,7 +4,8 @@ import { useSession } from './useSession';
 import { useUpdateUser, useUserProfileData, useUpgradePremium, useDeleteAccount } from './useUsers';
 import { EditProfileFormData } from '../types/user';
 import { ProfileEditSchema, formatZodError } from '../utils/schemas';
-import { ActionCallbacks, createMutationCallbacks } from '../utils/apiError';
+import { ActionCallbacks } from '../types/api';
+import { createMutationCallbacks } from '../utils/apiError';
 
 export type UserProfileModal = 'editar' | 'faq' | 'termos' | 'upgrade' | 'notificacoes' | 'sobre' | null;
 
@@ -45,8 +46,6 @@ export function useUserProfile() {
 
   const salvarPerfil = useCallback(
     (formEdit: EditProfileFormData, callbacks?: ActionCallbacks) => {
-      if (!user) return;
-
       const validacao = ProfileEditSchema.safeParse({
         ...formEdit,
         ddd: formEdit.ddd.replace(/\D/g, ''),
@@ -80,11 +79,10 @@ export function useUserProfile() {
         })
       );
     },
-    [user, updateUserMutation, fecharModal]
+    [updateUserMutation, fecharModal]
   );
 
   const realizarUpgradePremium = useCallback(() => {
-    if (!user) return;
     upgradePremiumMutation.mutate(
       undefined,
       createMutationCallbacks(
@@ -97,7 +95,7 @@ export function useUserProfile() {
         }
       )
     );
-  }, [user, upgradePremiumMutation, fecharModal]);
+  }, [upgradePremiumMutation, fecharModal]);
 
   const logoutComConfirmacao = useCallback(() => {
     Alert.alert('Sair da Conta', 'Deseja realmente encerrar sua sessão no PetGuardian?', [

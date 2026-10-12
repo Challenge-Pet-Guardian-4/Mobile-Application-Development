@@ -14,9 +14,12 @@ import { PetEmptyState } from './components/PetEmptyState';
 import { PetCaregiversSection } from './components/PetCaregiversSection';
 import { PetDetailModals } from './components/PetDetailModals';
 
+import { useTheme } from '../../contexts/ThemeContext';
+
 type PetDetailScreenProps = NativeStackScreenProps<FamilyStackParamList, 'PetDetail'>;
 
 export default function PetDetailScreen({ route, navigation }: PetDetailScreenProps) {
+  const { theme } = useTheme();
   const routePetId = route?.params?.petId;
   const { user } = useSession();
 
@@ -33,7 +36,7 @@ export default function PetDetailScreen({ route, navigation }: PetDetailScreenPr
 
   if ((pet?.list?.length ?? 0) === 0) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
         <PetDetailHeader onGoBack={handleGoBack} subtitle="Prontuário & Histórico de Cuidados" />
         <PetEmptyState />
       </View>
@@ -41,7 +44,7 @@ export default function PetDetailScreen({ route, navigation }: PetDetailScreenPr
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         <PetDetailHeader onGoBack={handleGoBack} />
 

@@ -1,9 +1,9 @@
 import { useState, useCallback, useMemo } from 'react';
 import { PetResponse } from '../types/pet';
 import { TarefaResponse, TaskFormData } from '../types/task';
-import { CuidadorResumo, UsuarioResponse } from '../types/user';
-import { ActionCallbacks, createMutationCallbacks } from '../utils/apiError';
-import { useInviteCaregiver, useRemoveCaregiver, useTransferResponsibility } from './usePets';
+import { CuidadorResumo } from '../types/user';
+import { ActionCallbacks } from '../types/api';
+import { useCaregiverActions } from './usePets';
 
 export type FamilyModalType =
   | 'novoPet'
@@ -14,21 +14,17 @@ export type FamilyModalType =
   | null;
 
 interface UseFamilyModalsProps {
-  user?: UsuarioResponse | null;
   petsOndeSouPrincipal: PetResponse[];
   cadastrarTarefa: (data: TaskFormData, callbacks?: ActionCallbacks) => void;
   atualizarTarefa: (taskId: number, data: TaskFormData, callbacks?: ActionCallbacks) => void;
 }
 
 export function useFamilyModals({
-  user,
   petsOndeSouPrincipal,
   cadastrarTarefa,
   atualizarTarefa,
 }: UseFamilyModalsProps) {
-  const inviteMutation = useInviteCaregiver();
-  const removeCaregiverMutation = useRemoveCaregiver();
-  const transferResponsibilityMutation = useTransferResponsibility();
+  const caregiverActions = useCaregiverActions();
 
   const [modalAtivo, setModalAtivo] = useState<FamilyModalType>(null);
   const [tarefaEmEdicao, setTarefaEmEdicao] = useState<TarefaResponse | undefined>(undefined);
@@ -55,52 +51,42 @@ export function useFamilyModals({
 
   const handleTogglePetVinculo = useCallback(
     (petId: number, isCurrentlyLinked: boolean) => {
-      if (!cuidadorEmGestao || !user) return;
+      if (!cuidadorEmGestao) return;
+
+      const onSuccess = () => {
+        setCuidadorEmGestao((prev) =>
+          prev
+            ? {
+                ...prev,
+                petIds: isCurrentlyLinked
+                  ? prev.petIds.filter((id) => id !== petId)
+                  : [...prev.petIds, petId],
+              }
+            : undefined
+        );
+      };
 
       if (isCurrentlyLinked) {
-        removeCaregiverMutation.mutate(
-          { petId, email: cuidadorEmGestao.email },
-          createMutationCallbacks('Erro ao Desvincular', 'Não foi possível desvincular o cuidador deste pet.', {
-            onSuccess: () => {
-              setCuidadorEmGestao((prev) =>
-                prev ? { ...prev, petIds: prev.petIds.filter((id) => id !== petId) } : undefined
-              );
-            },
-          })
-        );
+        caregiverActions.remover(petId, cuidadorEmGestao.email, { onSuccess });
       } else {
-        inviteMutation.mutate(
-          { petId, email: cuidadorEmGestao.email },
-          createMutationCallbacks('Erro ao Vincular', 'Não foi possível vincular o cuidador a este pet.', {
-            onSuccess: () => {
-              setCuidadorEmGestao((prev) =>
-                prev ? { ...prev, petIds: [...prev.petIds, petId] } : undefined
-              );
-            },
-          })
-        );
+        caregiverActions.convidar(petId, cuidadorEmGestao.email, { onSuccess });
       }
-
     },
-    [cuidadorEmGestao, user, removeCaregiverMutation, inviteMutation]
+    [cuidadorEmGestao, caregiverActions]
   );
 
   const handleTransferirTitularidade = useCallback(
-    (petId: number, _petNome: string) => {
-      if (!cuidadorEmGestao || !user) return;
-
-      transferResponsibilityMutation.mutate(
-        { petId, novoResponsavelEmail: cuidadorEmGestao.email },
-        createMutationCallbacks('Erro ao Transferir Titularidade', 'Não foi possível transferir a titularidade do pet.', {
-          onSuccess: handleFecharGerenciamento,
-        })
-      );
+    (petId: number, _petNome?: string) => {
+      if (!cuidadorEmGestao) return;
+      caregiverActions.transferir(petId, cuidadorEmGestao.email, {
+        onSuccess: handleFecharGerenciamento,
+      });
     },
-    [cuidadorEmGestao, user, transferResponsibilityMutation, handleFecharGerenciamento]
+    [cuidadorEmGestao, caregiverActions, handleFecharGerenciamento]
   );
 
   const handleRemoverDeTodosPets = useCallback(() => {
-    if (!cuidadorEmGestao || !user) return;
+    if (!cuidadorEmGestao) return;
 
     const petsParaRemover = petsOndeSouPrincipal.filter((p) =>
       cuidadorEmGestao.petIds.includes(p.id)
@@ -117,23 +103,13 @@ export function useFamilyModals({
         return;
       }
 
-      removeCaregiverMutation.mutate(
-        {
-          petId: petsParaRemover[index].id,
-          email: cuidadorEmGestao.email,
-        },
-        createMutationCallbacks(
-          'Erro ao Remover',
-          'Ocorreu um erro ao desvincular o cuidador de alguns pets.',
-          {
-            onSuccess: () => removerSequencial(index + 1),
-          }
-        )
-      );
+      caregiverActions.remover(petsParaRemover[index].id, cuidadorEmGestao.email, {
+        onSuccess: () => removerSequencial(index + 1),
+      });
     };
 
     removerSequencial(0);
-  }, [cuidadorEmGestao, user, petsOndeSouPrincipal, removeCaregiverMutation, handleFecharGerenciamento]);
+  }, [cuidadorEmGestao, petsOndeSouPrincipal, caregiverActions, handleFecharGerenciamento]);
 
   const handleEditTask = useCallback((tarefa: TarefaResponse) => {
     setTarefaEmEdicao(tarefa);
@@ -194,9 +170,6 @@ export function useFamilyModals({
     initialTaskData,
     fecharModalTarefa: handleCloseTaskModal,
     submeterTarefa: handleSubmitTaskModal,
-    isLoadingGerenciamento:
-      removeCaregiverMutation.isPending ||
-      inviteMutation.isPending ||
-      transferResponsibilityMutation.isPending,
+    isLoadingGerenciamento: caregiverActions.isPending,
   };
 }

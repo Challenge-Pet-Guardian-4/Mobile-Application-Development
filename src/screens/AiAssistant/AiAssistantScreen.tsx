@@ -13,7 +13,10 @@ import { AiChatMessages } from './components/AiChatMessages';
 import { AiChatInputBar } from './components/AiChatInputBar';
 import { AiHistoryModal } from './components/AiHistoryModal';
 
+import { useTheme } from '../../contexts/ThemeContext';
+
 export default function AiAssistantScreen() {
+  const { theme } = useTheme();
   const navigation = useNavigation<BottomTabNavigationProp<AppTabParamList>>();
   const insets = useSafeAreaInsets();
   const { isUserComum, pet, insights, chat } = useAiAssistantScreen();
@@ -23,7 +26,7 @@ export default function AiAssistantScreen() {
 
   if (isUserComum) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
         <AiHeader onGoBack={handleGoBack} />
         <PremiumLockCard
           title="Assistente IA Exclusivo Premium ⭐"
@@ -41,7 +44,7 @@ export default function AiAssistantScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
     >
