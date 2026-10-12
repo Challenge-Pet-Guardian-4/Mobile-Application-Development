@@ -112,3 +112,25 @@ export function construirResumoFamiliar(
     pontosAcumulados: redeCuidado?.pontosAcumulados ?? 0,
   };
 }
+
+export interface GamificationBadgeConfig {
+  label: string;
+  bg: string;
+  border: string;
+  text: string;
+}
+
+/**
+ * Retorna a configuração visual do badge do nível de gamificação do tutor.
+ */
+export function obterBadgeGamificacao(nivel?: string): GamificationBadgeConfig {
+  const norm = nivel?.toUpperCase();
+  if (norm === 'OURO') {
+    return { label: '🥇 Ouro', bg: '#FEF3C7', border: '#FCD34D', text: '#B45309' };
+  }
+  if (norm === 'PRATA') {
+    return { label: '🥈 Prata', bg: '#F1F5F9', border: '#CBD5E1', text: '#334155' };
+  }
+  return { label: '🥉 Bronze', bg: '#FFEDD5', border: '#FED7AA', text: '#9A3412' };
+}
+

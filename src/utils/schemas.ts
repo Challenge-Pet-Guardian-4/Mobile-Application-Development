@@ -125,7 +125,10 @@ export const TaskSchema = z.object({
   petId: z.number().int().positive('Selecione para qual pet a tarefa será criada.'),
   titulo: NonEmptyString('O título da tarefa é obrigatório.'),
   descricao: NonEmptyString('A descrição da tarefa é obrigatória.'),
-  pontos: z.coerce.number().int().positive('A pontuação deve ser um número maior que zero.'),
+  pontos: z.coerce.number()
+    .int('A pontuação deve ser um número inteiro.')
+    .min(0, 'A pontuação deve ser entre 0 e 10.')
+    .max(10, 'A pontuação máxima é 10 pontos.'),
   prazo: z.string().optional(),
   status: z.enum(['PENDENTE', 'CONCLUIDO', 'EXPIRADO']).optional(),
   conclusao: z.string().optional().nullable(),

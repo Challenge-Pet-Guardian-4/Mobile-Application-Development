@@ -152,10 +152,10 @@ const TaskFormBody = memo(function TaskFormBody({
       />
 
       <CustomInput
-        label="Pontos XP de Recompensa"
-        placeholder="Ex: 15"
+        label="Pontos XP de Recompensa (0 a 10)"
+        placeholder="Ex: 5 (máx 10)"
         keyboardType="numeric"
-        maxLength={4}
+        maxLength={2}
         value={form.pontos}
         onChangeText={(p) => updateField('pontos', p.replace(/\D/g, ''))}
       />

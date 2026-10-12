@@ -79,6 +79,7 @@ export interface RedeCuidadoResponse {
   totalTarefasPendentes: number;
   totalTarefasConcluidas: number;
   pontosAcumulados: number;
+  nivelGamificacao?: string;
 }
 
 export interface InviteCaregiverData {

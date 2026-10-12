@@ -6,6 +6,7 @@ import { shadows } from '../../../utils/shadow';
 import { useUserProfile } from '../../../hooks/useUserProfile';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 import { AppTheme } from '../../../constants/theme';
+import { obterBadgeGamificacao } from '../../../utils/familyCareUtils';
 
 interface PerfilUsuarioCardProps {
   profile: ReturnType<typeof useUserProfile>['profile'];
@@ -15,9 +16,10 @@ interface PerfilUsuarioCardProps {
 }
 
 export function PerfilUsuarioCard({ profile, onEdit, onUpgrade, isUpgrading = false }: PerfilUsuarioCardProps) {
-  const { user, initials, enderecoPrincipal } = profile;
+  const { user, initials, enderecoPrincipal, redeCuidado } = profile;
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const nivelBadge = obterBadgeGamificacao(redeCuidado?.nivelGamificacao);
 
   return (
     <View style={styles.profileCard}>
@@ -27,8 +29,13 @@ export function PerfilUsuarioCard({ profile, onEdit, onUpgrade, isUpgrading = fa
       <Text style={styles.userName}>{user?.nome}</Text>
       {user?.email ? <Text style={styles.userEmail}>{user.email}</Text> : null}
 
-      <View style={styles.roleBadgeBox}>
+      <View style={styles.badgesRow}>
         <RoleBadge role={user?.role} />
+        {redeCuidado?.nivelGamificacao ? (
+          <View style={[styles.nivelBadge, { backgroundColor: nivelBadge.bg, borderColor: nivelBadge.border }]}>
+            <Text style={[styles.nivelBadgeText, { color: nivelBadge.text }]}>{nivelBadge.label}</Text>
+          </View>
+        ) : null}
       </View>
 
       {user?.role === 'COMUM' && onUpgrade && (
@@ -118,8 +125,23 @@ const createStyles = (theme: AppTheme) =>
       fontWeight: '500',
       marginBottom: 10,
     },
-    roleBadgeBox: {
+    badgesRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
       marginBottom: 12,
+    },
+    nivelBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 3,
+      paddingHorizontal: 9,
+      borderRadius: 10,
+      borderWidth: 1,
+    },
+    nivelBadgeText: {
+      fontSize: 11,
+      fontWeight: '800',
     },
     infoPillsRow: {
       flexDirection: 'row',
