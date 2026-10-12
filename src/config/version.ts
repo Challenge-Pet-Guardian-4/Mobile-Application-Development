@@ -1,5 +1,15 @@
 import { GIT_COMMIT_INFO } from './gitCommit';
 
+/**
+ * Trunca uma mensagem de commit longa adicionando reticências.
+ */
+export function formatarMensagemCommit(msg?: string, limite = 60): string {
+  if (!msg) return '';
+  const limpo = msg.trim();
+  if (limpo.length <= limite) return limpo;
+  return `${limpo.slice(0, limite).trim()}...`;
+}
+
 export const APP_VERSION_INFO = {
   appName: 'PetGuardian',
   tagline: 'Ecossistema Pet-Centric & Governança Familiar',
@@ -14,6 +24,7 @@ export const APP_VERSION_INFO = {
   shortCommitHash: GIT_COMMIT_INFO.shortCommitHash,
   commitDate: GIT_COMMIT_INFO.commitDate,
   branch: GIT_COMMIT_INFO.branch,
+  commitMessage: GIT_COMMIT_INFO.commitMessage,
   target: 'GitHub Release / APK Android',
   repositorio: 'https://github.com/Challenge-Pet-Guardian-4/Mobile-Application-Development',
   equipe: [

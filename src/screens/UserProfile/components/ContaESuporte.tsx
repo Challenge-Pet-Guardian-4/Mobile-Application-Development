@@ -87,8 +87,8 @@ export function ContaESuporte({
         </View>
         <View style={styles.itemContent}>
           <Text style={styles.menuText}>Sobre o PetGuardian</Text>
-          <Text style={styles.menuSubText}>
-            v{APP_VERSION_INFO.version} • Commit #{APP_VERSION_INFO.shortCommitHash}
+          <Text style={styles.menuSubText} numberOfLines={1} ellipsizeMode="tail">
+            v{APP_VERSION_INFO.version} • {APP_VERSION_INFO.commitMessage || `Commit #${APP_VERSION_INFO.shortCommitHash}`}
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={16} color={theme.textMuted} />

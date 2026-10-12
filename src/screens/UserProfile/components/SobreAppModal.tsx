@@ -49,6 +49,19 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
             </Text>
           </View>
 
+          {/* Mensagem do Commit de Referência */}
+          {Boolean(APP_VERSION_INFO.commitMessage) && (
+            <View style={styles.commitMessageBox}>
+              <View style={styles.commitMessageHeader}>
+                <Ionicons name="chatbox-ellipses-outline" size={13} color="#2563EB" />
+                <Text style={styles.commitMessageLabel}>Último Commit</Text>
+              </View>
+              <Text style={styles.commitMessageText} numberOfLines={2} ellipsizeMode="tail">
+                "{APP_VERSION_INFO.commitMessage}"
+              </Text>
+            </View>
+          )}
+
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
               <Text style={styles.metaLabel}>Versão</Text>
@@ -187,6 +200,33 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
     letterSpacing: 0.5,
+  },
+  commitMessageBox: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  commitMessageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 3,
+  },
+  commitMessageLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#1E40AF',
+    textTransform: 'uppercase',
+  },
+  commitMessageText: {
+    fontSize: 12,
+    color: '#1E293B',
+    fontStyle: 'italic',
+    lineHeight: 16,
   },
   metaRow: {
     flexDirection: 'row',

@@ -10,6 +10,13 @@ const { execSync } = require('child_process');
 
 const targetFile = path.resolve(__dirname, '../src/config/gitCommit.ts');
 
+function formatCommitMessage(msg, maxLength = 60) {
+  if (!msg) return '';
+  const clean = msg.replace(/[\r\n]+/g, ' ').trim();
+  if (clean.length <= maxLength) return clean;
+  return `${clean.slice(0, maxLength).trim()}...`;
+}
+
 function getGitMetadata() {
   try {
     const commitHash = execSync('git rev-parse HEAD', {
@@ -25,8 +32,13 @@ function getGitMetadata() {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
     }).trim();
+    const rawCommitMessage = execSync('git log -1 --format=%s', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    const commitMessage = formatCommitMessage(rawCommitMessage, 60);
 
-    return { commitHash, shortCommitHash, branch, commitDate };
+    return { commitHash, shortCommitHash, branch, commitDate, commitMessage };
   } catch (_error) {
     return null;
   }
@@ -47,7 +59,10 @@ function sync() {
     shortCommitHash: '0540435',
     branch: 'main',
     commitDate: new Date().toISOString(),
+    commitMessage: 'feat: Atualizando gitCommit na aplicação',
   };
+
+  const safeCommitMessage = (data.commitMessage || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
   const fileContent = `/**
  * PetGuardian - Metadados de Commit Gerados Automaticamente
@@ -59,6 +74,7 @@ export const GIT_COMMIT_INFO = {
   shortCommitHash: '${data.shortCommitHash}',
   branch: '${data.branch}',
   commitDate: '${data.commitDate}',
+  commitMessage: '${safeCommitMessage}',
 } as const;
 `;
 
