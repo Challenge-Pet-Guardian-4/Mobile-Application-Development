@@ -4,9 +4,9 @@
  */
 
 export const GIT_COMMIT_INFO = {
-  commitHash: '4902208253ec447f553883d8df724960df4c77bf',
-  shortCommitHash: '4902208',
+  commitHash: '04d04fe85535963da0a215e46b8edf5add704f1c',
+  shortCommitHash: '04d04fe',
   branch: 'main',
-  commitDate: '2026-10-12T18:12:39-03:00',
-  commitMessage: 'fix: removendo notificação após concluir tarefa, ajustando P...',
+  commitDate: '2026-10-14T11:08:08-03:00',
+  commitMessage: 'fix: Alguns ajustes nas dependências e android',
 } as const;
