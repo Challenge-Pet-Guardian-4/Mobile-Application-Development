@@ -52,6 +52,34 @@ export function UpgradePremiumModal({
       title="Ativar PetGuardian Premium"
       subtitle="Evolua os cuidados e o aprendizado dos seus pets"
       size="md"
+      footer={
+        <View style={styles.actionsContainer}>
+          <TouchableOpacity
+            style={styles.btnConfirm}
+            onPress={onConfirm}
+            activeOpacity={0.85}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <>
+                <MaterialCommunityIcons name="crown" size={18} color="#FFFFFF" />
+                <Text style={styles.btnConfirmText}>Confirmar e Ativar Premium ⭐</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.btnCancel}
+            onPress={onClose}
+            activeOpacity={0.7}
+            disabled={isLoading}
+          >
+            <Text style={styles.btnCancelText}>Agora Não</Text>
+          </TouchableOpacity>
+        </View>
+      }
     >
       <View style={styles.modalContent}>
         {/* Banner de Destaque */}
@@ -88,34 +116,6 @@ export function UpgradePremiumModal({
           <Text style={styles.academicNoticeText}>
             Ativação do perfil Premium é imediata e gratuita para testes.
           </Text>
-        </View>
-
-        {/* Botões de Ação */}
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity
-            style={styles.btnConfirm}
-            onPress={onConfirm}
-            activeOpacity={0.85}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <>
-                <MaterialCommunityIcons name="crown" size={18} color="#FFFFFF" />
-                <Text style={styles.btnConfirmText}>Confirmar e Ativar Premium ⭐</Text>
-              </>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.btnCancel}
-            onPress={onClose}
-            activeOpacity={0.7}
-            disabled={isLoading}
-          >
-            <Text style={styles.btnCancelText}>Agora Não</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </BaseModal>

@@ -26,7 +26,7 @@ interface EditProfileModalProps {
   isLoading?: boolean;
 }
 
-const EditProfileBody = memo(function EditProfileBody({
+const EditProfileContent = memo(function EditProfileContent({
   onClose,
   initialData,
   onSubmit,
@@ -67,9 +67,31 @@ const EditProfileBody = memo(function EditProfileBody({
   };
 
   return (
-    <>
-
-
+    <BaseModal
+      visible={true}
+      onClose={onClose}
+      title="Editar Meu Perfil"
+      subtitle="Atualize suas informações cadastrais na API Java"
+      size="md"
+      footer={
+        <View style={styles.modalButtonsRow}>
+          <CustomButton
+            title="Cancelar"
+            variant="outline"
+            onPress={onClose}
+            style={{ flex: 1 }}
+          />
+          <CustomButton
+            title="Salvar Alterações"
+            variant="primary"
+            isLoading={isLoading}
+            disabled={isLoading}
+            onPress={handleSubmit}
+            style={{ flex: 1 }}
+          />
+        </View>
+      }
+    >
       <CustomInput
         label="Nome Completo"
         placeholder="Seu nome"
@@ -148,55 +170,17 @@ const EditProfileBody = memo(function EditProfileBody({
         onChangeText={(t) => updateField('senha', t)}
         leftIcon={<Ionicons name="lock-closed-outline" size={18} color="#94A3B8" />}
       />
-
-      <View style={styles.modalButtonsRow}>
-        <CustomButton
-          title="Cancelar"
-          variant="outline"
-          onPress={onClose}
-          style={{ flex: 1 }}
-        />
-        <CustomButton
-          title="Salvar Alterações"
-          variant="primary"
-          isLoading={isLoading}
-          disabled={isLoading}
-          onPress={handleSubmit}
-          style={{ flex: 1 }}
-        />
-      </View>
-    </>
+    </BaseModal>
   );
 });
 
-export function EditProfileModal({
-  visible,
-  onClose,
-  initialData,
-  onSubmit,
-  isLoading = false,
-}: EditProfileModalProps) {
-  const formKey = visible ? (initialData.email || 'user_profile') : 'closed';
+export function EditProfileModal(props: EditProfileModalProps) {
+  const { visible, initialData } = props;
+  if (!visible) return null;
 
-  return (
-    <BaseModal
-      visible={visible}
-      onClose={onClose}
-      title="Editar Meu Perfil"
-      subtitle="Atualize suas informações cadastrais na API Java"
-      size="md"
-    >
-      {visible ? (
-        <EditProfileBody
-          key={formKey}
-          onClose={onClose}
-          initialData={initialData}
-          onSubmit={onSubmit}
-          isLoading={isLoading}
-        />
-      ) : null}
-    </BaseModal>
-  );
+  const formKey = initialData.email || 'user_profile';
+
+  return <EditProfileContent key={formKey} {...props} />;
 }
 
 const styles = StyleSheet.create({
@@ -207,7 +191,5 @@ const styles = StyleSheet.create({
   modalButtonsRow: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 10,
-    marginBottom: 6,
   },
 });

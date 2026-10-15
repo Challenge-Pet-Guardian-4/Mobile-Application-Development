@@ -109,9 +109,10 @@ export const RoutineCard = memo(function RoutineCard({
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => onEdit(tarefa)}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            hitSlop={{ top: 12, bottom: 12, left: 8, right: 8 }}
+            activeOpacity={0.7}
           >
-            <Ionicons name="pencil-outline" size={16} color={theme.textMuted} />
+            <Ionicons name="pencil" size={15} color={theme.primary} />
           </TouchableOpacity>
         )}
 
@@ -119,9 +120,10 @@ export const RoutineCard = memo(function RoutineCard({
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={() => onDelete(tarefa.id)}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            hitSlop={{ top: 12, bottom: 12, left: 8, right: 8 }}
+            activeOpacity={0.7}
           >
-            <Ionicons name="trash-outline" size={16} color={colors.danger.default} />
+            <Ionicons name="trash" size={15} color={colors.danger.default} />
           </TouchableOpacity>
         )}
       </View>
@@ -217,11 +219,11 @@ const createStyles = (theme: AppTheme) =>
     rightContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
+      gap: 8,
     },
     xpBadge: {
       backgroundColor: theme.badgePrimaryBg,
-      paddingVertical: 4,
+      paddingVertical: 5,
       paddingHorizontal: 8,
       borderRadius: 10,
     },
@@ -237,10 +239,24 @@ const createStyles = (theme: AppTheme) =>
       color: theme.badgeSuccessText,
     },
     actionButton: {
-      padding: 4,
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      backgroundColor: theme.surfaceMuted,
+      borderWidth: 1,
+      borderColor: theme.border,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     deleteButton: {
-      padding: 2,
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      backgroundColor: theme.isDark ? 'rgba(239, 68, 68, 0.15)' : colors.danger[50],
+      borderWidth: 1,
+      borderColor: theme.isDark ? 'rgba(239, 68, 68, 0.3)' : colors.danger[200],
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     metaRow: {
       flexDirection: 'row',

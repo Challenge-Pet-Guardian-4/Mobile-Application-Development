@@ -41,7 +41,12 @@ export default function Home({ navigation }: HomeScreenProps) {
   if ((pets?.list?.length ?? 0) === 0) {
     return (
       <>
-        <HomeEmptyState status={status} onNavigateToFamily={nav.toFamily} />
+        <HomeEmptyState
+          status={status}
+          onNavigateToFamily={nav.toFamily}
+          onNavigateToAi={nav.toAi}
+          onNavigateToEducation={() => navigation.navigate('Treino' as any)}
+        />
         <StatusBar style={isDark ? 'light' : 'dark'} />
       </>
     );
@@ -77,7 +82,7 @@ export default function Home({ navigation }: HomeScreenProps) {
         {/* Atalho Rápido para a IA Assistente Preventiva */}
         <HomeAiShortcut onPress={nav.toAi} />
 
-        <View style={{ height: 110 }} />
+        <View style={{ height: 140 }} />
       </ScrollView>
 
       {/* Modal de Edição Rápida de Tarefa */}

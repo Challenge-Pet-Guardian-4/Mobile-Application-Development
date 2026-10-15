@@ -78,7 +78,7 @@ export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
           onManageCaregiver={modals.abrirGerenciamento}
         />
 
-        <View style={{ height: 110 }} />
+        <View style={{ height: 140 }} />
       </ScrollView>
 
       {/* Modais de Gestão da Família, Tarefas e Co-Cuidadores */}

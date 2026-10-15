@@ -94,6 +94,33 @@ export function NotificationSettingsModal({
       title="Lembretes & Notificações"
       subtitle="Configure quando receber alertas de cuidados e tarefas"
       size="md"
+      footer={
+        !isLoadingSettings ? (
+          <View style={styles.footerRow}>
+            <TouchableOpacity
+              style={styles.btnCancelar}
+              onPress={onClose}
+              disabled={isSaving}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.btnCancelarText}>Cancelar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.btnSalvar, isSaving && styles.btnDisabled]}
+              onPress={handleSalvar}
+              disabled={isSaving}
+              activeOpacity={0.8}
+            >
+              {isSaving ? (
+                <ActivityIndicator size="small" color={colors.neutral.white} />
+              ) : (
+                <Text style={styles.btnSalvarText}>Salvar Preferências</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        ) : null
+      }
     >
       {isLoadingSettings ? (
         <View style={styles.loadingContainer}>
@@ -186,31 +213,6 @@ export function NotificationSettingsModal({
               </View>
             </View>
           )}
-
-          {/* Botões de Ação */}
-          <View style={styles.footerRow}>
-            <TouchableOpacity
-              style={styles.btnCancelar}
-              onPress={onClose}
-              disabled={isSaving}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.btnCancelarText}>Cancelar</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.btnSalvar, isSaving && styles.btnDisabled]}
-              onPress={handleSalvar}
-              disabled={isSaving}
-              activeOpacity={0.8}
-            >
-              {isSaving ? (
-                <ActivityIndicator size="small" color={colors.neutral.white} />
-              ) : (
-                <Text style={styles.btnSalvarText}>Salvar Preferências</Text>
-              )}
-            </TouchableOpacity>
-          </View>
         </View>
       )}
     </BaseModal>

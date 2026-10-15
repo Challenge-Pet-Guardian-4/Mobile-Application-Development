@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.petguardian'
+    namespace 'br.com.fiap.petguardian'
     defaultConfig {
-        applicationId 'com.anonymous.petguardian'
+        applicationId 'br.com.fiap.petguardian'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

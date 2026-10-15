@@ -11,6 +11,7 @@ import PetDetailScreen from '../screens/PetDetail/PetDetailScreen';
 import TrainingEducationScreen from '../screens/TrainingEducation/TrainingEducationScreen';
 import UserProfileScreen from '../screens/UserProfile/UserProfileScreen';
 import AiAssistantScreen from '../screens/AiAssistant/AiAssistantScreen';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useThemedStyles } from '../contexts/ThemeContext';
 import { AppTheme } from '../constants/theme';
 
@@ -39,13 +40,19 @@ function ProfileStack() {
 export default function Tabs() {
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
+
+  // Eleva a barra de navegação para que fique SEMPRE acima dos botões nativos do Android (||| O <)
+  const bottomOffset = insets.bottom > 0
+    ? insets.bottom + 8
+    : (Platform.OS === 'ios' ? 24 : 14);
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [styles.tabBar, { bottom: bottomOffset }],
         tabBarActiveTintColor: theme.tabBarActive,
         tabBarInactiveTintColor: theme.tabBarInactive,
         tabBarLabelStyle: styles.tabBarLabel,

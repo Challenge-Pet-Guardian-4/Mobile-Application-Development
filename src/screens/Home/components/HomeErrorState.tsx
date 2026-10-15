@@ -7,13 +7,22 @@ import { shadows } from '../../../utils/shadow';
 import { useHomeData } from '../../../hooks/useHomeData';
 import { useThemedStyles } from '../../../contexts/ThemeContext';
 
+import { useSession } from '../../../hooks/useSession';
+
 interface HomeErrorStateProps {
   status: ReturnType<typeof useHomeData>['status'];
 }
 
 export function HomeErrorState({ status }: HomeErrorStateProps) {
   const styles = useThemedStyles(createStyles);
+  const { logout } = useSession();
   const isRefreshing = status.isFetching && !status.isLoading;
+
+  const isAuthError =
+    (status.error as any)?.status === 401 ||
+    status.error?.message?.toLowerCase().includes('sessão expirada') ||
+    status.error?.message?.toLowerCase().includes('não autorizada') ||
+    status.error?.message?.toLowerCase().includes('login');
 
   return (
     <View style={styles.container}>
@@ -29,18 +38,31 @@ export function HomeErrorState({ status }: HomeErrorStateProps) {
         }
       >
         <Header subtitle="Visão Geral do Cuidado" />
-        <View style={styles.errorCard}>
-          <View style={styles.iconCircle}>
-            <MaterialCommunityIcons name="alert-circle-outline" size={44} color="#EF4444" />
+        <View style={styles.cardContainer}>
+          <View style={styles.errorCard}>
+            <View style={styles.iconCircle}>
+              <MaterialCommunityIcons name="alert-circle-outline" size={44} color="#EF4444" />
+            </View>
+            <Text style={styles.title}>Algo deu errado</Text>
+            <Text style={styles.text}>
+              {status.error?.message || 'Não foi possível carregar os dados do painel.'}
+            </Text>
+            <TouchableOpacity style={styles.button} onPress={status.refetch} activeOpacity={0.8}>
+              <Ionicons name="reload" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+              <Text style={styles.buttonText}>Tentar novamente</Text>
+            </TouchableOpacity>
+
+            {isAuthError && (
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: colors.primary.default, marginTop: 10 }]}
+                onPress={logout}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="log-in-outline" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
+                <Text style={styles.buttonText}>Fazer Login Novamente</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          <Text style={styles.title}>Algo deu errado</Text>
-          <Text style={styles.text}>
-            {status.error?.message || 'Não foi possível carregar os dados do painel.'}
-          </Text>
-          <TouchableOpacity style={styles.button} onPress={status.refetch} activeOpacity={0.8}>
-            <Ionicons name="reload" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-            <Text style={styles.buttonText}>Tentar novamente</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -57,13 +79,19 @@ const createStyles = (theme: AppTheme) =>
     scrollContent: {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.xs,
+      paddingBottom: 100,
       gap: spacing.md,
+    },
+    cardContainer: {
+      width: '100%',
+      paddingVertical: spacing.sm,
     },
     errorCard: {
       backgroundColor: theme.card,
       borderRadius: 24,
       padding: 28,
       alignItems: 'center',
+      width: '100%',
       marginVertical: 16,
       borderWidth: 1,
       borderColor: theme.isDark ? '#7F1D1D' : 'rgba(254, 202, 202, 0.8)',

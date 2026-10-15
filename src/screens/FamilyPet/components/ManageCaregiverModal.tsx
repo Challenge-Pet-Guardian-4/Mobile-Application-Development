@@ -69,6 +69,19 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
       title={cuidador.nome}
       subtitle={cuidador.email}
       size="md"
+      footer={
+        isLoading ? (
+          <ActivityIndicator color={theme.primary} style={{ marginVertical: 8 }} />
+        ) : (
+          <TouchableOpacity
+            style={styles.btnDone}
+            onPress={onClose}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.btnDoneText}>Concluir</Text>
+          </TouchableOpacity>
+        )
+      }
     >
       {/* Badge Informativo de Regras */}
       <View style={styles.infoBadgeBox}>
@@ -142,21 +155,6 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
           </Text>
         </TouchableOpacity>
       )}
-
-      {/* Rodapé de Ação */}
-      <View style={styles.footer}>
-        {isLoading ? (
-          <ActivityIndicator color={theme.primary} style={{ marginVertical: 8 }} />
-        ) : (
-          <TouchableOpacity
-            style={styles.btnDone}
-            onPress={onClose}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.btnDoneText}>Concluir</Text>
-          </TouchableOpacity>
-        )}
-      </View>
     </BaseModal>
   );
 });

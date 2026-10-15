@@ -17,7 +17,7 @@ interface InviteCaregiverModalProps {
   isLoading?: boolean;
 }
 
-const InviteCaregiverBody = memo(function InviteCaregiverBody({
+const InviteCaregiverContent = memo(function InviteCaregiverContent({
   onClose,
   pets,
   initialPetId,
@@ -49,7 +49,31 @@ const InviteCaregiverBody = memo(function InviteCaregiverBody({
   };
 
   return (
-    <>
+    <BaseModal
+      visible={true}
+      onClose={onClose}
+      title="Convidar Familiar"
+      subtitle="Vincule um membro da família para compartilhar a rotina do animal."
+      size="sm"
+      footer={
+        <View style={styles.modalButtonsRow}>
+          <CustomButton
+            title="Cancelar"
+            variant="outline"
+            onPress={onClose}
+            style={{ flex: 1 }}
+          />
+          <CustomButton
+            title="Enviar Convite"
+            variant="primary"
+            isLoading={isLoading}
+            disabled={isLoading}
+            onPress={handleSubmit}
+            style={{ flex: 1 }}
+          />
+        </View>
+      }
+    >
       <CustomInput
         label="E-mail do Familiar"
         placeholder="familiar@email.com"
@@ -66,62 +90,20 @@ const InviteCaregiverBody = memo(function InviteCaregiverBody({
         selectedPetId={form.petId}
         onSelectPet={handlePetSelect}
       />
-
-      <View style={styles.modalButtonsRow}>
-        <CustomButton
-          title="Cancelar"
-          variant="outline"
-          onPress={onClose}
-          style={{ flex: 1 }}
-        />
-        <CustomButton
-          title="Enviar Convite"
-          variant="primary"
-          isLoading={isLoading}
-          disabled={isLoading}
-          onPress={handleSubmit}
-          style={{ flex: 1 }}
-        />
-      </View>
-    </>
+    </BaseModal>
   );
 });
 
-export function InviteCaregiverModal({
-  visible,
-  onClose,
-  pets,
-  initialPetId,
-  onSubmit,
-  isLoading = false,
-}: InviteCaregiverModalProps) {
-  return (
-    <BaseModal
-      visible={visible}
-      onClose={onClose}
-      title="Convidar Familiar"
-      subtitle="Vincule um membro da família para compartilhar a rotina do animal."
-      size="sm"
-    >
-      {visible ? (
-        <InviteCaregiverBody
-          key={initialPetId || 'default'}
-          onClose={onClose}
-          pets={pets}
-          initialPetId={initialPetId}
-          onSubmit={onSubmit}
-          isLoading={isLoading}
-        />
-      ) : null}
-    </BaseModal>
-  );
+export function InviteCaregiverModal(props: InviteCaregiverModalProps) {
+  const { visible, initialPetId } = props;
+  if (!visible) return null;
+
+  return <InviteCaregiverContent key={initialPetId || 'default'} {...props} />;
 }
 
 const styles = StyleSheet.create({
   modalButtonsRow: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 10,
-    marginBottom: 6,
   },
 });

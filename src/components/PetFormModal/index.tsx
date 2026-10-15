@@ -30,18 +30,22 @@ const INITIAL_PET_FORM: PetFormData = {
   castrado: false,
 };
 
-const PetFormBody = memo(function PetFormBody({
+const PetFormContent = memo(function PetFormContent({
   onClose,
   initialData,
   onSubmit,
   isLoading = false,
   buttonTitle,
+  modalTitle,
+  modalSubtitle,
 }: {
   onClose: () => void;
   initialData?: Partial<PetFormData>;
   onSubmit: (data: PetFormData) => Promise<void> | void;
   isLoading?: boolean;
   buttonTitle: string;
+  modalTitle: string;
+  modalSubtitle: string;
 }) {
   const styles = useThemedStyles(createStyles);
   const [form, setForm] = useState<PetFormData>(() => ({
@@ -68,7 +72,31 @@ const PetFormBody = memo(function PetFormBody({
   };
 
   return (
-    <>
+    <BaseModal
+      visible={true}
+      onClose={onClose}
+      title={modalTitle}
+      subtitle={modalSubtitle}
+      size="md"
+      footer={
+        <View style={styles.modalButtonsRow}>
+          <CustomButton
+            title="Cancelar"
+            variant="outline"
+            onPress={onClose}
+            style={{ flex: 1 }}
+          />
+          <CustomButton
+            title={buttonTitle}
+            variant="primary"
+            isLoading={isLoading}
+            disabled={isLoading}
+            onPress={handleSubmit}
+            style={{ flex: 1 }}
+          />
+        </View>
+      }
+    >
       <CustomInput
         label="Nome do Pet"
         placeholder="Ex: Luna, Thor, Bob..."
@@ -154,24 +182,7 @@ const PetFormBody = memo(function PetFormBody({
           </Text>
         </TouchableOpacity>
       </View>
-
-      <View style={styles.modalButtonsRow}>
-        <CustomButton
-          title="Cancelar"
-          variant="outline"
-          onPress={onClose}
-          style={{ flex: 1 }}
-        />
-        <CustomButton
-          title={buttonTitle}
-          variant="primary"
-          isLoading={isLoading}
-          disabled={isLoading}
-          onPress={handleSubmit}
-          style={{ flex: 1 }}
-        />
-      </View>
-    </>
+    </BaseModal>
   );
 });
 
@@ -186,6 +197,8 @@ export function PetFormModal({
   isLoading = false,
   submitButtonTitle,
 }: PetFormModalProps) {
+  if (!visible) return null;
+
   const modalTitle = title || (mode === 'create' ? 'Cadastrar Novo Pet' : 'Editar Ficha do Pet');
   const modalSubtitle =
     subtitle ||
@@ -195,29 +208,19 @@ export function PetFormModal({
   const buttonTitle =
     submitButtonTitle || (mode === 'create' ? 'Cadastrar Pet' : 'Salvar Alterações');
 
-  const formKey = visible
-    ? (mode === 'edit' && initialData?.nome ? `edit_${initialData.nome}` : 'create')
-    : 'closed';
+  const formKey = mode === 'edit' && initialData?.nome ? `edit_${initialData.nome}` : 'create';
 
   return (
-    <BaseModal
-      visible={visible}
+    <PetFormContent
+      key={formKey}
       onClose={onClose}
-      title={modalTitle}
-      subtitle={modalSubtitle}
-      size="md"
-    >
-      {visible ? (
-        <PetFormBody
-          key={formKey}
-          onClose={onClose}
-          initialData={initialData}
-          onSubmit={onSubmit}
-          isLoading={isLoading}
-          buttonTitle={buttonTitle}
-        />
-      ) : null}
-    </BaseModal>
+      initialData={initialData}
+      onSubmit={onSubmit}
+      isLoading={isLoading}
+      buttonTitle={buttonTitle}
+      modalTitle={modalTitle}
+      modalSubtitle={modalSubtitle}
+    />
   );
 }
 
@@ -227,13 +230,13 @@ const createStyles = (theme: AppTheme) =>
       fontSize: 13,
       fontWeight: '700',
       color: theme.text,
-      marginBottom: 8,
-      marginTop: 4,
+      marginBottom: 6,
+      marginTop: 2,
     },
     porteRow: {
       flexDirection: 'row',
       gap: 8,
-      marginBottom: 16,
+      marginBottom: 12,
     },
     porteBtn: {
       flex: 1,
@@ -259,7 +262,5 @@ const createStyles = (theme: AppTheme) =>
     modalButtonsRow: {
       flexDirection: 'row',
       gap: 12,
-      marginTop: 10,
-      marginBottom: 6,
     },
   });

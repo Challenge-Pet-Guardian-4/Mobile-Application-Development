@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { BaseModal } from '../../../components/BaseModal';
 import { APP_VERSION_INFO } from '../../../config/version';
@@ -23,7 +23,7 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
       subtitle="Identificação da Versão & Publicação"
       size="md"
     >
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
+      <View style={styles.container}>
         {/* Header do App com Ícone */}
         <View style={styles.appHeader}>
           <View style={styles.iconCircle}>
@@ -117,7 +117,7 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
             </View>
           ))}
         </View>
-      </ScrollView>
+      </View>
     </BaseModal>
   );
 }

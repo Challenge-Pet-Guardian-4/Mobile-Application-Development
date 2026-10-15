@@ -131,6 +131,7 @@ const createStyles = (theme: AppTheme) =>
     scrollContent: {
       paddingHorizontal: 20,
       paddingTop: 10,
+      paddingBottom: 140,
       gap: 16,
     },
   });

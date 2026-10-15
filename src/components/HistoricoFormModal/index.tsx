@@ -39,7 +39,7 @@ interface HistoricoFormState {
   dataHist: string;
 }
 
-const HistoricoFormBody = memo(function HistoricoFormBody({
+const HistoricoFormContent = memo(function HistoricoFormContent({
   onClose,
   mode = 'create',
   petId,
@@ -88,7 +88,31 @@ const HistoricoFormBody = memo(function HistoricoFormBody({
   };
 
   return (
-    <>
+    <BaseModal
+      visible={true}
+      onClose={onClose}
+      title={mode === 'edit' ? 'Editar Registro de Saúde' : 'Novo Registro de Saúde'}
+      subtitle="Cadastre vacinas, consultas médicas, exames e procedimentos veterinários."
+      size="md"
+      footer={
+        <View style={styles.modalButtonsRow}>
+          <CustomButton
+            title="Cancelar"
+            variant="outline"
+            onPress={onClose}
+            style={{ flex: 1 }}
+          />
+          <CustomButton
+            title={mode === 'edit' ? 'Salvar Alteração' : 'Registrar'}
+            variant="primary"
+            isLoading={isLoading}
+            disabled={isLoading}
+            onPress={handleSubmit}
+            style={{ flex: 1 }}
+          />
+        </View>
+      }
+    >
       <CustomInput
         label="Tipo de Evento / Atendimento"
         placeholder="Ex: Vacina V10, Consulta de Rotina..."
@@ -123,61 +147,17 @@ const HistoricoFormBody = memo(function HistoricoFormBody({
         value={form.dataHist}
         onChangeDate={(d) => updateField('dataHist', d)}
       />
-
-      <View style={styles.modalButtonsRow}>
-        <CustomButton
-          title="Cancelar"
-          variant="outline"
-          onPress={onClose}
-          style={{ flex: 1 }}
-        />
-        <CustomButton
-          title={mode === 'edit' ? 'Salvar Alteração' : 'Registrar'}
-          variant="primary"
-          isLoading={isLoading}
-          disabled={isLoading}
-          onPress={handleSubmit}
-          style={{ flex: 1 }}
-        />
-      </View>
-    </>
+    </BaseModal>
   );
 });
 
-export function HistoricoFormModal({
-  visible,
-  onClose,
-  mode = 'create',
-  petId,
-  initialData,
-  onSubmit,
-  isLoading = false,
-}: HistoricoFormModalProps) {
-  const formKey = visible
-    ? (initialData?.id ? `hist_${initialData.id}` : `pet_${petId}_create`)
-    : 'closed';
+export function HistoricoFormModal(props: HistoricoFormModalProps) {
+  const { visible, initialData, petId } = props;
+  if (!visible) return null;
 
-  return (
-    <BaseModal
-      visible={visible}
-      onClose={onClose}
-      title={mode === 'edit' ? 'Editar Registro de Saúde' : 'Novo Registro de Saúde'}
-      subtitle="Cadastre vacinas, consultas médicas, exames e procedimentos veterinários."
-      size="md"
-    >
-      {visible ? (
-        <HistoricoFormBody
-          key={formKey}
-          onClose={onClose}
-          mode={mode}
-          petId={petId}
-          initialData={initialData}
-          onSubmit={onSubmit}
-          isLoading={isLoading}
-        />
-      ) : null}
-    </BaseModal>
-  );
+  const formKey = initialData?.id ? `hist_${initialData.id}` : `pet_${petId}_create`;
+
+  return <HistoricoFormContent key={formKey} {...props} />;
 }
 
 const createStyles = (theme: AppTheme) =>

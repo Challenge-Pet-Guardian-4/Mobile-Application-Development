@@ -1,4 +1,4 @@
-package com.anonymous.petguardian
+package br.com.fiap.petguardian
 
 import android.app.Application
 import android.content.res.Configuration

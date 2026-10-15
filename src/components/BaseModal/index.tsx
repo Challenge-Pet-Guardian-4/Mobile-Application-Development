@@ -1,5 +1,6 @@
 import React, { ReactNode, useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, KeyboardAvoidingView, Platform, ScrollView, DimensionValue, Keyboard, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../utils/shadow';
 import { colors, layout, borderRadius, AppTheme } from '../../constants/theme';
@@ -13,6 +14,7 @@ interface BaseModalProps {
   title: string;
   subtitle?: string;
   children: ReactNode;
+  footer?: ReactNode;
   showCloseButton?: boolean;
   size?: ModalSize;
   maxHeight?: DimensionValue;
@@ -24,12 +26,14 @@ export function BaseModal({
   title,
   subtitle,
   children,
+  footer,
   showCloseButton = true,
   size = 'md',
   maxHeight,
 }: BaseModalProps) {
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
@@ -51,20 +55,32 @@ export function BaseModal({
 
   const isKeyboardVisible = keyboardHeight > 0;
 
-  // Largura máxima e altura calculadas proporcionalmente de acordo com a variante (SOLID & Clean Code)
-  const computedMaxWidth = Math.min(layout.modal.width[size], windowWidth - 32);
+  // Largura máxima calculada proporcionalmente de acordo com a variante (SOLID & Clean Code)
+  const computedMaxWidth = Math.min(layout.modal.width[size], windowWidth - 28);
+
+  // Considera margem de respiro para barra de status e botões de navegação do Android/iOS
+  const bottomInset = Math.max(insets.bottom, Platform.OS === 'android' ? 24 : 16);
+  const topInset = Math.max(insets.top, Platform.OS === 'android' ? 24 : 16);
+  const safeScreenHeight = windowHeight - topInset - bottomInset - 16;
+
+  // Altura máxima proporcional e responsiva do card para garantir que nunca transborde a tela
+  const computedCardMaxHeight = useMemo(() => {
+    if (isKeyboardVisible) {
+      const available = windowHeight - keyboardHeight - topInset - 20;
+      return Math.max(260, Math.min(available, windowHeight * 0.82));
+    }
+    if (typeof maxHeight === 'number') {
+      return Math.min(maxHeight, safeScreenHeight);
+    }
+    // Permite que o modal aproveite confortavelmente até 92% da altura útil da tela em celulares
+    return Math.min(740, Math.round(safeScreenHeight * 0.94));
+  }, [isKeyboardVisible, keyboardHeight, windowHeight, maxHeight, safeScreenHeight, topInset]);
 
   const dynamicBodyMaxHeight = useMemo(() => {
-    if (typeof maxHeight === 'number') {
-      return maxHeight;
-    }
-    if (isKeyboardVisible) {
-      const available = windowHeight - keyboardHeight - (Platform.OS === 'ios' ? 160 : 130);
-      return Math.max(160, Math.min(available, windowHeight * 0.45));
-    }
-    // Proporção ergonômica padrão: 70% da altura da tela para evitar cortes ou overflow
-    return Math.min(layout.modal.maxHeightMaxPx, windowHeight * layout.modal.maxHeightRatio);
-  }, [isKeyboardVisible, keyboardHeight, windowHeight, maxHeight]);
+    // Header tem ~56px e o padding do card tem 34px (18 top + 16 bottom)
+    const cardOverhead = 90;
+    return Math.max(180, computedCardMaxHeight - cardOverhead);
+  }, [computedCardMaxHeight]);
 
   if (!visible) return null;
 
@@ -79,6 +95,10 @@ export function BaseModal({
       <View
         style={[
           styles.overlay,
+          {
+            paddingTop: topInset + 8,
+            paddingBottom: bottomInset + 12,
+          },
           isKeyboardVisible && styles.overlayKeyboard,
         ]}
       >
@@ -86,7 +106,15 @@ export function BaseModal({
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.keyboardAvoid}
         >
-          <View style={[styles.card, { maxWidth: computedMaxWidth }]}>
+          <View
+            style={[
+              styles.card,
+              {
+                maxWidth: computedMaxWidth,
+                maxHeight: computedCardMaxHeight,
+              },
+            ]}
+          >
             <View style={styles.header}>
               <View style={styles.titleWrapper}>
                 <Text style={styles.title}>{title}</Text>
@@ -96,7 +124,7 @@ export function BaseModal({
                 <TouchableOpacity
                   style={styles.closeBtn}
                   onPress={onClose}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                 >
                   <Ionicons name="close" size={20} color={theme.textMuted} />
                 </TouchableOpacity>
@@ -104,14 +132,20 @@ export function BaseModal({
             </View>
 
             <ScrollView
-              showsVerticalScrollIndicator={false}
+              showsVerticalScrollIndicator={true}
               nestedScrollEnabled={true}
-              style={{ maxHeight: dynamicBodyMaxHeight }}
+              style={[styles.scrollView, { maxHeight: dynamicBodyMaxHeight }]}
               contentContainerStyle={styles.body}
               keyboardShouldPersistTaps="handled"
               bounces={false}
             >
               {children}
+
+              {footer ? (
+                <View style={styles.footerContainer}>
+                  {footer}
+                </View>
+              ) : null}
             </ScrollView>
           </View>
         </KeyboardAvoidingView>
@@ -126,24 +160,30 @@ const createStyles = (theme: AppTheme) =>
       flex: 1,
       backgroundColor: colors.overlay.dark,
       justifyContent: 'center',
-      padding: 20,
+      alignItems: 'center',
+      paddingHorizontal: 14,
+      paddingVertical: Platform.OS === 'android' ? 14 : 20,
     },
     overlayKeyboard: {
       justifyContent: 'flex-start',
-      paddingTop: Platform.OS === 'ios' ? 56 : 38,
-      paddingBottom: 10,
+      paddingTop: Platform.OS === 'ios' ? 44 : 24,
+      paddingBottom: 8,
     },
     keyboardAvoid: {
       width: '100%',
       alignItems: 'center',
+      justifyContent: 'center',
     },
     card: {
       backgroundColor: theme.card,
       borderRadius: borderRadius.xxl,
       borderColor: theme.border,
       borderWidth: theme.isDark ? 1 : 0,
-      padding: layout.modal.cardPadding,
+      paddingHorizontal: 18,
+      paddingTop: 18,
+      paddingBottom: 16,
       width: '100%',
+      flexDirection: 'column',
       elevation: 10,
       ...shadows.xl,
     },
@@ -151,11 +191,12 @@ const createStyles = (theme: AppTheme) =>
       flexDirection: 'row',
       alignItems: 'flex-start',
       justifyContent: 'space-between',
-      marginBottom: 14,
+      marginBottom: 10,
+      flexShrink: 0,
     },
     titleWrapper: {
       flex: 1,
-      marginRight: 12,
+      marginRight: 10,
     },
     title: {
       fontSize: 18,
@@ -177,7 +218,16 @@ const createStyles = (theme: AppTheme) =>
       justifyContent: 'center',
       alignItems: 'center',
     },
+    scrollView: {
+      width: '100%',
+    },
     body: {
-      paddingBottom: 6,
+      paddingTop: 6,
+      paddingBottom: 10,
+    },
+    footerContainer: {
+      marginTop: 14,
+      paddingTop: 2,
+      paddingBottom: 16,
     },
   });

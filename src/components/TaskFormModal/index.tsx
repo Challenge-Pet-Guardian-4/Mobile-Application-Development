@@ -73,7 +73,7 @@ function getInitialForm(
   };
 }
 
-const TaskFormBody = memo(function TaskFormBody({
+const TaskFormContent = memo(function TaskFormContent({
   onClose,
   pets,
   initialPetId,
@@ -134,7 +134,35 @@ const TaskFormBody = memo(function TaskFormBody({
   const isExpiredEdit = mode === 'edit' && initialData?.status === 'EXPIRADO';
 
   return (
-    <>
+    <BaseModal
+      visible={true}
+      onClose={onClose}
+      title={mode === 'edit' ? 'Editar Tarefa' : 'Criar Tarefa para o Pet'}
+      subtitle={
+        mode === 'edit'
+          ? 'Atualize instruções, prazo previsto ou altere o status'
+          : 'Defina rotinas de alimentação, passeios ou medicação'
+      }
+      size="md"
+      footer={
+        <View style={styles.modalButtonsRow}>
+          <CustomButton
+            title="Cancelar"
+            variant="outline"
+            onPress={onClose}
+            style={{ flex: 1 }}
+          />
+          <CustomButton
+            title={mode === 'edit' ? 'Salvar Alterações' : 'Criar Tarefa'}
+            variant="success"
+            isLoading={isLoading}
+            disabled={isLoading}
+            onPress={handleSubmit}
+            style={{ flex: 1 }}
+          />
+        </View>
+      }
+    >
       {isExpiredEdit && <ExpiredTaskBanner />}
 
       <PetSelector
@@ -184,70 +212,19 @@ const TaskFormBody = memo(function TaskFormBody({
           onStatusChange={(status) => updateField('status', status)}
         />
       )}
-
-      <View style={styles.modalButtonsRow}>
-        <CustomButton
-          title="Cancelar"
-          variant="outline"
-          onPress={onClose}
-          style={{ flex: 1 }}
-        />
-        <CustomButton
-          title={mode === 'edit' ? 'Salvar Alterações' : 'Criar Tarefa'}
-          variant="success"
-          isLoading={isLoading}
-          disabled={isLoading}
-          onPress={handleSubmit}
-          style={{ flex: 1 }}
-        />
-      </View>
-    </>
+    </BaseModal>
   );
 });
 
-export function TaskFormModal({
-  visible,
-  onClose,
-  pets,
-  initialPetId,
-  mode = 'create',
-  initialData,
-  onSubmit,
-  isLoading = false,
-  taskId,
-}: TaskFormModalProps) {
-  const formKey = visible
-    ? (mode === 'edit'
-        ? `edit_${taskId ?? initialData?.petId ?? 'default'}_${initialData?.titulo ?? 'default'}`
-        : `create_${initialPetId ?? 'default'}`)
-    : 'closed';
+export function TaskFormModal(props: TaskFormModalProps) {
+  const { visible, mode = 'create', taskId, initialData, initialPetId } = props;
+  if (!visible) return null;
 
-  return (
-    <BaseModal
-      visible={visible}
-      onClose={onClose}
-      title={mode === 'edit' ? 'Editar Tarefa' : 'Criar Tarefa para o Pet'}
-      subtitle={
-        mode === 'edit'
-          ? 'Atualize instruções, prazo previsto ou altere o status'
-          : 'Defina rotinas de alimentação, passeios ou medicação'
-      }
-      size="md"
-    >
-      {visible ? (
-        <TaskFormBody
-          key={formKey}
-          onClose={onClose}
-          pets={pets}
-          initialPetId={initialPetId}
-          mode={mode}
-          initialData={initialData}
-          onSubmit={onSubmit}
-          isLoading={isLoading}
-        />
-      ) : null}
-    </BaseModal>
-  );
+  const formKey = mode === 'edit'
+    ? `edit_${taskId ?? initialData?.petId ?? 'default'}_${initialData?.titulo ?? 'default'}`
+    : `create_${initialPetId ?? 'default'}`;
+
+  return <TaskFormContent key={formKey} {...props} />;
 }
 
 function ExpiredTaskBanner() {
