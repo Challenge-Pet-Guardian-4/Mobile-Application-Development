@@ -55,6 +55,10 @@ http.interceptors.response.use(
         // ignore
       }
       onUnauthorizedCallback?.();
+    } else if (status === 0) {
+      console.warn(
+        `[HTTP] Falha de conexão: ${error.config?.method?.toUpperCase()} ${error.config?.baseURL || ''}${error.config?.url || ''} | Código: ${error.code || 'DESCONHECIDO'} | Detalhes: ${error.message}`
+      );
     }
 
     return Promise.reject(normalizeHttpError(error));

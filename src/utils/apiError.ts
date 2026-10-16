@@ -62,7 +62,11 @@ export function normalizeHttpError(error: unknown): ApiError {
     }
 
     // 5. Timeouts e falhas de rede
-    if (axiosError.code === 'ECONNABORTED' || axiosError.code === 'ETIMEDOUT') {
+    if (
+      axiosError.code === 'ECONNABORTED' ||
+      axiosError.code === 'ETIMEDOUT' ||
+      axiosError.message?.toLowerCase().includes('timeout')
+    ) {
       return new ApiError(
         'TIMEOUT',
         'O servidor demorou para responder. Isso pode ocorrer durante o início da aplicação em nuvem. Tente novamente em instantes.',
