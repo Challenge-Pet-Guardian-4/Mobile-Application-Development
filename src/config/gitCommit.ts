@@ -4,9 +4,9 @@
  */
 
 export const GIT_COMMIT_INFO = {
-  commitHash: 'c7394cb5c4d7efda4ad89bd2c573a542622cab52',
-  shortCommitHash: 'c7394cb',
+  commitHash: 'e5b450369e0b56b781ec4be5f62b61f5d573300c',
+  shortCommitHash: 'e5b4503',
   branch: 'main',
-  commitDate: '2026-10-12T18:12:55-03:00',
-  commitMessage: 'feat: Ajustando texto commit',
+  commitDate: '2026-10-16T10:10:34-03:00',
+  commitMessage: 'docs(mobile): alinhar documentacao com deploy real de endpoints e rotina de notificacoes',
 } as const;
