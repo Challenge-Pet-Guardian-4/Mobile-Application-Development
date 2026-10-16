@@ -50,7 +50,7 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
           {/* Caixa de Destaque com o Hash Completo */}
           <View style={styles.hashBox}>
             <Text style={styles.hashText} selectable>
-              {APP_VERSION_INFO.commitHash}
+              {APP_VERSION_INFO.commitHash || 'Build Oficial (Release)'}
             </Text>
           </View>
 

@@ -282,7 +282,7 @@ sequenceDiagram
 * **Usuários:** `POST /usuarios`, `GET /usuarios/me`, `PUT /usuarios/me`, `DELETE /usuarios/me`, `PATCH /usuarios/me/upgrade-premium`, `GET /usuarios/me/rede-cuidado`.
 * **Pets & Care Circle:** `GET /pets/me`, `POST /pets`, `GET /pets/{id}/pontos`, `PUT /pets/{id}`, `DELETE /pets/{id}`, `GET /pets/{id}/cuidadores`, `POST /pets/{id}/cuidadores`, `DELETE /pets/{id}/cuidadores/me`.
 * **Tarefas de Rotina:** `GET /tarefas/me`, `POST /tarefas`, `PUT /tarefas/{id}`, `DELETE /tarefas/{id}`, `PATCH /tarefas/{id}/concluir`, `PATCH /tarefas/{id}/desmarcar`.
-* **Histórico de Saúde:** `GET /historicos/me`, `GET /historicos/pet/{petId}`, `POST /historicos`, `DELETE /historicos/{id}`.
+* **Histórico de Saúde:** `POST /historicos`, `PUT /historicos/{id}`, `DELETE /historicos/{id}` (com leitura consolidada na ficha clínica via `GET /pets/{id}/detalhe`).
 * **Trilhas Didáticas (MongoDB):** `GET /trilhas/me`, `GET /modulos/trilha/{id}`, `GET /aulas/modulo/{id}`, `PATCH /aulas/{id}/concluir`.
 
 ### Microsserviço Python FastAPI (`Disruptive-Architectures-IOT-IOB-IA`)

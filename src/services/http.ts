@@ -5,7 +5,7 @@ import { ApiErrorResponse } from '../types/api';
 import { normalizeHttpError } from '../utils/apiError';
 import { createThrottledPing } from '../utils/throttleUtils';
 
-// Instância centralizada do Axios configurada para ambientes em nuvem (Railway / Render)
+// Instância centralizada do Axios configurada para ambientes em nuvem (Azure Web App / Render)
 export const http = axios.create({
   baseURL: env.apiUrl,
   timeout: 40000, // 40 segundos para tolerar cold starts do container e pool de banco
@@ -64,7 +64,7 @@ http.interceptors.response.use(
 export const HttpService = {
   /**
    * Dispara um ping assíncrono para o endpoint de saúde do Spring Boot (/actuator/health)
-   * para acordar preventivamente o container do Railway e aquecer o pool de conexões.
+   * para acordar preventivamente o container do Azure Web App e aquecer o pool de conexões.
    * Possui deduplicação estrita de promessa em voo e cooldown de 10 minutos para evitar requisições redundantes.
    */
   warmup: createThrottledPing(() =>

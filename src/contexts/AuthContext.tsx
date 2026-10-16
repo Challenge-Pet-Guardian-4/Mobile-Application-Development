@@ -49,7 +49,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     loadSession();
 
-    // Dispara warm-up proativo em segundo plano para acordar instâncias em nuvem (Railway e Render)
+    // Dispara warm-up proativo em segundo plano para acordar instâncias em nuvem (Azure Web App e Render)
     HttpService.warmup();
     AiService.ping();
     // Callback para interceptor 401
