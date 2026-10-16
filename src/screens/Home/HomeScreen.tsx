@@ -45,7 +45,7 @@ export default function Home({ navigation }: HomeScreenProps) {
           status={status}
           onNavigateToFamily={nav.toFamily}
           onNavigateToAi={nav.toAi}
-          onNavigateToEducation={() => navigation.navigate('Treino' as any)}
+          onNavigateToEducation={nav.toEducation}
         />
         <StatusBar style={isDark ? 'light' : 'dark'} />
       </>

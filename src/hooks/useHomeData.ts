@@ -159,6 +159,7 @@ export function useHomeData(navigation?: NativeStackNavigationProp<RootStackPara
       toFamily: useCallback(() => navigation?.navigate('Family'), [navigation]),
       toPetDetail: useCallback(() => navigation?.navigate('Family', { screen: 'PetDetail', params: { petId: activePet?.id } }), [navigation, activePet]),
       toAi: useCallback(() => navigation?.navigate('IA'), [navigation]),
+      toEducation: useCallback(() => navigation?.navigate('Tabs', { screen: 'Treino' }), [navigation]),
     },
   };
 }

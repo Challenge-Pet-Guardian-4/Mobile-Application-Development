@@ -7,6 +7,7 @@ import { shadows } from '../../../utils/shadow';
 import { useHomeData } from '../../../hooks/useHomeData';
 import { useThemedStyles } from '../../../contexts/ThemeContext';
 
+import axios from 'axios';
 import { useSession } from '../../../hooks/useSession';
 
 interface HomeErrorStateProps {
@@ -19,7 +20,7 @@ export function HomeErrorState({ status }: HomeErrorStateProps) {
   const isRefreshing = status.isFetching && !status.isLoading;
 
   const isAuthError =
-    (status.error as any)?.status === 401 ||
+    (axios.isAxiosError(status.error) && status.error.response?.status === 401) ||
     status.error?.message?.toLowerCase().includes('sessão expirada') ||
     status.error?.message?.toLowerCase().includes('não autorizada') ||
     status.error?.message?.toLowerCase().includes('login');
