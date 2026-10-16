@@ -8,22 +8,14 @@ export interface GitCommitMetadata {
   commitMessage: string;
 }
 
-const FALLBACK_GIT_INFO: GitCommitMetadata = {
-  commitHash: '295e3ed478d12da365ff6477d94aa3c74cb7eb2e',
-  shortCommitHash: '295e3ed',
-  commitDate: '2026-10-16T10:17:50-03:00',
-  branch: 'main',
-  commitMessage: 'refactor(mobile): remover casts as any e eliminar componente orfao RoleSelector',
-};
-
 const dynamicGitInfo = Constants.expoConfig?.extra?.gitCommit as Partial<GitCommitMetadata> | undefined;
 
 export const GIT_COMMIT_INFO: GitCommitMetadata = {
-  commitHash: dynamicGitInfo?.commitHash || FALLBACK_GIT_INFO.commitHash,
-  shortCommitHash: dynamicGitInfo?.shortCommitHash || FALLBACK_GIT_INFO.shortCommitHash,
-  commitDate: dynamicGitInfo?.commitDate || FALLBACK_GIT_INFO.commitDate,
-  branch: dynamicGitInfo?.branch || FALLBACK_GIT_INFO.branch,
-  commitMessage: dynamicGitInfo?.commitMessage || FALLBACK_GIT_INFO.commitMessage,
+  commitHash: dynamicGitInfo?.commitHash ?? '',
+  shortCommitHash: dynamicGitInfo?.shortCommitHash ?? '',
+  commitDate: dynamicGitInfo?.commitDate ?? '',
+  branch: dynamicGitInfo?.branch ?? '',
+  commitMessage: dynamicGitInfo?.commitMessage ?? '',
 };
 
 /**

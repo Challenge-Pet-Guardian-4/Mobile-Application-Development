@@ -25,11 +25,11 @@ function getGitMetadata() {
     return { commitHash, shortCommitHash, branch, commitDate, commitMessage };
   } catch (_error) {
     return {
-      commitHash: '295e3ed478d12da365ff6477d94aa3c74cb7eb2e',
-      shortCommitHash: '295e3ed',
-      branch: 'main',
-      commitDate: new Date().toISOString(),
-      commitMessage: 'refactor(mobile): remover casts as any e eliminar componente orfao RoleSelector',
+      commitHash: '',
+      shortCommitHash: '',
+      branch: '',
+      commitDate: '',
+      commitMessage: '',
     };
   }
 }
