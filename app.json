@@ -18,6 +18,10 @@
         "backgroundColor": "#2563EB"
       }
     },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "br.com.fiap.petguardian"
+    },
     "plugins": [
       "expo-secure-store",
       [
