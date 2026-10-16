@@ -114,7 +114,7 @@ O aplicativo é composto por **9 telas principais ricas e declarativas**, organi
   * **Seletor de Pet:** Alternância ágil entre os pets da família.
   * **`PetScoreBar`:** Nível de XP e bem-estar do pet calculado pelo banco Oracle (`GET /pets/{id}/pontos`).
   * **Rotinas do Dia:** Lista de tarefas pendentes e concluídas com badges de horário e pontos.
-  * **Conclusão em 1 Toque:** `PATCH /tarefas/{id}/concluir` e `PATCH /tarefas/{id}/desmarcar` com feedback de som/haptic e disparo de notificação de celebração de XP.
+  * **Conclusão em 1 Toque:** `PATCH /tarefas/{id}/concluir` e `PATCH /tarefas/{id}/desmarcar` com feedback nativo, atualização de XP no Oracle e sincronização automática de alarmes locais.
   * **`StreakCard`:** Ofensiva diária incentivando cuidados contínuos.
 
 #### 5. `FamilyPetScreen` (Gestão Familiar & Care Circle)
@@ -172,7 +172,7 @@ src/
 │   ├── TaskFormModal/         → Formulário de criação e edição de rotinas
 │   └── TasksRoutineSection/   → Seção modular de rotinas e tarefas da Home
 ├── config/              → Configurações de ambiente, URLs e versionamento
-│   ├── env.ts                 → Resolução de URLs de API (Localhost, Railway, Render)
+│   ├── env.ts                 → Resolução de URLs de API em produção (Azure Web App e Render)
 │   ├── gitCommit.ts           → Metadados gerados do Git (commit hash, data, branch)
 │   └── version.ts             → Dados de versão do edital FIAP e lista de integrantes
 ├── constants/           → Tokens de design system, tipografia e temas
