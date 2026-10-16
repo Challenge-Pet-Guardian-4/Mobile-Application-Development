@@ -77,7 +77,7 @@ Nesta 4ª Sprint, o aplicativo atinge sua maturidade de engenharia e produção 
 
 ### 🏷️ Modal "Sobre o App" & Metadados do Edital FIAP
 - **Centralização Técnica (`version.ts`):** Exibe nome da aplicação, versão de lançamento `1.0.0`, número da build `#4`, sprint correspondente, disciplina e challenge.
-- **Sincronização com o Git:** Hash de commit curto e mensagem do último commit integrados aos metadados via script de build.
+- **Sincronização Dinâmica com o Git:** Hash de commit curto e mensagem do último commit injetados dinamicamente em tempo de execução via Expo Config (`app.config.js` e `expo-constants`), eliminando arquivos intermediários no repositório.
 - **Identificação Acadêmica:** Nome completo e RM de todos os 5 integrantes da equipe, facilitando a validação e avaliação pelos docentes.
 
 ### 💎 Modelo Freemium & Blindagem da Role ADMIN
@@ -173,8 +173,7 @@ src/
 │   └── TasksRoutineSection/   → Seção modular de rotinas e tarefas da Home
 ├── config/              → Configurações de ambiente, URLs e versionamento
 │   ├── env.ts                 → Resolução de URLs de API em produção (Azure Web App e Render)
-│   ├── gitCommit.ts           → Metadados gerados do Git (commit hash, data, branch)
-│   └── version.ts             → Dados de versão do edital FIAP e lista de integrantes
+│   └── version.ts             → Metadados FIAP e resolução dinâmica do Git (expo-constants)
 ├── constants/           → Tokens de design system, tipografia e temas
 │   └── theme.ts               → Paletas lightTheme e darkTheme, raios, sombras e cores
 ├── contexts/            → Gestão global de estado via React Context API
