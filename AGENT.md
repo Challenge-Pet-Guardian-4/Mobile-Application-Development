@@ -25,7 +25,7 @@ Este documento é a referência definitiva para agentes de IA e desenvolvedores 
 ```text
 src/
 ├── components/          → Componentes visuais atômicos e modulares (BaseModal, Header, PetScoreBar, RoutineCard, StreakCard, Modais)
-├── config/              → Configurações de ambiente (env.ts com Railway e Render) e metadados de versão/equipe (version.ts)
+├── config/              → Configurações de ambiente (env.ts com Azure Web App e Render) e metadados de versão/equipe (version.ts)
 ├── constants/           → Tokens de design system, light/dark themes, tipografia e paleta de cores (theme.ts)
 ├── contexts/            → Gestão global de autenticação (AuthContext.tsx) e alternância de temas (ThemeContext.tsx)
 ├── hooks/               → Custom hooks e Domain hooks (Clean Architecture / SRP / TanStack Query):
@@ -36,7 +36,7 @@ src/
 │   ├── useUserProfile.ts      → Perfil do tutor, estatísticas, pontuação agregada, upgrade e exclusão de conta
 │   ├── useAiAssistantScreen.ts→ Orquestrador do chat conversacional com IA preventiva e histórico
 │   ├── useNotifications.ts    → Ciclo de vida de notificações nativas e preferências de antecedência
-│   ├── ThemeContext.tsx       → Provedor e hooks reativos de tema ativo (useTheme, useThemedStyles)
+│   ├── useNotificationSync.ts → Sincronização em primeiro plano/background de alarmes locais
 │   ├── useTaskActions.ts      → Ações de tarefas (concluir, desmarcar, excluir) com nomes reais do pet
 │   ├── usePets.ts / useTasks.ts / useHistoricos.ts → Queries e mutações especializadas por domínio
 │   └── useSession.ts / useActivePet.ts → Hooks utilitários de sessão e pet ativo
