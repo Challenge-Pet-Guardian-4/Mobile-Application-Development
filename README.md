@@ -327,8 +327,8 @@ cd Mobile-Application-Development
 # 2. Instale as dependências oficiais
 npm install
 
-# 3. Configure o endereço da API em src/config/env.ts caso utilize celular físico:
-# Exemplo: apiUrl: 'http://192.168.1.X:8080'
+# 3. O arquivo src/config/env.ts já vem pré-configurado com as APIs em produção na nuvem (Azure e Render).
+# Caso deseje executar com backend local, configure: apiUrl: 'http://10.0.2.2:8080' (Emulador) ou 'http://192.168.X.X:8080' (Físico)
 
 # 4. Inicie o servidor Metro do Expo
 npm start

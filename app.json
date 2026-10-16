@@ -11,6 +11,7 @@
     },
     "android": {
       "package": "br.com.fiap.petguardian",
+      "versionCode": 4,
       "softwareKeyboardLayoutMode": "pan",
       "usesCleartextTraffic": true,
       "adaptiveIcon": {

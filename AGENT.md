@@ -36,7 +36,7 @@ src/
 │   ├── useUserProfile.ts      → Perfil do tutor, estatísticas, pontuação agregada, upgrade e exclusão de conta
 │   ├── useAiAssistantScreen.ts→ Orquestrador do chat conversacional com IA preventiva e histórico
 │   ├── useNotifications.ts    → Ciclo de vida de notificações nativas e preferências de antecedência
-│   ├── useTheme.ts            → Consumo reativo de tema ativo (isDark, toggleTheme, theme tokens)
+│   ├── ThemeContext.tsx       → Provedor e hooks reativos de tema ativo (useTheme, useThemedStyles)
 │   ├── useTaskActions.ts      → Ações de tarefas (concluir, desmarcar, excluir) com nomes reais do pet
 │   ├── usePets.ts / useTasks.ts / useHistoricos.ts → Queries e mutações especializadas por domínio
 │   └── useSession.ts / useActivePet.ts → Hooks utilitários de sessão e pet ativo
