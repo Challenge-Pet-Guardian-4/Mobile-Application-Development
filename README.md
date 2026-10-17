@@ -245,26 +245,63 @@ src/
 
 ---
 
-## 🔔 6. Funcionamento das Notificações Locais no Expo SDK 57
+## 🔔 6. Funcionamento das Notificações Locais
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Tutor as Usuário
-    participant Modal as NotificationSettingsModal
-    participant Hook as useNotifications
-    participant Service as NotificationService
-    participant OS as Sistema Operacional (Android / iOS)
-
-    Tutor->>Modal: Altera horário para "30 min antes" e clica em Salvar
-    Modal->>Hook: salvarSettings({ ativado: true, minutosAntecedencia: 30 })
-    Hook->>Service: saveSettings(...) no AsyncStorage
-    Hook->>Service: sincronizarTarefas(tarefasPendentes, pets)
-    Service->>OS: getAllScheduledNotificationsAsync() (identifica órfãos)
-    Service->>OS: cancelScheduledNotificationAsync(orfas)
-    Service->>OS: scheduleNotificationAsync(task_123, trigger: DATE, channel: petguardian-lembretes)
-    Hook-->>Modal: Concluído com sucesso
-    Modal->>Tutor: Fecha modal e atualiza subtítulo da tela de perfil
+```text
+       ┌───────────────────────────────────────────────────────────────────┐
+       │         CICLO DE VIDA & SINCRONIZAÇÃO DE NOTIFICAÇÕES LOCAL       │
+       └─────────────────────────────────┬─────────────────────────────────┘
+                                         │
+                                [ USUÁRIO / TUTOR ]
+                                         │
+                                         │ [1] Altera horário ("30 min antes")
+                                         │     e clica em "Salvar"
+                                         ▼
+       ┌─────────────────────────────────┴─────────────────────────────────┐
+       │           NotificationSettingsModal (UI / Modal de Preferências)  │
+       │ • Seleção de antecedência: 0 min, 5 min, 15 min, 30 min ou 1 hora │
+       └─────────────────────────────────┬─────────────────────────────────┘
+                                         │
+                                         │ [2] salvarSettings({ ativado: true,
+                                         │     minutosAntecedencia: 30 })
+                                         ▼
+       ┌─────────────────────────────────┴─────────────────────────────────┐
+       │                  useNotifications (Domain Hook)                   │
+       │ • Orquestra a persistência de preferências e a sincronização local│
+       └───────────────┬───────────────────────────────────┬───────────────┘
+                       │                                   │
+ [3] saveSettings(...) │                                   │ [4] sincronizarTarefas(pendentes, pets)
+                       ▼                                   ▼
+       ┌───────────────┴───────────────┐   ┌───────────────┴───────────────┐
+       │         AsyncStorage          │   │      NotificationService      │
+       │  key: notification_settings   │   │ (src/services/notifications)  │
+       │                               │   │                               │
+       │ • Grava status ativado/inativo│   │ • Filtra tarefas pendentes    │
+       │ • Grava minutos antecedência  │   │ • Calcula trigger antecipado  │
+       │ • Persiste preferências tutor │   │ • Valida regras e limites iOS │
+       └───────────────────────────────┘   └───────────────┬───────────────┘
+                                                           │
+                                                           │ [5] getAllScheduledNotificationsAsync() (acha órfãos)
+                                                           │ [6] cancelScheduledNotificationAsync(orfas)
+                                                           │ [7] scheduleNotificationAsync(task_123, trigger, canal)
+                                                           ▼
+       ┌───────────────────────────────────────────────────┴───────────────┐
+       │              SISTEMA OPERACIONAL (Android 13+ / iOS)              │
+       │                                                                   │
+       │ • Android: Canal prioritário "petguardian-lembretes" (som e luz)  │
+       │ • iOS: UNUserNotificationCenter (Trigger tipo DATE; anti-passado) │
+       │ • Determinismo: Identificador "task_{id}" para reconciliação local│
+       └─────────────────────────────────┬─────────────────────────────────┘
+                                         │
+                                         │ [8] Promise resolvida: Concluído com sucesso
+                                         ▼
+       ┌─────────────────────────────────┴─────────────────────────────────┐
+       │                  ATUALIZAÇÃO DA INTERFACE VISUAL                  │
+       │                                                                   │
+       │ • [9] NotificationSettingsModal fecha suavemente com animação     │
+       │ • Subtítulo: "Lembretes ativos • 30 min antes" (UserProfile)      │
+       │ • Sincronização em background garantida pelo hook global          │
+       └───────────────────────────────────────────────────────────────────┘
 ```
 
 1. **Cálculo Determinístico de Disparo:** O timestamp é calculado como:
