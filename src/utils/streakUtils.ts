@@ -1,5 +1,4 @@
-import { TarefaResponse } from '../types/task';
-import { DiaOfensiva } from '../types/models';
+import { TarefaResponse, DiaOfensiva } from '../types/task';
 
 const DIAS_SEMANA_LABELS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'] as const;
 

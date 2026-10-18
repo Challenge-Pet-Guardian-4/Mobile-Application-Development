@@ -129,3 +129,18 @@ export interface TasksRoutineSectionProps extends Partial<TasksRoutineData> {
   };
 }
 
+export interface DiaOfensiva {
+  id: string;
+  dayLabel: string;
+  dayNumber: string;
+  done: boolean;
+  isToday?: boolean;
+  missed?: boolean;
+}
+
+export interface StreakCardProps {
+  streakDays?: DiaOfensiva[];
+  totalStreak?: number;
+  tasks?: TarefaResponse[];
+}
+

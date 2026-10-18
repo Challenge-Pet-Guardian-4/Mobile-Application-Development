@@ -14,7 +14,7 @@ Este documento é a referência definitiva para agentes de IA e desenvolvedores 
 - **Padrão de Dados:** **Domain Hooks** (camada intermediária que isola queries, mutations e lógica de negócio, mantendo telas puramente declarativas).
 - **Cliente HTTP Centralizado:** **Axios** (`^1.20.0`) com interceptores para injeção automática de Bearer Token JWT e captura global de status `401 Unauthorized`.
 - **Hardware Seguro & Persistência:** `expo-secure-store` (Keychain iOS / Keystore Android para JWT) + `@react-native-async-storage/async-storage` (cache e preferências de notificação/tema).
-- **Navegação Nativa:** React Navigation v7 (`@react-navigation/native`, `native-stack`, `bottom-tabs`, `navigationRef.ts` para navegação externa via push).
+- **Navegação Nativa:** React Navigation v7 (`@react-navigation/native`, `native-stack`, `bottom-tabs`, `navigationRef` em `routes/types.ts` para navegação externa via push).
 - **Validação de Formulários:** **Zod** (`zod@^4.4.3`) + **React Hook Form** (`^7.75.0`).
 - **Design System & Ícones:** `@expo/vector-icons`, tokens em `theme.ts` (Tailwind slate/blue, raios, espaçamentos e paleta Duolingo de trilhas).
 
@@ -41,7 +41,7 @@ src/
 │   ├── usePets.ts / useTasks.ts / useHistoricos.ts → Queries e mutações especializadas por domínio
 │   └── useSession.ts / useActivePet.ts → Hooks utilitários de sessão e pet ativo
 ├── lib/                 → queryClient.ts (singleton) e queryKeys.ts (fábrica tipada de chaves)
-├── routes/              → MainStack.tsx (AuthStack vs AppTabs), tabs.tsx, types.ts e navigationRef.ts
+├── routes/              → MainStack.tsx (AuthStack vs AppTabs), tabs.tsx e types.ts (com navigationRef global)
 ├── screens/             → Telas da aplicação (Welcome, Login, Register, Home, FamilyPet, PetDetail, Training, AI, Profile)
 │   ├── UserProfile/components/ → Modais de Perfil (NotificationSettingsModal, UpgradePremiumModal, SobreAppModal, FaqModal, TermsModal)
 ├── services/            → Camada de comunicação HTTP REST e serviços locais (auth, pets, tasks, users, historico, trainings, ai, storage, notifications)
@@ -65,62 +65,66 @@ src/
 
 ---
 
-## 🌐 4. Mapa Canônico de Integração HTTP com a API Java
+## 🌐 4. Mapa Canônico de Integração HTTP com a API Java & IA
 
-### Autenticação & Usuários (`/login`, `/usuarios`)
-- `POST /login`: Autenticação e obtenção do Bearer Token JWT assinado com RSA.
-- `POST /usuarios`: Onboarding de tutor com validação de CEP via ViaCEP.
-- `GET /usuarios/me`: Restaura perfil e sessão do usuário logado via JWT.
-- `PUT /usuarios/me`: Atualização cadastral do próprio tutor via JWT.
-- `DELETE /usuarios/me`: Exclusão permanente da conta e dados (LGPD).
-- `PATCH /usuarios/me/upgrade-premium`: Upgrade de perfil de `COMUM` para `PREMIUM`.
-- `GET /usuarios/me/rede-cuidado`: Visão agregada completa da rede familiar e pontuação acumulada via Stored Procedure Oracle.
+### Endpoints Java Efetivamente Consumidos pelo App Mobile
+- **Autenticação & Sessão:**
+  - `POST /login`: Autenticação e obtenção do Bearer Token JWT assinado com RSA.
+  - `POST /usuarios`: Onboarding de tutor com validação de CEP via ViaCEP.
+  - `GET /usuarios/me`: Restaura perfil e sessão do usuário logado via JWT.
+  - `PUT /usuarios/me`: Atualização cadastral do próprio tutor via JWT.
+  - `DELETE /usuarios/me`: Exclusão permanente da conta e dados (LGPD).
+  - `PATCH /usuarios/me/upgrade-premium`: Upgrade de perfil de `COMUM` para `PREMIUM`.
+  - `GET /usuarios/me/rede-cuidado`: Visão agregada completa da rede familiar e pontuação acumulada via Stored Procedure Oracle.
+- **Pets & Care Circle:**
+  - `GET /pets/me`: Lista pets do usuário (paginação padrão de 20 para seletores e 4 por página no FamilyPet via `usePets(petsPage, PETS_PAGE_SIZE)`).
+  - `GET /pets/me/pontos`: Pontuação agregada de todos os pets do tutor via Stored Procedure Oracle (Zero N+1).
+  - `GET /pets/{id}/detalhe`: Ficha consolidada do pet com pontuação, cuidadores (`CoCuidadorResponse[]`), tarefas concluídas e prontuário clínico.
+  - `POST /pets`: Criação de novo pet, vinculando o criador automaticamente como responsável principal.
+  - `PUT /pets/{id}`: Atualização cadastral do pet (restrito ao responsável principal ou `ADMIN`).
+  - `DELETE /pets/{id}`: Remoção do pet (restrito ao responsável principal).
+  - `POST /pets/{petId}/cuidadores`: Envio de convite de co-cuidador por e-mail.
+  - `DELETE /pets/{petId}/cuidadores/me`: Desvinculação do próprio cuidador autenticado do pet via JWT (`sairDoCareCircle`).
+  - `DELETE /pets/{petId}/cuidadores?email=...`: Desvinculação de co-cuidador por e-mail.
+  - `PATCH /pets/{petId}/responsavel-principal`: Transferência atômica de titularidade principal via Stored Procedure Oracle.
+- **Tarefas da Rotina:**
+  - `GET /tarefas/me`: Tarefas do cuidador logado com auto-expiração de tarefas atrasadas no banco via Spring Data.
+  - `POST /tarefas`: Criação de nova tarefa de cuidado vinculada a um pet.
+  - `PUT /tarefas/{id}`: Edição de parâmetros e prazos de uma rotina existente.
+  - `PATCH /tarefas/{id}/concluir`: Conclusão em 1 toque, creditando pontos ao score do pet e disparando trigger de auditoria no Oracle.
+  - `PATCH /tarefas/{id}/desmarcar`: Estorno de tarefa concluída para `PENDENTE` e reversão dos pontos.
+  - `DELETE /tarefas/{id}`: Exclusão de rotina de cuidado.
+- **Prontuário Médico:**
+  - `GET /historicos/pet/{petId}`: Prontuário médico do pet ordenado por data mais recente.
+  - `POST /historicos`: Registro de evento clínico (vacina, consulta, exame, medicação).
+  - `PUT /historicos/{id}`: Edição de registro de saúde prévio.
+  - `DELETE /historicos/{id}`: Remoção de registro do prontuário médico.
+- **Trilhas Didáticas:**
+  - `GET /trilhas/me`: Árvore consolidada completa de trilhas, módulos e aulas didáticas dos pets do tutor (Zero Waterfalls).
+  - `GET /aulas/{aulaId}/conteudo`: Conteúdo rico NoSQL armazenado no MongoDB Atlas (Markdown pedagógico e links multimídia).
+  - `PATCH /aulas/{id}/concluir`: Conclusão de lição educativa e cômputo de pontos gamificados.
+  - `PATCH /aulas/{id}/desmarcar`: Estorno de lição e reversão de pontos didáticos.
 
-### Pets & Care Circle (`/pets`)
-- `GET /pets/me`: Lista todos os pets sob tutela do usuário (paginação padrão de 20 pets para seletores e 4 por página no FamilyPet via `usePets(petsPage, PETS_PAGE_SIZE)`).
-- `GET /pets/me/pontos`: Pontuação agregada de todos os pets do tutor via Stored Procedure Oracle (Zero N+1).
-- `GET /pets/{id}/detalhe`: Ficha consolidada do pet com pontuação, cuidadores, tarefas concluídas e prontuário clínico.
-- `POST /pets`: Criação de novo pet, vinculando o criador automaticamente como responsável principal.
-- `GET /pets/{id}/pontos`: Pontuação total do pet (tarefas + aulas) via Stored Procedure Oracle `pr_calcular_pontuacao_pet`.
-- `PUT /pets/{id}`: Atualização cadastral do pet (restrito ao responsável principal ou `ADMIN`).
-- `DELETE /pets/{id}`: Remoção do pet (restrito ao responsável principal).
-- `GET /pets/{petId}/cuidadores`: Lista todos os co-cuidadores vinculados ao animal com seus papéis.
-- `POST /pets/{petId}/cuidadores`: Envio de convite de co-cuidador por e-mail.
-- `DELETE /pets/{petId}/cuidadores/me`: Desvinculação do próprio cuidador autenticado do pet via JWT (`sairDoCareCircle`).
-- `DELETE /pets/{petId}/cuidadores?email=...`: Desvinculação de co-cuidador por e-mail (responsável principal ou o próprio cuidador).
-- `PATCH /pets/{petId}/responsavel-principal`: Transferência atômica de titularidade principal via Stored Procedure Oracle.
+> **Catálogo de Endpoints de Suporte da API Java (Web/Back-office):**  
+> Os endpoints `GET /tarefas/me/pontos`, `GET /historicos/me`, `GET /modulos/trilha/{id}`, `GET /aulas/modulo/{id}` e `GET /pets/{petId}/cuidadores` permanecem implementados e disponíveis na API Java para consumidores web ou granulares, enquanto o aplicativo móvel prioriza as rotas consolidadas em batch (`/pets/me/pontos`, `/trilhas/me`, `/pets/{id}/detalhe`).
 
-### Tarefas da Rotina (`/tarefas`)
-- `GET /tarefas/me`: Tarefas do cuidador logado com auto-expiração de tarefas atrasadas no banco via Spring Data.
-- `POST /tarefas`: Criação de nova tarefa de cuidado vinculada a um pet.
-- `PUT /tarefas/{id}`: Edição de parâmetros e prazos de uma rotina existente.
-- `PATCH /tarefas/{id}/concluir`: Conclusão em 1 toque, creditando pontos ao score do pet e disparando trigger de auditoria no Oracle.
-- `PATCH /tarefas/{id}/desmarcar`: Estorno de tarefa concluída para `PENDENTE` e reversão dos pontos.
-- `DELETE /tarefas/{id}`: Exclusão de rotina de cuidado.
-- `GET /tarefas/me/pontos`: Consulta de pontos totais de tarefas do tutor.
+---
 
-### Prontuário Clínico & Histórico de Saúde (`/historicos`)
-- `GET /historicos/me`: Prontuário médico consolidado de todos os pets do tutor via JWT (batch).
-- `GET /historicos/pet/{petId}`: Prontuário médico do pet ordenado por data mais recente.
-- `POST /historicos`: Registro de evento clínico (vacina, consulta, exame, cirurgia).
-- `PUT /historicos/{id}`: Edição de registro de saúde prévio.
-- `DELETE /historicos/{id}`: Remoção de registro do prontuário médico.
+### 🤖 Microsserviço de IA Preventiva (Python FastAPI no Render)
 
-### Trilhas Educativas & Conteúdo NoSQL (`/trilhas`, `/modulos`, `/aulas`)
-- `GET /trilhas/me`: Lista todas as trilhas, módulos e aulas completas dos pets do tutor via JWT em payload consolidado único (Zero Waterfalls).
-- `GET /modulos/trilha/{trilhaId}`: Módulos didáticos da trilha selecionada.
-- `GET /aulas/modulo/{moduloId}`: Lições práticas de adestramento do módulo.
-- `GET /aulas/{aulaId}/conteudo`: Conteúdo rico NoSQL armazenado no MongoDB (Markdown e links).
-- `PATCH /aulas/{id}/concluir`: Conclusão de lição educativa, creditando pontos ao score do pet.
-- `PATCH /aulas/{id}/desmarcar`: Estorno de lição e reversão de pontos didáticos.
+O app se integra ao microsserviço Python (`deploy_guardianai_render`) especializado em triagem clínica, toxicologia e bem-estar preventivo:
 
-### Microsserviço de IA Preventiva (Python FastAPI no Render)
-- `POST /ai/chat`: Chat conversacional com Google Gemini recebendo o contexto clínico do pet.
-- `POST /ai/insights`: Recomendações preventivas de saúde e bem-estar por porte e idade.
-- `GET /ai/sessions`: Sessões de conversa anteriores do pet no formato ChatGPT/Claude.
-- `GET /ai/history`: Mensagens completas de uma sessão selecionada.
-- `DELETE /ai/sessions/{id}`: Remoção permanente de uma conversa do histórico.
-- `GET /`: Ping/warm-up para redução de cold-start na nuvem.
+| Método / Rota | Payload de Envio (Request) | Payload de Retorno (Response) | Propósito & Regra de Negócio |
+| :--- | :--- | :--- | :--- |
+| `POST /ai/chat` | `AiChatRequestPayload` (`pergunta`, `petContext`, `historico`, `sessionId`) | `AiChatResponsePayload` (`resposta`, `categoria`, `urgencia`, `acoes_recomendadas`, `origem_resposta`, `sessionId`) | Chat clínico multi-turnos com guardrails toxicológicos/farmacológicos determinísticos e inferência via Groq/Gemini. |
+| `POST /ai/insights` | `AiPetContextPayload` (`id`, `nome`, `raca`, `porte`, `dataNasc`, `idade`, `sexo`, `castrado`) | `{ insights: AiPetInsight[] }` | Recomendações preventivas personalizadas baseadas no porte e faixa etária do pet. |
+| `GET /ai/sessions` | Query params: `pet_id`, `limit=30` | `{ total: number, sessoes: AiChatSession[] }` | Lista o histórico de conversas anteriores do pet (estilo ChatGPT/Claude). |
+| `GET /ai/history` | Query params: `session_id`, `limit=100` | `{ total: number, mensagens: MensagemBancoRaw[] }` | Restaura todas as mensagens trocadas em uma sessão específica gravadas no SQLite. |
+| `DELETE /ai/sessions/{id}` | Path param: `session_id` | `{ status: "ok" \| "error", session_id: string }` | Exclusão definitiva de uma sessão e seus registros de auditoria no SQLite. |
+| `GET /` | Nenhum (GET simples) | `{ status: "ok", app: "Guardian AI" }` | Ping leve de warm-up (acorda a instância no Render e reduz latência de cold start). |
+
+> **Contexto do Pet na IA (`formatPetContext`):**  
+> A IA recebe dados cadastrais e biológicos essenciais do animal (`id`, `nome`, `raca`, `porte`, `dataNasc`, `idade` calculada em anos, `sexo`, `castrado`), suficientes para os motores de inferência e matrizes clínicas por idade e porte do microsserviço Python.
 
 ---
 

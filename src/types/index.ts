@@ -7,4 +7,3 @@ export * from './training';
 export * from './ai';
 export * from './historico';
 export * from './notification';
-export * from './models';

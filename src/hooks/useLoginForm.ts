@@ -1,5 +1,8 @@
 import { useState, useCallback } from 'react';
-import { useLoginMutation } from './useAuthMutations';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AuthService } from '../services/auth';
+import { useSession } from './useSession';
+import { LoginCredentials } from '../types/auth';
 import { LoginSchema, formatZodError, LoginFormData } from '../utils/schemas';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../routes/types';
@@ -9,6 +12,19 @@ const INITIAL_LOGIN_FORM: LoginFormData = {
   email: '',
   senha: '',
 };
+
+function useLoginMutation() {
+  const queryClient = useQueryClient();
+  const { setSession } = useSession();
+
+  return useMutation({
+    mutationFn: (credentials: LoginCredentials) => AuthService.login(credentials),
+    onSuccess: (data) => {
+      setSession(data);
+      queryClient.invalidateQueries();
+    },
+  });
+}
 
 export function useLoginForm(navigation?: NativeStackNavigationProp<AuthStackParamList, 'Login'>) {
   const { mutate: login, isPending, error, reset } = useLoginMutation();

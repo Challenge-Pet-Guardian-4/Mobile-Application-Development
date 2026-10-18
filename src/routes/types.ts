@@ -1,4 +1,4 @@
-import { NavigatorScreenParams } from '@react-navigation/native';
+import { NavigatorScreenParams, createNavigationContainerRef } from '@react-navigation/native';
 
 export type AuthStackParamList = {
   Welcome: undefined;
@@ -33,4 +33,6 @@ export type RootStackParamList = {
   IA: { petId?: number } | undefined;
   Perfil: NavigatorScreenParams<ProfileStackParamList> | undefined;
 };
+
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 

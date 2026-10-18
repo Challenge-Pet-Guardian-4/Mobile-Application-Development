@@ -10,6 +10,3 @@ export function useSession(): AuthContextData {
 
   return context;
 }
-
-// Exportar alias useAuth para facilidade de importação
-export const useAuth = useSession;

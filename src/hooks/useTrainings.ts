@@ -8,7 +8,7 @@ import { PetResponse } from '../types/pet';
 import { TrainingService } from '../services/trainings';
 import { queryKeys } from '../lib/queryKeys';
 
-export function useTrilhas(enabled = true) {
+function useTrilhas(enabled = true) {
   return useQuery({
     queryKey: queryKeys.training.myTracks,
     queryFn: () => TrainingService.getTrilhas(),

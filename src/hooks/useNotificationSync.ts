@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { AppState } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useSession } from './useSession';
-import { navigationRef } from '../routes/navigationRef';
+import { navigationRef } from '../routes/types';
 import { NotificationService } from '../services/notifications';
 import { TaskService } from '../services/tasks';
 import { PetService } from '../services/pets';

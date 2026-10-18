@@ -8,8 +8,35 @@ import { normalizarDataNascParaIso } from '../utils/petUtils';
 import { PetSchema, formatZodError } from '../utils/schemas';
 import { ActionCallbacks } from '../types/api';
 import { createMutationCallbacks } from '../utils/apiError';
-import { confirmarAcao } from '../utils/dialogUtils';
 import { NotificationService } from '../services/notifications';
+
+interface ConfirmarAcaoOptions {
+  textoConfirmar?: string;
+  textoCancelar?: string;
+  destrutivo?: boolean;
+}
+
+function confirmarAcao(
+  titulo: string,
+  mensagem: string,
+  onConfirmar: () => void,
+  opcoes?: ConfirmarAcaoOptions
+): void {
+  const {
+    textoConfirmar = 'Confirmar',
+    textoCancelar = 'Cancelar',
+    destrutivo = true,
+  } = opcoes ?? {};
+
+  Alert.alert(titulo, mensagem, [
+    { text: textoCancelar, style: 'cancel' },
+    {
+      text: textoConfirmar,
+      style: destrutivo ? 'destructive' : 'default',
+      onPress: onConfirmar,
+    },
+  ]);
+}
 
 interface UsePetDetailActionsProps {
   activePet?: PetResponse;

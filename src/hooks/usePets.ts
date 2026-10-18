@@ -7,7 +7,7 @@ import { ActionCallbacks } from '../types/api';
 import { createMutationCallbacks } from '../utils/apiError';
 
 export const PETS_PAGE_SIZE = 4;
-export const DEFAULT_PETS_LIST_SIZE = 20;
+const DEFAULT_PETS_LIST_SIZE = 20;
 
 export function usePets(page = 0, size = DEFAULT_PETS_LIST_SIZE) {
   return useQuery({
@@ -23,7 +23,7 @@ export function usePetDetailData(id?: number) {
   });
 }
 
-export function useMyPetsPontos() {
+function useMyPetsPontos() {
   return useQuery({
     queryKey: queryKeys.pets.myPontos,
     queryFn: () => PetService.getMyPetsPontos(),

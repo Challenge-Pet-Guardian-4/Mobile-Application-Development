@@ -67,8 +67,7 @@ Nesta 4ª Sprint, o aplicativo atinge sua maturidade de engenharia e produção 
 - **Antecedência Global Configurável:** O usuário define nas preferências quando deseja ser alertado: *No horário (0 min)*, *5 min antes*, *15 min antes*, *30 min antes* ou *1 hora antes*.
 - **Android 13+ Compliance:** Criação antecipada do `NotificationChannel` (`petguardian-lembretes`) com importância máxima, som, vibração e luz antes de solicitar permissões ao sistema operacional.
 - **Tolerância a Falhas no iOS:** Validação estrita de horários futuros com margem de segurança de tempo, evitando exceções no `UNUserNotificationCenter` e limitando agendamentos em lote a 60 alarmes (abaixo do teto de 64 do iOS).
-- **Foreground Handler Moderno:** Suporte aos campos atualizados `shouldShowBanner` e `shouldShowList` no Expo SDK 57, eliminando avisos de depreciação.
-- **Deep Linking:** Tocar na notificação redireciona o usuário diretamente para a rotina do animal através de `navigationRef.ts`.
+- **Deep Linking:** Tocar na notificação redireciona o usuário diretamente para a rotina do animal através do `navigationRef` exportado em `routes/types.ts`.
 
 ### 🌗 Tematização Completa: Modo Claro e Modo Escuro (Light & Dark Mode)
 - **`ThemeContext` Reativo:** Provedor central que detecta preferências do usuário, armazena no `AsyncStorage` (`@petguardian:theme`) e reage a alternâncias instantâneas.
@@ -202,8 +201,7 @@ src/
 ├── routes/              → Roteamento e navegação com React Navigation v7
 │   ├── MainStack.tsx          → Roteador raiz condicional (AuthStack vs AppTabs)
 │   ├── tabs.tsx               → Barra inferior com 5 abas principais e ícones dinâmicos
-│   ├── navigationRef.ts       → Referência global de navegação externa (para notificações)
-│   └── types.ts               → Contratos tipados de rotas e parâmetros de navegação
+│   └── types.ts               → Contratos tipados de rotas, parâmetros e navigationRef global
 ├── screens/             → Telas da aplicação (puramente declarativas)
 │   ├── AiAssistant/           → Chat conversacional com IA Preventiva
 │   ├── FamilyPet/             → Governança colaborativa de pets e tarefas

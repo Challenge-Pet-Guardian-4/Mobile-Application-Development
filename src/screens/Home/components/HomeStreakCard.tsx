@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { shadows } from '../../../utils/shadow';
-import { StreakCardProps } from '../../../types/models';
+import { StreakCardProps } from '../../../types/task';
 import { calcularDiasSemanaAtual, calcularTotalOfensiva, getDiasDaSemanaVazios } from '../../../utils/streakUtils';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 import { AppTheme } from '../../../constants/theme';

@@ -3,14 +3,16 @@ import { env } from '../config/env';
 import {
   AiMessage,
   AiPetInsight,
+  AiChatRequestPayload,
   AiChatResponsePayload,
+  AiMessageHistoricoItem,
   AiPetContextPayload,
   AiChatSession,
   MensagemBancoRaw,
 } from '../types/ai';
 import { PetResponse } from '../types/pet';
 import { calcularIdadePet } from '../utils/petUtils';
-import { createThrottledPing } from '../utils/throttleUtils';
+import { createThrottledPing } from './http';
 
 const pythonClient = axios.create({
   baseURL: env.aiUrl,
@@ -80,7 +82,7 @@ export const AiService = {
     const petContext = formatPetContext(pet);
     const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-    const historicoPayload = historico
+    const historicoPayload: AiMessageHistoricoItem[] | undefined = historico
       ?.filter((m) => m.text && m.text.trim().length > 0 && !m.id.startsWith('welcome_'))
       .map((m) => ({
         sender: m.sender === 'user' ? ('user' as const) : ('assistant' as const),
@@ -88,13 +90,15 @@ export const AiService = {
       }))
       .slice(-6);
 
+    const chatPayload: AiChatRequestPayload = {
+      pergunta,
+      petContext,
+      historico: historicoPayload,
+      sessionId,
+    };
+
     try {
-      const response = await pythonClient.post<AiChatResponsePayload>('/ai/chat', {
-        pergunta,
-        petContext,
-        historico: historicoPayload,
-        sessionId,
-      });
+      const response = await pythonClient.post<AiChatResponsePayload>('/ai/chat', chatPayload);
 
       if (response.data && response.data.resposta) {
         return {

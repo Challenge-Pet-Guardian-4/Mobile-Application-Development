@@ -18,16 +18,6 @@ export const GIT_COMMIT_INFO: GitCommitMetadata = {
   commitMessage: dynamicGitInfo?.commitMessage ?? '',
 };
 
-/**
- * Trunca uma mensagem de commit longa adicionando reticências.
- */
-export function formatarMensagemCommit(msg?: string, limite = 60): string {
-  if (!msg) return '';
-  const limpo = msg.trim();
-  if (limpo.length <= limite) return limpo;
-  return `${limpo.slice(0, limite).trim()}...`;
-}
-
 export const APP_VERSION_INFO = {
   appName: 'PetGuardian',
   tagline: 'Ecossistema Pet-Centric & Governança Familiar',

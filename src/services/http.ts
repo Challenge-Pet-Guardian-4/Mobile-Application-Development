@@ -3,7 +3,40 @@ import { StorageService } from './storage';
 import { env } from '../config/env';
 import { ApiErrorResponse } from '../types/api';
 import { normalizeHttpError } from '../utils/apiError';
-import { createThrottledPing } from '../utils/throttleUtils';
+
+export function createThrottledPing(
+  action: () => Promise<unknown>,
+  cooldownMs = 10 * 60 * 1000
+): () => Promise<boolean> {
+  let inFlight: Promise<boolean> | null = null;
+  let lastTimestamp = 0;
+
+  return async (): Promise<boolean> => {
+    const now = Date.now();
+
+    if (now - lastTimestamp < cooldownMs) {
+      return true;
+    }
+
+    if (inFlight) {
+      return inFlight;
+    }
+
+    inFlight = (async () => {
+      try {
+        await action();
+        lastTimestamp = Date.now();
+        return true;
+      } catch {
+        return false;
+      } finally {
+        inFlight = null;
+      }
+    })();
+
+    return inFlight;
+  };
+}
 
 // Instância centralizada do Axios configurada para ambientes em nuvem (Azure Web App / Render)
 export const http = axios.create({

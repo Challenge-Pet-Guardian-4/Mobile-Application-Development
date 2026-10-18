@@ -1,7 +1,10 @@
 import { useState, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../routes/types';
-import { useRegisterMutation } from './useAuthMutations';
+import { AuthService } from '../services/auth';
+import { useSession } from './useSession';
+import { RegisterCredentials } from '../types/auth';
 import { RegisterSchema, formatZodError, RegisterFormData } from '../utils/schemas';
 import { getAuthErrorMessage } from '../utils/apiError';
 
@@ -16,6 +19,24 @@ const INITIAL_REGISTER_FORM: RegisterFormData = {
   numero: '',
 };
 
+function useRegisterMutation() {
+  const queryClient = useQueryClient();
+  const { setSession } = useSession();
+
+  return useMutation({
+    mutationFn: async (credentials: RegisterCredentials) => {
+      await AuthService.register(credentials);
+      return AuthService.login({
+        email: credentials.email,
+        senha: credentials.senha,
+      });
+    },
+    onSuccess: (data) => {
+      setSession(data);
+      queryClient.invalidateQueries();
+    },
+  });
+}
 
 type NavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 
