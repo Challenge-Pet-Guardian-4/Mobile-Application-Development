@@ -5,7 +5,7 @@ import { ApiError, ApiErrorResponse, ActionCallbacks } from '../types/api';
 /**
  * Normaliza qualquer erro (AxiosError, ApiError, Error nativo ou desconhecido)
  * em uma instância canônica de ApiError com código semântico, status HTTP e mensagem amigável.
- * Princípio SRP: Fonte única de verdade para normalização de falhas da API / Nuvem (Railway).
+ * Princípio SRP: Fonte única de verdade para normalização de falhas da API / Nuvem (Azure).
  */
 export function normalizeHttpError(error: unknown): ApiError {
   if (error instanceof ApiError) {
@@ -44,11 +44,11 @@ export function normalizeHttpError(error: unknown): ApiError {
       return new ApiError('NOT_FOUND', 'Recurso não encontrado no servidor.', 404);
     }
 
-    // 4. Cold start ou indisponibilidade de proxy reverso (Railway)
+    // 4. Cold start ou indisponibilidade de proxy reverso (Azure App Service)
     if (status === 502 || status === 503 || status === 504) {
       return new ApiError(
         'SERVER_STARTING',
-        'O servidor em nuvem (Railway) está inicializando. Por favor, aguarde alguns instantes e tente novamente.',
+        'O servidor em nuvem (Azure) está inicializando. Por favor, aguarde alguns instantes e tente novamente.',
         status
       );
     }
@@ -98,7 +98,7 @@ export function normalizeHttpError(error: unknown): ApiError {
 
 /**
  * Extrai de forma padronizada mensagens de erro detalhadas retornadas pela API Java (Spring Boot)
- * ou erros de rede/execução/nuvem (Railway), evitando exibir mensagens genéricas hardcoded ao usuário.
+ * ou erros de rede/execução/nuvem (Azure), evitando exibir mensagens genéricas hardcoded ao usuário.
  */
 export function getApiErrorMessage(
   error: unknown,
