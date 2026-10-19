@@ -45,5 +45,12 @@
     "@react-native/metro-config": "^0.86.3",
     "@types/react": "^19.2.14",
     "typescript": "~6.0.3"
+  },
+  "expo": {
+    "doctor": {
+      "appConfigFieldsNotSyncedCheck": {
+        "enabled": false
+      }
+    }
   }
 }
