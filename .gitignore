@@ -19,6 +19,17 @@ expo-env.d.ts
 *.apk
 *.aab
 
+# Android build and cache
+.gradle/
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+android/local.properties
+android/*.iml
+android/*.hprof
+android/.cxx/
+
 # Metro
 .metro-health-check*
 
