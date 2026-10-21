@@ -6,7 +6,7 @@
     "icon": "./assets/icon.png",
     "android": {
       "package": "br.com.fiap.petguardian",
-      "versionCode": 4,
+      "versionCode": 5,
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -29,11 +29,11 @@
     ],
     "extra": {
       "gitCommit": {
-        "commitHash": "6f3224b869ea80da5fd7a75daf330acb41eaa7ee",
-        "shortCommitHash": "6f3224b",
+        "commitHash": "abbaa61763ef801ffeaee872c5bead4fc27357bf",
+        "shortCommitHash": "abbaa61",
         "branch": "main",
-        "commitDate": "2026-10-18T14:16:10-03:00",
-        "commitMessage": "docs(mobile): adicionar placeholders de link de video e publ..."
+        "commitDate": "2026-10-21T14:48:27-03:00",
+        "commitMessage": "refactor(mobile): otimizar rules of hooks, hitSlop e object lookups em componentes"
       },
       "eas": {
         "projectId": "2793cc90-df71-4d0c-9b1d-a105582dd0e9"
