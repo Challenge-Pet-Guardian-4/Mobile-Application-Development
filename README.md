@@ -19,8 +19,8 @@
 
 ## 🔗 Links Oficiais do Projeto
 
-* **Download Direto do APK (Android Standalone):** 📥 [**Baixar pet-guardian.apk (Build Oficial)**](https://expo.dev/artifacts/eas/zWuzX-P0CkQEYn7Iq1BsLWaB6M-rXGIYEcRWBggLAhg.apk)
-* **Painel de Compilação do EAS Build:** [Dashboard Expo EAS — Build #09b620cd](https://expo.dev/accounts/enzookuizumis-team/projects/pet-guardian/builds/09b620cd-d577-4d77-a7d0-999d3e730140)
+* **Download Direto do APK (Android Standalone):** 📥 [**Baixar pet-guardian.apk (Build Oficial)**](https://expo.dev/artifacts/eas/C0n6psm5jnA8JjMltSKv2FHbn66gdZoY06aQh9YZ2xs.apk)
+* **Painel de Compilação do EAS Build:** [Dashboard Expo EAS — Build #ace7ec7b](https://expo.dev/accounts/enzookuizumis-team/projects/pet-guardian/builds/ace7ec7b-985e-4e4b-80f6-4a15b7b24c6c)
 * **Repositório GitHub Mobile:** [Challenge-Pet-Guardian-4/Mobile-Application-Development](https://github.com/Challenge-Pet-Guardian-4/Mobile-Application-Development)
 * **Backend Java (Spring Boot):** [Challenge-Pet-Guardian-4/Java-Advanced](https://github.com/Challenge-Pet-Guardian-4/Java-Advanced)
 * **Microsserviço IA (Python / FastAPI):** [Disruptive-Architectures-IOT-IOB-IA](https://github.com/Challenge-Pet-Guardian-4/Disruptive-Architectures-IOT-IOB-IA)
@@ -394,11 +394,10 @@ npm run lint
 Não é necessário clonar o repositório ou instalar ferramentas de desenvolvimento para avaliar o aplicativo. O binário executável Android já está compilado e distribuído na nuvem:
 
 1. **Download:** Baixe o arquivo diretamente em seu smartphone Android ou computador através do link oficial:  
-   👉 [**Download Direto do pet-guardian.apk**](https://expo.dev/artifacts/eas/zWuzX-P0CkQEYn7Iq1BsLWaB6M-rXGIYEcRWBggLAhg.apk)
+   👉 [**Download Direto do pet-guardian.apk**](https://expo.dev/artifacts/eas/C0n6psm5jnA8JjMltSKv2FHbn66gdZoY06aQh9YZ2xs.apk)
 2. **Instalação no Celular:** Abra o arquivo `.apk` baixado e toque em **Instalar** (permita a instalação de fontes desconhecidas caso solicitado pelo Android).
 3. **Instalação via Emulador Android Studio (ADB):**
    ```bash
    adb install pet-guardian.apk
    ```
 4. **APIs Conectadas na Nuvem:** O app já está pré-configurado com as URLs em produção do backend corporativo (Azure) e do microsserviço de IA (Render), não exigindo subir nenhum servidor local para avaliação das funcionalidades.
-```
