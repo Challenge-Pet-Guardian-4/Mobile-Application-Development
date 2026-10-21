@@ -32,24 +32,18 @@ interface RoutineHistoryProps {
 
 export type PetHistorySectionProps = HealthHistoryProps | RoutineHistoryProps;
 
+const EVENT_ICON_RULES: Array<{ match: (s: string) => boolean; icon: keyof typeof MaterialCommunityIcons.glyphMap }> = [
+  { match: (s) => s.includes('vacina'), icon: 'needle' },
+  { match: (s) => s.includes('consulta'), icon: 'stethoscope' },
+  { match: (s) => s.includes('exame'), icon: 'flask-outline' },
+  { match: (s) => s.includes('verm') || s.includes('pulga') || s.includes('remédio') || s.includes('medica'), icon: 'pill' },
+  { match: (s) => s.includes('cirurg') || s.includes('castra'), icon: 'hospital-box-outline' },
+];
+
 function getEventIcon(tipo: string): keyof typeof MaterialCommunityIcons.glyphMap {
   const lower = tipo.toLowerCase();
-  if (lower.includes('vacina')) {
-    return 'needle';
-  }
-  if (lower.includes('consulta')) {
-    return 'stethoscope';
-  }
-  if (lower.includes('exame')) {
-    return 'flask-outline';
-  }
-  if (lower.includes('verm') || lower.includes('pulga') || lower.includes('remédio') || lower.includes('medica')) {
-    return 'pill';
-  }
-  if (lower.includes('cirurg') || lower.includes('castra')) {
-    return 'hospital-box-outline';
-  }
-  return 'calendar-check-outline';
+  const rule = EVENT_ICON_RULES.find((r) => r.match(lower));
+  return rule ? rule.icon : 'calendar-check-outline';
 }
 
 function formatarDataConclusao(dataStr?: string | null): string {
@@ -135,14 +129,14 @@ export function PetHistorySection(props: PetHistorySectionProps) {
                     <TouchableOpacity
                       onPress={() => props.onEdit(item)}
                       style={styles.btnAction}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      hitSlop={8}
                     >
                       <Ionicons name="pencil-outline" size={16} color="#64748B" />
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => props.onDelete(item)}
                       style={styles.btnAction}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      hitSlop={8}
                     >
                       <Ionicons name="trash-outline" size={16} color="#EF4444" />
                     </TouchableOpacity>

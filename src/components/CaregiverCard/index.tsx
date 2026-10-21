@@ -70,7 +70,7 @@ export function CaregiverCard({
               style={styles.actionBtnTransfer}
               onPress={onTransfer}
               activeOpacity={0.7}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              hitSlop={8}
             >
               <MaterialCommunityIcons
                 name="crown-outline"
@@ -85,7 +85,7 @@ export function CaregiverCard({
               style={styles.actionBtnRemove}
               onPress={onRemove}
               activeOpacity={0.7}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              hitSlop={8}
             >
               <Ionicons
                 name={isCurrentUser ? 'exit-outline' : 'trash-outline'}

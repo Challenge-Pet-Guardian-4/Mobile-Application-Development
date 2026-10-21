@@ -126,7 +126,7 @@ export function BaseModal({
                 <TouchableOpacity
                   style={styles.closeBtn}
                   onPress={onClose}
-                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  hitSlop={12}
                 >
                   <Ionicons name="close" size={20} color={theme.textMuted} />
                 </TouchableOpacity>

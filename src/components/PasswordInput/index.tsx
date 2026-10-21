@@ -25,7 +25,7 @@ export const PasswordInput = memo(function PasswordInput({
       rightIcon={
         <TouchableOpacity
           onPress={() => setMostrarSenha((prev) => !prev)}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          hitSlop={8}
         >
           <Ionicons
             name={mostrarSenha ? 'eye-off-outline' : 'eye-outline'}

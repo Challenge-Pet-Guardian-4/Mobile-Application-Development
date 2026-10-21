@@ -11,12 +11,7 @@ export const HomeScoreBar = memo(function HomeScoreBar({ pets, routine, onPress 
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
   const activePet = pets?.active;
-  if (!activePet) {
-    return null;
-  }
 
-  const score = routine?.score ?? 0;
-  const petName = activePet.nome || 'Pet';
   const concluidas = routine?.completedToday?.length ?? 0;
   const expiradas = routine?.expiredToday?.length ?? 0;
   const total = routine?.todayTasks?.length ?? 0;
@@ -25,6 +20,13 @@ export const HomeScoreBar = memo(function HomeScoreBar({ pets, routine, onPress 
     () => obterStatusScoreBar(concluidas, expiradas, total, theme),
     [concluidas, expiradas, total, theme]
   );
+
+  if (!activePet) {
+    return null;
+  }
+
+  const score = routine?.score ?? 0;
+  const petName = activePet.nome || 'Pet';
 
   const rotinaLabel = `${concluidas}/${total} ${total === 1 ? 'tarefa' : 'tarefas'}${
     expiradas > 0 ? ` • ${expiradas} expirada${expiradas > 1 ? 's' : ''}` : ''

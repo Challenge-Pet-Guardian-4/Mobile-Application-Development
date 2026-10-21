@@ -15,6 +15,8 @@ export interface RoutineCardProps {
   petNome?: string;
 }
 
+const ACTION_HIT_SLOP = { top: 12, bottom: 12, left: 8, right: 8 } as const;
+
 export const RoutineCard = memo(function RoutineCard({
   tarefa,
   onToggle,
@@ -109,7 +111,7 @@ export const RoutineCard = memo(function RoutineCard({
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => onEdit(tarefa)}
-            hitSlop={{ top: 12, bottom: 12, left: 8, right: 8 }}
+            hitSlop={ACTION_HIT_SLOP}
             activeOpacity={0.7}
           >
             <Ionicons name="pencil" size={15} color={theme.primary} />
@@ -120,7 +122,7 @@ export const RoutineCard = memo(function RoutineCard({
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={() => onDelete(tarefa.id)}
-            hitSlop={{ top: 12, bottom: 12, left: 8, right: 8 }}
+            hitSlop={ACTION_HIT_SLOP}
             activeOpacity={0.7}
           >
             <Ionicons name="trash" size={15} color={theme.badgeDangerText} />

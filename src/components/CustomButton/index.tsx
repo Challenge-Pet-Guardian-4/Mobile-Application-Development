@@ -13,6 +13,24 @@ interface CustomButtonProps extends TouchableOpacityProps {
   icon?: React.ReactNode;
 }
 
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'danger' | 'success';
+
+const BUTTON_STYLE_KEY: Record<ButtonVariant, 'btnPrimary' | 'btnSecondary' | 'btnOutline' | 'btnDanger' | 'btnSuccess'> = {
+  primary: 'btnPrimary',
+  secondary: 'btnSecondary',
+  outline: 'btnOutline',
+  danger: 'btnDanger',
+  success: 'btnSuccess',
+};
+
+const TEXT_STYLE_KEY: Record<ButtonVariant, 'textPrimary' | 'textSecondary' | 'textOutline'> = {
+  primary: 'textPrimary',
+  secondary: 'textSecondary',
+  outline: 'textOutline',
+  danger: 'textPrimary',
+  success: 'textPrimary',
+};
+
 export const CustomButton = memo(function CustomButton({
   title,
   variant = 'primary',
@@ -26,37 +44,14 @@ export const CustomButton = memo(function CustomButton({
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
 
-  const getButtonStyle = () => {
-    switch (variant) {
-      case 'success':
-        return styles.btnSuccess;
-      case 'secondary':
-        return styles.btnSecondary;
-      case 'outline':
-        return styles.btnOutline;
-      case 'danger':
-        return styles.btnDanger;
-      default:
-        return styles.btnPrimary;
-    }
-  };
-
-  const getTextStyle = () => {
-    switch (variant) {
-      case 'outline':
-        return styles.textOutline;
-      case 'secondary':
-        return styles.textSecondary;
-      default:
-        return styles.textPrimary;
-    }
-  };
+  const buttonStyle = styles[BUTTON_STYLE_KEY[variant] ?? 'btnPrimary'];
+  const textVariantStyle = styles[TEXT_STYLE_KEY[variant] ?? 'textPrimary'];
 
   return (
     <TouchableOpacity
       style={[
         styles.btnBase,
-        getButtonStyle(),
+        buttonStyle,
         (disabled || isLoading) && styles.btnDisabled,
         style,
       ]}
@@ -68,8 +63,8 @@ export const CustomButton = memo(function CustomButton({
         <ActivityIndicator color={variant === 'outline' ? theme.text : '#FFFFFF'} size="small" />
       ) : (
         <>
-          {icon}
-          <Text style={[styles.textBase, getTextStyle(), textStyle]}>{title}</Text>
+          {icon ? icon : null}
+          <Text style={[styles.textBase, textVariantStyle, textStyle]}>{title}</Text>
         </>
       )}
     </TouchableOpacity>

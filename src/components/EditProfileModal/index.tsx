@@ -145,7 +145,7 @@ const EditProfileContent = memo(function EditProfileContent({
             value={form.cep}
             onChangeText={(t) => {
               const digits = t.replace(/\D/g, '').slice(0, 8);
-              const formatted = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+              const formatted = digits.replace(/^(\d{5})(\d)/, '$1-$2');
               updateField('cep', formatted);
             }}
           />

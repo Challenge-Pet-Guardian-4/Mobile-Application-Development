@@ -150,7 +150,7 @@ export function AiHistoryModal({
                         <TouchableOpacity
                           onPress={() => removerSessao(item.sessionId)}
                           style={styles.btnDeleteSession}
-                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          hitSlop={10}
                           activeOpacity={0.6}
                         >
                           <Ionicons name="trash-outline" size={17} color={theme.textMuted} />
