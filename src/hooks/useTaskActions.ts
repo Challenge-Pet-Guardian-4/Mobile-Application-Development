@@ -85,7 +85,9 @@ export function useTaskActions() {
   const alternarStatus = useCallback(
     (taskId: number, tarefas: TarefaResponse[], options?: AlternarStatusOptions) => {
       const tarefa = tarefas.find((t) => t.id === taskId);
-      if (!tarefa) return;
+      if (!tarefa) {
+        return;
+      }
 
       if (tarefa.status === 'CONCLUIDO') {
         uncompleteTaskMutation.mutate(

@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../utils/shadow';
 import { TarefaResponse } from '../../types/task';
 import { formatarPrazoAmigavel } from '../../utils/petUtils';
-import { colors, spacing, borderRadius, AppTheme } from '../../constants/theme';
+import { spacing, borderRadius, AppTheme } from '../../constants/theme';
 import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
 
 export interface RoutineCardProps {
@@ -43,9 +43,9 @@ export const RoutineCard = memo(function RoutineCard({
       >
         <View style={[styles.checkbox, isDone && styles.checkboxDone, isExpired && styles.checkboxExpired]}>
           {isDone ? (
-            <Ionicons name="checkmark" size={16} color={colors.neutral.white} />
+            <Ionicons name="checkmark" size={16} color="#FFFFFF" />
           ) : isExpired ? (
-            <Ionicons name="alert" size={14} color={colors.danger.default} />
+            <Ionicons name="alert" size={14} color={theme.badgeDangerText} />
           ) : null}
         </View>
 
@@ -54,11 +54,11 @@ export const RoutineCard = memo(function RoutineCard({
             <Text style={[styles.title, isDone && styles.titleDone]} numberOfLines={1}>
               {tarefa.titulo}
             </Text>
-            {isExpired && (
+            {isExpired ? (
               <View style={styles.expiredBadge}>
                 <Text style={styles.expiredBadgeText}>Expirada</Text>
               </View>
-            )}
+            ) : null}
           </View>
           {tarefa.descricao ? (
             <Text style={[styles.description, isDone && styles.descriptionDone]} numberOfLines={1}>
@@ -105,7 +105,7 @@ export const RoutineCard = memo(function RoutineCard({
           </Text>
         </View>
 
-        {onEdit && (
+        {onEdit ? (
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => onEdit(tarefa)}
@@ -114,18 +114,18 @@ export const RoutineCard = memo(function RoutineCard({
           >
             <Ionicons name="pencil" size={15} color={theme.primary} />
           </TouchableOpacity>
-        )}
+        ) : null}
 
-        {onDelete && (
+        {onDelete ? (
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={() => onDelete(tarefa.id)}
             hitSlop={{ top: 12, bottom: 12, left: 8, right: 8 }}
             activeOpacity={0.7}
           >
-            <Ionicons name="trash" size={15} color={colors.danger.default} />
+            <Ionicons name="trash" size={15} color={theme.badgeDangerText} />
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
     </View>
   );
@@ -173,12 +173,12 @@ const createStyles = (theme: AppTheme) =>
       backgroundColor: theme.surfaceMuted,
     },
     checkboxDone: {
-      backgroundColor: colors.success.default,
-      borderColor: colors.success.default,
+      backgroundColor: theme.colors.success.default,
+      borderColor: theme.colors.success.default,
     },
     checkboxExpired: {
       backgroundColor: theme.badgeDangerBg,
-      borderColor: colors.danger.default,
+      borderColor: theme.badgeDangerBorder,
     },
     textContainer: {
       flex: 1,
@@ -252,9 +252,9 @@ const createStyles = (theme: AppTheme) =>
       width: 30,
       height: 30,
       borderRadius: 15,
-      backgroundColor: theme.isDark ? 'rgba(239, 68, 68, 0.15)' : colors.danger[50],
+      backgroundColor: theme.badgeDangerBg,
       borderWidth: 1,
-      borderColor: theme.isDark ? 'rgba(239, 68, 68, 0.3)' : colors.danger[200],
+      borderColor: theme.badgeDangerBorder,
       justifyContent: 'center',
       alignItems: 'center',
     },

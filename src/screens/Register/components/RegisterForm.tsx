@@ -111,7 +111,7 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
         onChangeText={(t) => updateField('confirmarSenha', t)}
       />
 
-      {erroExibido && <Text style={styles.erroText}>{erroExibido}</Text>}
+      {erroExibido ? <Text style={styles.erroText}>{erroExibido}</Text> : null}
 
       <CustomButton
         title={isPending ? 'Cadastrando…' : 'Concluir Cadastro'}

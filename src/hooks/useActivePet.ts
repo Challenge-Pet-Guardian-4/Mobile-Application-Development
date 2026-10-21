@@ -26,10 +26,14 @@ export function useActivePet(pets: PetResponse[], initialPetId?: number): UseAct
   }, []);
 
   const activePet: PetResponse | undefined = useMemo(() => {
-    if (pets.length === 0) return undefined;
+    if (pets.length === 0) {
+      return undefined;
+    }
     if (selectedPetId !== undefined && selectedPetId !== null) {
       const found = pets.find((p) => p.id === selectedPetId);
-      if (found) return found;
+      if (found) {
+        return found;
+      }
     }
     return pets[0];
   }, [pets, selectedPetId]);

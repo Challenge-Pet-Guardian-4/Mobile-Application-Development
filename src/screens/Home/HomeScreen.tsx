@@ -1,6 +1,6 @@
 import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { View, StyleSheet, ScrollView, Platform, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../routes/types';
 import { spacing, AppTheme } from '../../constants/theme';
@@ -22,41 +22,34 @@ interface HomeScreenProps {
 
 export default function Home({ navigation }: HomeScreenProps) {
   const { status, pets, routine, taskModal, navigation: nav } = useHomeData(navigation);
-  const { theme, isDark } = useTheme();
+  const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
 
   if (status.isLoading && (pets?.list?.length ?? 0) === 0) {
     return <LoadingSpinner message="Carregando dados do PetGuardian..." />;
   }
 
   if (status.isError && (pets?.list?.length ?? 0) === 0) {
-    return (
-      <>
-        <HomeErrorState status={status} />
-        <StatusBar style={isDark ? 'light' : 'dark'} />
-      </>
-    );
+    return <HomeErrorState status={status} />;
   }
 
   if ((pets?.list?.length ?? 0) === 0) {
     return (
-      <>
-        <HomeEmptyState
-          status={status}
-          onNavigateToFamily={nav.toFamily}
-          onNavigateToAi={nav.toAi}
-          onNavigateToEducation={nav.toEducation}
-        />
-        <StatusBar style={isDark ? 'light' : 'dark'} />
-      </>
+      <HomeEmptyState
+        status={status}
+        onNavigateToFamily={nav.toFamily}
+        onNavigateToAi={nav.toAi}
+        onNavigateToEducation={nav.toEducation}
+      />
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 16) }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}
         refreshControl={
           <RefreshControl
             refreshing={status.isFetching && !status.isLoading}
@@ -82,13 +75,11 @@ export default function Home({ navigation }: HomeScreenProps) {
         {/* Atalho Rápido para a IA Assistente Preventiva */}
         <HomeAiShortcut onPress={nav.toAi} />
 
-        <View style={{ height: 140 }} />
       </ScrollView>
 
       {/* Modal de Edição Rápida de Tarefa */}
       <HomeTaskModal taskModal={taskModal} pets={pets} />
 
-      <StatusBar style={isDark ? 'light' : 'dark'} />
     </View>
   );
 }
@@ -98,7 +89,6 @@ const createStyles = (theme: AppTheme) =>
     container: {
       flex: 1,
       backgroundColor: theme.background,
-      paddingTop: Platform.OS === 'ios' ? 50 : 25,
     },
     scrollContent: {
       paddingHorizontal: spacing.lg,

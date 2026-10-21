@@ -55,7 +55,7 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
           </View>
 
           {/* Mensagem do Commit de Referência */}
-          {Boolean(APP_VERSION_INFO.commitMessage) && (
+          {Boolean(APP_VERSION_INFO.commitMessage) ? (
             <View style={styles.commitMessageBox}>
               <View style={styles.commitMessageHeader}>
                 <Ionicons name="chatbox-ellipses-outline" size={13} color={theme.badgePrimaryText} />
@@ -65,7 +65,7 @@ export function SobreAppModal({ visible, onClose }: SobreAppModalProps) {
                 "{APP_VERSION_INFO.commitMessage}"
               </Text>
             </View>
-          )}
+          ) : null}
 
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>

@@ -63,9 +63,9 @@ export function CaregiverCard({
       </View>
 
       {/* Ações de Gestão do Cuidador */}
-      {(onTransfer || onRemove) && (
+      {(onTransfer || onRemove) ? (
         <View style={styles.actionsContainer}>
-          {onTransfer && (
+          {onTransfer ? (
             <TouchableOpacity
               style={styles.actionBtnTransfer}
               onPress={onTransfer}
@@ -78,9 +78,9 @@ export function CaregiverCard({
                 color={theme.badgeWarningText}
               />
             </TouchableOpacity>
-          )}
+          ) : null}
 
-          {onRemove && (
+          {onRemove ? (
             <TouchableOpacity
               style={styles.actionBtnRemove}
               onPress={onRemove}
@@ -93,13 +93,13 @@ export function CaregiverCard({
                 color={theme.badgeDangerText}
               />
             </TouchableOpacity>
-          )}
+          ) : null}
         </View>
-      )}
+      ) : null}
 
-      {onPress && !onTransfer && !onRemove && (
+      {(onPress && !onTransfer && !onRemove) ? (
         <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
-      )}
+      ) : null}
     </TouchableOpacity>
   );
 }

@@ -59,7 +59,7 @@ export default function PetDetailScreen({ route, navigation }: PetDetailScreenPr
           onSelectPet={pet.select}
         />
 
-        {pet?.active && (
+        {pet?.active ? (
           <View style={styles.contentPadding}>
             {/* Card Principal do Perfil do Pet */}
             <PetHeaderCard
@@ -99,7 +99,7 @@ export default function PetDetailScreen({ route, navigation }: PetDetailScreenPr
               isLoading={status.isLoadingHistory}
             />
           </View>
-        )}
+        ) : null}
       </ScrollView>
 
       {/* Modais de Gestão do Pet, Cuidadores e Histórico */}

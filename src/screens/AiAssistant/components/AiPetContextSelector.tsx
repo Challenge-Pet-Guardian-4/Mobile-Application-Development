@@ -10,7 +10,9 @@ interface AiPetContextSelectorProps {
 
 export function AiPetContextSelector({ pet }: AiPetContextSelectorProps) {
   const styles = useThemedStyles(createStyles);
-  if ((pet?.pets?.length ?? 0) === 0) return null;
+  if ((pet?.pets?.length ?? 0) === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.petContextBar}>

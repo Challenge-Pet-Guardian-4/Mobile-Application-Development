@@ -55,7 +55,9 @@ export function useAiChat(pet?: PetResponse) {
   const sendMessage = useCallback(
     (text: string) => {
       const trimmed = text.trim();
-      if (!trimmed) return;
+      if (!trimmed) {
+        return;
+      }
 
       const userMsg: AiMessage = {
         id: `user_${Date.now()}`,

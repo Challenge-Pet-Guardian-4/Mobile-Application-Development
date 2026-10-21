@@ -96,7 +96,9 @@ const InviteCaregiverContent = memo(function InviteCaregiverContent({
 
 export function InviteCaregiverModal(props: InviteCaregiverModalProps) {
   const { visible, initialPetId } = props;
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   return <InviteCaregiverContent key={initialPetId || 'default'} {...props} />;
 }

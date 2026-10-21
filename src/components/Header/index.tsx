@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useSession } from '../../hooks/useSession';
 import { shadows } from '../../utils/shadow';
-import { colors, spacing, AppTheme } from '../../constants/theme';
-import { useThemedStyles } from '../../contexts/ThemeContext';
+import { spacing, AppTheme } from '../../constants/theme';
+import { useThemedStyles, useTheme } from '../../contexts/ThemeContext';
 
 export type HeaderProps = {
   title?: string;
@@ -14,6 +14,7 @@ export type HeaderProps = {
 
 export function Header({ title, subtitle, onRightPress }: HeaderProps) {
   const { user } = useSession();
+  const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
   const userName = user?.nome ? user.nome.split(' ')[0] : 'Tutor';
 
@@ -22,7 +23,7 @@ export function Header({ title, subtitle, onRightPress }: HeaderProps) {
       <View style={styles.leftColumn}>
         <View style={styles.brandRow}>
           <View style={styles.brandIconWrapper}>
-            <FontAwesome5 name="paw" size={13} color={colors.primary[600]} />
+            <FontAwesome5 name="paw" size={13} color={theme.primary} />
           </View>
           <Text style={styles.brandText}>PetGuardian</Text>
         </View>
@@ -67,14 +68,14 @@ const createStyles = (theme: AppTheme) =>
       width: 22,
       height: 22,
       borderRadius: 7,
-      backgroundColor: colors.primary[50],
+      backgroundColor: theme.badgePrimaryBg,
       justifyContent: 'center',
       alignItems: 'center',
     },
     brandText: {
       fontSize: 12,
       fontWeight: '700',
-      color: colors.primary[600],
+      color: theme.primary,
       letterSpacing: 0.3,
     },
     pageTitle: {
@@ -95,7 +96,7 @@ const createStyles = (theme: AppTheme) =>
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: theme.isDark ? theme.surfaceMuted : colors.neutral[900],
+      backgroundColor: theme.isDark ? theme.surfaceMuted : theme.colors.neutral[900],
       borderColor: theme.border,
       borderWidth: theme.isDark ? 1 : 0,
       justifyContent: 'center',
@@ -104,7 +105,7 @@ const createStyles = (theme: AppTheme) =>
       elevation: 3,
     },
     avatarText: {
-      color: theme.isDark ? theme.text : colors.neutral.white,
+      color: theme.isDark ? theme.text : '#FFFFFF',
       fontSize: 13,
       fontWeight: '800',
     },

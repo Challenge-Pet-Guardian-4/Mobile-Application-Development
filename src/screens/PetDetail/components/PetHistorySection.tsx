@@ -7,7 +7,7 @@ import { PaginationControls } from '../../../components/PaginationControls';
 import { HistoricoResponse } from '../../../types/historico';
 import { TarefaResponse } from '../../../types/task';
 import { formatarIsoParaBr } from '../../../utils/petUtils';
-import { AppTheme, colors, spacing, borderRadius } from '../../../constants/theme';
+import { AppTheme, spacing, borderRadius } from '../../../constants/theme';
 import { useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface HealthHistoryProps {
@@ -34,17 +34,28 @@ export type PetHistorySectionProps = HealthHistoryProps | RoutineHistoryProps;
 
 function getEventIcon(tipo: string): keyof typeof MaterialCommunityIcons.glyphMap {
   const lower = tipo.toLowerCase();
-  if (lower.includes('vacina')) return 'needle';
-  if (lower.includes('consulta')) return 'stethoscope';
-  if (lower.includes('exame')) return 'flask-outline';
-  if (lower.includes('verm') || lower.includes('pulga') || lower.includes('remédio') || lower.includes('medica'))
+  if (lower.includes('vacina')) {
+    return 'needle';
+  }
+  if (lower.includes('consulta')) {
+    return 'stethoscope';
+  }
+  if (lower.includes('exame')) {
+    return 'flask-outline';
+  }
+  if (lower.includes('verm') || lower.includes('pulga') || lower.includes('remédio') || lower.includes('medica')) {
     return 'pill';
-  if (lower.includes('cirurg') || lower.includes('castra')) return 'hospital-box-outline';
+  }
+  if (lower.includes('cirurg') || lower.includes('castra')) {
+    return 'hospital-box-outline';
+  }
   return 'calendar-check-outline';
 }
 
 function formatarDataConclusao(dataStr?: string | null): string {
-  if (!dataStr) return 'Concluído';
+  if (!dataStr) {
+    return 'Concluído';
+  }
   return formatarIsoParaBr(dataStr) || 'Concluído';
 }
 
@@ -77,12 +88,12 @@ export function PetHistorySection(props: PetHistorySectionProps) {
           </Text>
         </View>
 
-        {isHealth && (
+        {isHealth ? (
           <TouchableOpacity style={styles.btnAdd} onPress={props.onAdd} activeOpacity={0.7}>
             <Ionicons name="add" size={14} color="#FFFFFF" />
             <Text style={styles.btnAddText}>Registrar</Text>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
 
       {isLoading ? (
@@ -154,13 +165,13 @@ export function PetHistorySection(props: PetHistorySectionProps) {
                 </View>
               ))}
 
-          {totalPages > 1 && (
+          {totalPages > 1 ? (
             <PaginationControls
               currentPage={safePage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
             />
-          )}
+          ) : null}
         </>
       )}
     </View>
@@ -198,7 +209,7 @@ const createStyles = (theme: AppTheme) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
-      backgroundColor: colors.danger[600],
+      backgroundColor: theme.badgeDangerBg,
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: borderRadius.md,
@@ -206,7 +217,7 @@ const createStyles = (theme: AppTheme) =>
     btnAddText: {
       fontSize: 12,
       fontWeight: '700',
-      color: colors.neutral.white,
+      color: theme.badgeDangerText,
     },
     emptyBox: {
       alignItems: 'center',

@@ -70,7 +70,6 @@ export default function AiAssistantScreen() {
         {/* Histórico do Chat */}
         <AiChatMessages chat={chat} />
 
-        <View style={{ height: 20 }} />
       </ScrollView>
 
       {/* Painel Fixo Inferior: Sugestões de Perguntas + Barra de Input */}

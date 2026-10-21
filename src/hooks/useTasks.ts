@@ -33,7 +33,9 @@ function criarMutacaoStatusOtimista(
       queryClient.setQueriesData<Page<TarefaResponse>>(
         { queryKey: queryKeys.tasks.all },
         (old) => {
-          if (!old || !old.content) return old;
+          if (!old || !old.content) {
+            return old;
+          }
           return {
             ...old,
             content: old.content.map((task) => (task.id === id ? atualizarTarefa(task) : task)),

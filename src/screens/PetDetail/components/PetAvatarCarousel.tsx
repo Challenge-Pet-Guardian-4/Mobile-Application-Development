@@ -14,7 +14,9 @@ export interface PetAvatarCarouselProps {
 export function PetAvatarCarousel({ pets, selectedPetId, onSelectPet }: PetAvatarCarouselProps) {
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
-  if (pets.length === 0) return null;
+  if (pets.length === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.carrosselContainer}>

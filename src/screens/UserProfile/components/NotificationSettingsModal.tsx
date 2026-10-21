@@ -5,7 +5,7 @@ import { BaseModal } from '../../../components/BaseModal';
 import { OPCOES_ANTECEDENCIA, NotificationService, DEFAULT_NOTIFICATION_SETTINGS } from '../../../services/notifications';
 import { NotificationSettings, AntecedenciaMinutos } from '../../../types/notification';
 import { useNotifications } from '../../../hooks/useNotifications';
-import { AppTheme, colors, borderRadius, spacing } from '../../../constants/theme';
+import { AppTheme, borderRadius, spacing } from '../../../constants/theme';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 interface NotificationSettingsModalProps {
@@ -113,7 +113,7 @@ export function NotificationSettingsModal({
               activeOpacity={0.8}
             >
               {isSaving ? (
-                <ActivityIndicator size="small" color={colors.neutral.white} />
+                <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
                 <Text style={styles.btnSalvarText}>Salvar Preferências</Text>
               )}
@@ -124,13 +124,13 @@ export function NotificationSettingsModal({
     >
       {isLoadingSettings ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={colors.primary[600]} />
+          <ActivityIndicator size="small" color={theme.primary} />
           <Text style={styles.loadingText}>Carregando preferências...</Text>
         </View>
       ) : (
         <View style={styles.content}>
           {/* Banner de Aviso caso o sistema tenha negado permissão */}
-          {!permissaoConcedida && (
+          {!permissaoConcedida ? (
             <View style={styles.permissionWarningBox}>
               <Ionicons name="warning-outline" size={20} color="#D97706" />
               <View style={{ flex: 1 }}>
@@ -148,7 +148,7 @@ export function NotificationSettingsModal({
                 </TouchableOpacity>
               </View>
             </View>
-          )}
+          ) : null}
 
           {/* Toggle Principal de Ativação */}
           <View style={styles.toggleCard}>
@@ -170,13 +170,13 @@ export function NotificationSettingsModal({
             <Switch
               value={localSettings.ativado}
               onValueChange={handleToggleAtivado}
-              trackColor={{ false: colors.neutral[300], true: colors.primary[200] }}
-              thumbColor={localSettings.ativado ? theme.primary : colors.neutral[100]}
+              trackColor={{ false: theme.border, true: theme.badgePrimaryBorder }}
+              thumbColor={localSettings.ativado ? theme.primary : theme.textMuted}
             />
           </View>
 
           {/* Seleção de Antecedência */}
-          {localSettings.ativado && (
+          {localSettings.ativado ? (
             <View style={styles.sectionAntecedencia}>
               <View style={styles.sectionHeader}>
                 <Ionicons name="time-outline" size={16} color={theme.textSecondary} />
@@ -212,7 +212,7 @@ export function NotificationSettingsModal({
                 })}
               </View>
             </View>
-          )}
+          ) : null}
         </View>
       )}
     </BaseModal>
@@ -390,7 +390,7 @@ const createStyles = (theme: AppTheme) =>
     btnSalvarText: {
       fontSize: 13,
       fontWeight: '700',
-      color: colors.neutral.white,
+      color: "#FFFFFF",
     },
   });
 

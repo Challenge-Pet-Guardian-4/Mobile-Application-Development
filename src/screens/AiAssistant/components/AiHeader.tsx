@@ -34,7 +34,7 @@ export function AiHeader({ onGoBack, onClearChat, onOpenHistory, hasMessages }: 
         </TouchableOpacity>
 
         <View style={styles.rightActions}>
-          {onOpenHistory && (
+          {onOpenHistory ? (
             <TouchableOpacity
               onPress={onOpenHistory}
               style={styles.btnHistorico}
@@ -43,9 +43,9 @@ export function AiHeader({ onGoBack, onClearChat, onOpenHistory, hasMessages }: 
               <Ionicons name="time-outline" size={14} color={theme.textSecondary} />
               <Text style={styles.btnHistoricoText}>Histórico</Text>
             </TouchableOpacity>
-          )}
+          ) : null}
 
-          {hasMessages && onClearChat && (
+          {(hasMessages && onClearChat) ? (
             <TouchableOpacity
               onPress={onClearChat}
               style={styles.btnNovaDuvida}
@@ -54,7 +54,7 @@ export function AiHeader({ onGoBack, onClearChat, onOpenHistory, hasMessages }: 
               <Ionicons name="sparkles-outline" size={14} color={theme.primary} />
               <Text style={styles.btnNovaDuvidaText}>Nova Dúvida</Text>
             </TouchableOpacity>
-          )}
+          ) : null}
         </View>
       </View>
     </View>

@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { shadows } from '../../../utils/shadow';
 import { useUserProfile } from '../../../hooks/useUserProfile';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
-import { AppTheme, colors } from '../../../constants/theme';
+import { AppTheme } from '../../../constants/theme';
 
 interface StatCardProps {
   iconName: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -40,7 +40,7 @@ export function EstatisticasPerfil({ profile }: EstatisticasPerfilProps) {
     <View style={styles.statsRow}>
       <StatCard
         iconName="star"
-        iconColor={colors.warning[600]}
+        iconColor={theme.badgeWarningText}
         iconBgColor={theme.badgeWarningBg}
         value={pontosTotais !== undefined ? `${pontosTotais}` : '0'}
         label="Pontos XP"
@@ -56,7 +56,7 @@ export function EstatisticasPerfil({ profile }: EstatisticasPerfilProps) {
       />
       <StatCard
         iconName="check-circle"
-        iconColor={colors.success.default}
+        iconColor={theme.badgeSuccessText}
         iconBgColor={theme.badgeSuccessBg}
         value={redeCuidado?.totalTarefasConcluidas ? `${redeCuidado.totalTarefasConcluidas}` : '0'}
         label="Concluídas"

@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, RefreshControl, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Header } from '../../../components/Header';
-import { AppTheme, colors, spacing } from '../../../constants/theme';
+import { AppTheme, spacing } from '../../../constants/theme';
 import { shadows } from '../../../utils/shadow';
 import { useHomeData } from '../../../hooks/useHomeData';
-import { useThemedStyles } from '../../../contexts/ThemeContext';
+import { useThemedStyles, useTheme } from '../../../contexts/ThemeContext';
 
 import axios from 'axios';
 import { useSession } from '../../../hooks/useSession';
@@ -15,7 +16,9 @@ interface HomeErrorStateProps {
 }
 
 export function HomeErrorState({ status }: HomeErrorStateProps) {
+  const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
   const { logout } = useSession();
   const isRefreshing = status.isFetching && !status.isLoading;
 
@@ -26,15 +29,15 @@ export function HomeErrorState({ status }: HomeErrorStateProps) {
     status.error?.message?.toLowerCase().includes('login');
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 16) }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={status.refetch}
-            tintColor={colors.success.default}
+            tintColor={theme.primary}
           />
         }
       >
@@ -53,16 +56,16 @@ export function HomeErrorState({ status }: HomeErrorStateProps) {
               <Text style={styles.buttonText}>Tentar novamente</Text>
             </TouchableOpacity>
 
-            {isAuthError && (
+            {isAuthError ? (
               <TouchableOpacity
-                style={[styles.button, { backgroundColor: colors.primary.default, marginTop: 10 }]}
+                style={[styles.button, { backgroundColor: theme.primary, marginTop: 10 }]}
                 onPress={logout}
                 activeOpacity={0.8}
               >
                 <Ionicons name="log-in-outline" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
                 <Text style={styles.buttonText}>Fazer Login Novamente</Text>
               </TouchableOpacity>
-            )}
+            ) : null}
           </View>
         </View>
       </ScrollView>
@@ -75,12 +78,11 @@ const createStyles = (theme: AppTheme) =>
     container: {
       flex: 1,
       backgroundColor: theme.background,
-      paddingTop: Platform.OS === 'ios' ? 50 : 25,
     },
     scrollContent: {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.xs,
-      paddingBottom: 100,
+      paddingBottom: 24,
       gap: spacing.md,
     },
     cardContainer: {

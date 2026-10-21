@@ -28,16 +28,16 @@ export function FamilyCaregiversSection({
     <View style={styles.sectionBox}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Rede de Cuidados</Text>
-        {isPrincipal && (
+        {isPrincipal ? (
           <TouchableOpacity style={styles.btnInvite} onPress={onInvite} activeOpacity={0.8}>
             <Ionicons name="person-add" size={14} color={theme.badgePrimaryText} />
             <Text style={styles.btnInviteText}>Convidar</Text>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
 
       {/* Meu perfil */}
-      {currentUserCaregiver && (
+      {currentUserCaregiver ? (
         <CaregiverCard
           nome={currentUserCaregiver.nome}
           email={currentUserCaregiver.email}
@@ -45,7 +45,7 @@ export function FamilyCaregiversSection({
           isCurrentUser
           isPrincipal={currentUserCaregiver.isPrincipal}
         />
-      )}
+      ) : null}
 
       {/* Co-cuidadores */}
       {(coCuidadores ?? []).map((c: CuidadorFamiliarItem) => (

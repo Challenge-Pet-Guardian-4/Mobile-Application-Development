@@ -176,7 +176,9 @@ const EditProfileContent = memo(function EditProfileContent({
 
 export function EditProfileModal(props: EditProfileModalProps) {
   const { visible, initialData } = props;
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   const formKey = initialData.email || 'user_profile';
 

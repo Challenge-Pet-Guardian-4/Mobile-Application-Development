@@ -33,7 +33,7 @@ export function TrainingTrail({
               { transform: [{ translateX: currentOffset }] },
             ]}
           >
-            {index > 0 && <View style={styles.nodeConnector} />}
+            {index > 0 ? <View style={styles.nodeConnector} /> : null}
 
             <TouchableOpacity
               style={[

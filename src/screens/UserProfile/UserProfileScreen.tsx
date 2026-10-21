@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Platform, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Header } from '../../components/Header';
 import { FaqModal } from './components/FaqModal';
@@ -29,13 +30,14 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
   const { settings, recarregar: recarregarNotificacoes } = useNotifications();
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
 
   const subtituloNotificacoes = settings.ativado
     ? `Lembretes ativos • ${settings.minutosAntecedencia === 0 ? 'No horário' : `${settings.minutosAntecedencia} min antes`}`
     : 'Lembretes desativados';
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 16) }]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -84,7 +86,6 @@ export default function UserProfileScreen({ navigation }: UserProfileScreenProps
           onDeleteAccount={actions.excluirConta}
         />
 
-        <View style={{ height: 110 }} />
       </ScrollView>
 
       {/* Modais de Suporte, Edição de Perfil, Preferências de Notificações, Sobre o App e Upgrade Premium */}
@@ -126,12 +127,11 @@ const createStyles = (theme: AppTheme) =>
     container: {
       flex: 1,
       backgroundColor: theme.background,
-      paddingTop: Platform.OS === 'ios' ? 50 : 25,
     },
     scrollContent: {
       paddingHorizontal: 20,
       paddingTop: 10,
-      paddingBottom: 140,
+      paddingBottom: 120,
       gap: 16,
     },
   });

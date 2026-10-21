@@ -33,7 +33,9 @@ export function useNotificationSync() {
   // Trata interação ao tocar na notificação e navega para a tela apropriada
   const processarRespostaNotificacao = useCallback((response: Notifications.NotificationResponse) => {
     const data = response.notification.request.content.data as NotificationPayloadData | undefined;
-    if (!data) return;
+    if (!data) {
+      return;
+    }
 
     if (!navigationRef.isReady()) {
       pendingResponseRef.current = response;
@@ -81,7 +83,9 @@ export function useNotificationSync() {
 
   // Listener único de toque em notificação e tratamento de cold start
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      return;
+    }
 
     const lastResponse = Notifications.getLastNotificationResponse();
     if (lastResponse) {
@@ -97,7 +101,9 @@ export function useNotificationSync() {
 
   // Sincroniza alarmes ao logar/iniciar e ao voltar para primeiro plano (AppState)
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      return;
+    }
 
     sincronizarAlarmes();
 

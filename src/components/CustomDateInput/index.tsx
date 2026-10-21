@@ -27,6 +27,21 @@ const TIME_PRESETS = [
   { label: '23:59', hora: '23:59' },
 ];
 
+function formatDateInput(text: string, showTime: boolean): string {
+  const digits = text.replace(/\D/g, '').slice(0, showTime ? 12 : 8);
+  let masked = digits
+    .replace(/^(\d{2})(\d)/, '$1/$2')
+    .replace(/^(\d{2}\/\d{2})(\d)/, '$1/$2');
+
+  if (showTime) {
+    masked = masked
+      .replace(/^(\d{2}\/\d{2}\/\d{4})(\d)/, '$1 $2')
+      .replace(/^(\d{2}\/\d{2}\/\d{4} \d{2})(\d)/, '$1:$2');
+  }
+
+  return masked;
+}
+
 export const CustomDateInput = memo(function CustomDateInput({
   label = 'Data',
   placeholder,
@@ -43,30 +58,7 @@ export const CustomDateInput = memo(function CustomDateInput({
   const defaultPlaceholder = showTime ? 'DD/MM/AAAA HH:mm' : 'DD/MM/AAAA';
 
   const handleChangeText = (text: string) => {
-    if (!showTime) {
-      const digits = text.replace(/\D/g, '').slice(0, 8);
-      let formatted = digits;
-      if (digits.length > 4) {
-        formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-      } else if (digits.length > 2) {
-        formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
-      }
-      onChangeDate(formatted);
-      return;
-    }
-
-    const digits = text.replace(/\D/g, '').slice(0, 12);
-    let formatted = digits;
-    if (digits.length > 10) {
-      formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)} ${digits.slice(8, 10)}:${digits.slice(10, 12)}`;
-    } else if (digits.length > 8) {
-      formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)} ${digits.slice(8)}`;
-    } else if (digits.length > 4) {
-      formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-    } else if (digits.length > 2) {
-      formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
-    }
-    onChangeDate(formatted);
+    onChangeDate(formatDateInput(text, showTime));
   };
 
   const handleApplyPresetTime = (hora: string) => {
@@ -90,7 +82,7 @@ export const CustomDateInput = memo(function CustomDateInput({
         leftIcon={<Ionicons name={showTime ? 'time-outline' : 'calendar-outline'} size={18} color={theme.textMuted} />}
       />
 
-      {showTime && quickTimePresets && (
+      {showTime && quickTimePresets ? (
         <View style={styles.presetsRow}>
           <Text style={styles.presetsLabel}>Horários rápidos sugeridos:</Text>
           <View style={styles.chipsContainer}>
@@ -111,7 +103,7 @@ export const CustomDateInput = memo(function CustomDateInput({
             })}
           </View>
         </View>
-      )}
+      ) : null}
     </View>
   );
 });

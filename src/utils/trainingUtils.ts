@@ -25,7 +25,9 @@ export function resolveCategoriaEIcone(nome: string): { categoria: string; icone
  * Converte o campo de tempo de conclusão (ex: "15 min") para um valor numérico em minutos.
  */
 export function extrairMinutosDuracao(tempoConclusao?: string): number {
-  if (!tempoConclusao) return 10;
+  if (!tempoConclusao) {
+    return 10;
+  }
   const num = Number(tempoConclusao.replace(/\D/g, ''));
   return Number.isFinite(num) && num > 0 ? num : 10;
 }

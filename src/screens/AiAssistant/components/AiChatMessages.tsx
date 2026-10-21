@@ -18,7 +18,7 @@ export function AiChatMessages({ chat }: AiChatMessagesProps) {
     <View style={styles.chatSection}>
       <Text style={styles.chatSectionTitle}>Conversa com a IA</Text>
 
-      {!hasMessages && !chat?.isSending && (
+      {!hasMessages && !chat?.isSending ? (
         <View style={styles.emptyChatWrapper}>
           <View style={styles.emptyChatIconBg}>
             <MaterialCommunityIcons name="chat-processing-outline" size={28} color={theme.primary} />
@@ -28,7 +28,7 @@ export function AiChatMessages({ chat }: AiChatMessagesProps) {
             Envie perguntas sobre alimentação, vacinas, primeiros socorros ou rotina de cuidados do seu pet.
           </Text>
         </View>
-      )}
+      ) : null}
 
       {chat?.messages?.map((msg) => {
         const isUser = msg.sender === 'user';
@@ -38,7 +38,7 @@ export function AiChatMessages({ chat }: AiChatMessagesProps) {
             key={msg.id}
             style={[styles.msgWrapper, isUser ? styles.msgUserWrapper : styles.msgAiWrapper]}
           >
-            {!isUser && (
+            {!isUser ? (
               <View style={[styles.aiAvatar, isError && styles.aiAvatarError]}>
                 <MaterialCommunityIcons
                   name={isError ? 'alert-circle-outline' : 'robot'}
@@ -46,7 +46,7 @@ export function AiChatMessages({ chat }: AiChatMessagesProps) {
                   color={isError ? '#DC2626' : theme.primary}
                 />
               </View>
-            )}
+            ) : null}
             <View
               style={[
                 styles.msgBubble,
@@ -71,7 +71,7 @@ export function AiChatMessages({ chat }: AiChatMessagesProps) {
         );
       })}
 
-      {chat?.isSending && (
+      {chat?.isSending ? (
         <View style={[styles.msgWrapper, styles.msgAiWrapper]}>
           <View style={styles.aiAvatar}>
             <MaterialCommunityIcons name="robot" size={16} color={theme.primary} />
@@ -81,7 +81,7 @@ export function AiChatMessages({ chat }: AiChatMessagesProps) {
             <Text style={styles.msgTextAi}>Consultando inteligência preventiva...</Text>
           </View>
         </View>
-      )}
+      ) : null}
     </View>
   );
 }

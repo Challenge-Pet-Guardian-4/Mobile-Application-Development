@@ -57,7 +57,9 @@ export function useAiAssistantScreen() {
   const handleSend = useCallback(
     (texto?: string) => {
       const validacao = AiMessageInputSchema.safeParse(texto || inputText);
-      if (!validacao.success) return;
+      if (!validacao.success) {
+        return;
+      }
 
       sendMessage(validacao.data);
       setInputText('');

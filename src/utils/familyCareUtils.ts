@@ -47,7 +47,9 @@ export function formatarListaCoCuidadores(
 
       cPetIds.forEach((id) => {
         const petObj = pets.find((p) => p.id === id);
-        if (!petObj) return;
+        if (!petObj) {
+          return;
+        }
         if (principalIdsSet.has(id)) {
           cAjuda.push(petObj.nome);
         } else {
@@ -77,7 +79,9 @@ export function construirCuidadorUsuarioLogado(
   pets: Array<Pick<PetResponse, 'id' | 'nome'>>,
   petsOndeSouPrincipal: Array<Pick<PetResponse, 'id' | 'nome'>>
 ): CurrentUserCaregiver | null {
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   const petsPrincipalNomes = petsOndeSouPrincipal.map((p) => p.nome).filter(Boolean);
   const petsAjudaNomes = pets

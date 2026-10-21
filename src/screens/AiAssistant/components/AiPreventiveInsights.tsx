@@ -15,7 +15,9 @@ export function AiPreventiveInsights({ insights }: AiPreventiveInsightsProps) {
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
   const hasInsights = (insights?.data?.length ?? 0) > 0;
-  if (!insights?.isLoading && !hasInsights) return null;
+  if (!insights?.isLoading && !hasInsights) {
+    return null;
+  }
 
   return (
     <View style={styles.insightsSection}>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../../../components/Header';
 import { AppTheme } from '../../../constants/theme';
@@ -16,9 +17,10 @@ export function PetDetailHeader({
 }: PetDetailHeaderProps) {
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.paddingHeader}>
+    <View style={[styles.paddingHeader, { paddingTop: Math.max(insets.top, 16) }]}>
       <TouchableOpacity onPress={onGoBack} style={styles.btnVoltarTop} activeOpacity={0.7}>
         <Ionicons name="arrow-back" size={18} color={theme.text} />
         <Text style={styles.btnVoltarText}>Voltar</Text>
@@ -32,7 +34,6 @@ const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
     paddingHeader: {
       paddingHorizontal: 20,
-      paddingTop: Platform.OS === 'ios' ? 50 : 25,
     },
     btnVoltarTop: {
       flexDirection: 'row',

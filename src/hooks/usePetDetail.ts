@@ -23,7 +23,9 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
 
   // Verificação de titularidade do usuário no pet ativo
   const isResponsavelPrincipal = useMemo(() => {
-    if (!user) return false;
+    if (!user) {
+      return false;
+    }
     if (caregivers.length > 0) {
       const meuVinculo = caregivers.find((c: CoCuidadorResponse) => c.email.toLowerCase() === user.email.toLowerCase());
       return meuVinculo ? Boolean(meuVinculo.responsavelPrincipal) : false;
@@ -40,7 +42,9 @@ export function usePetDetail(routePetId?: number, onGoBack?: () => void) {
   });
 
   const initialPetData = useMemo(() => {
-    if (!activePet) return undefined;
+    if (!activePet) {
+      return undefined;
+    }
     return {
       nome: activePet.nome,
       raca: activePet.raca,

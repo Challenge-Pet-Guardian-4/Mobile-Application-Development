@@ -4,7 +4,7 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../utils/shadow';
 import { TasksRoutineSectionProps, } from '../../types/task';
 import { RoutineCard } from './RoutineCard';
-import { colors, spacing, borderRadius, AppTheme } from '../../constants/theme';
+import { spacing, borderRadius, AppTheme } from '../../constants/theme';
 import { PaginationControls } from '../PaginationControls';
 import { useTheme, useThemedStyles } from '../../contexts/ThemeContext';
 
@@ -64,7 +64,9 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
   } : undefined);
 
   const petNameMap = useMemo(() => {
-    if (!pets?.length) return null;
+    if (!pets?.length) {
+      return null;
+    }
     return new Map(pets.map((p) => [p.id, p.nome]));
   }, [pets]);
 
@@ -90,21 +92,21 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
           {effectiveSubtitle ? <Text style={styles.sectionSubtitle}>{effectiveSubtitle}</Text> : null}
         </View>
 
-        {headerButton && (
+        {headerButton ? (
           <TouchableOpacity
             style={isLinkButton ? styles.headerButtonLink : styles.headerButtonPrimary}
             onPress={headerButton.onPress}
             activeOpacity={0.7}
           >
-            {headerButton.icon === 'add' && <Ionicons name="add" size={16} color={colors.neutral.white} />}
+            {headerButton.icon === 'add' ? <Ionicons name="add" size={16} color="#FFFFFF" /> : null}
             <Text style={isLinkButton ? styles.headerButtonLinkText : styles.headerButtonPrimaryText}>
               {headerButton.label}
             </Text>
-            {headerButton.icon === 'chevron-forward' && (
+            {headerButton.icon === 'chevron-forward' ? (
               <Ionicons name="chevron-forward" size={14} color={theme.primary} />
-            )}
+            ) : null}
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
 
       {/* Abas de Filtro: Hoje vs Todas */}
@@ -178,7 +180,7 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
         </View>
       )}
 
-      {paginationData && (
+      {paginationData ? (
         <PaginationControls
           currentPage={paginationData.currentPage}
           totalPages={paginationData.totalPages}
@@ -186,7 +188,7 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
           onPageChange={paginationData.onPageChange}
           isLoading={paginationData.isLoading}
         />
-      )}
+      ) : null}
     </View>
   );
 });
@@ -222,14 +224,14 @@ const createStyles = (theme: AppTheme) =>
     headerButtonPrimary: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: colors.success.default,
+      backgroundColor: theme.primary,
       paddingVertical: spacing.xs,
       paddingHorizontal: spacing.sm,
       borderRadius: borderRadius.md,
       gap: 4,
     },
     headerButtonPrimaryText: {
-      color: colors.neutral.white,
+      color: "#FFFFFF",
       fontWeight: '800',
       fontSize: 12,
     },

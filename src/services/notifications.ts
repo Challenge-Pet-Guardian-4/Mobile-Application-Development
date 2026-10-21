@@ -101,7 +101,9 @@ export const NotificationService = {
   async getSettings(): Promise<NotificationSettings> {
     try {
       const raw = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
-      if (!raw) return DEFAULT_NOTIFICATION_SETTINGS;
+      if (!raw) {
+        return DEFAULT_NOTIFICATION_SETTINGS;
+      }
       const parsed = JSON.parse(raw) as Partial<NotificationSettings>;
       return {
         ativado: typeof parsed.ativado === 'boolean' ? parsed.ativado : DEFAULT_NOTIFICATION_SETTINGS.ativado,
@@ -284,7 +286,9 @@ export const NotificationService = {
 
       // 1. Filtra tarefas pendentes cujo alarme ainda está no futuro
       const pendentesFuturas = tarefas.filter((t) => {
-        if (t.status !== 'PENDENTE' || !t.prazo) return false;
+        if (t.status !== 'PENDENTE' || !t.prazo) {
+          return false;
+        }
         const prazoMs = new Date(t.prazo).getTime();
         return !Number.isNaN(prazoMs) && prazoMs - offsetMs > agora;
       });

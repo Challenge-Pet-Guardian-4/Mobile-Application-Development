@@ -44,7 +44,7 @@ export function LoginForm({ loginState }: LoginFormProps) {
         onChangeText={(t) => updateField('senha', t)}
       />
 
-      {mensagemErro && <Text style={styles.erroText}>{mensagemErro}</Text>}
+      {mensagemErro ? <Text style={styles.erroText}>{mensagemErro}</Text> : null}
 
       <CustomButton
         title={isPending ? 'Entrando…' : 'Entrar na Plataforma'}

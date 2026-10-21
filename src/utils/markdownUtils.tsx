@@ -20,7 +20,9 @@ export function renderMarkdownContent(
     const rawLine = lines[idx];
     const line = rawLine.trim();
 
-    if (!line) continue;
+    if (!line) {
+      continue;
+    }
 
     // 1. Linha horizontal / divisor (---, ***, ___)
     if (/^[-*_]{3,}$/.test(line)) {

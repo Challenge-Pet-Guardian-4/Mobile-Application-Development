@@ -2,7 +2,7 @@ import React, { memo, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { shadows } from '../../../utils/shadow';
-import { AppTheme, colors, spacing, borderRadius } from '../../../constants/theme';
+import { AppTheme, spacing, borderRadius } from '../../../constants/theme';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 import { obterStatusScoreBar } from '../../../utils/homeUtils';
 import { HomeScoreBarProps } from '../../../types/task';
@@ -11,7 +11,9 @@ export const HomeScoreBar = memo(function HomeScoreBar({ pets, routine, onPress 
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
   const activePet = pets?.active;
-  if (!activePet) return null;
+  if (!activePet) {
+    return null;
+  }
 
   const score = routine?.score ?? 0;
   const petName = activePet.nome || 'Pet';
@@ -47,7 +49,7 @@ export const HomeScoreBar = memo(function HomeScoreBar({ pets, routine, onPress 
           </View>
 
           <View style={styles.pointsBadge}>
-            <MaterialCommunityIcons name="star" size={14} color={colors.warning[600]} />
+            <MaterialCommunityIcons name="star" size={14} color={theme.badgeWarningText} />
             <Text style={styles.pointsBadgeText}>{score} XP</Text>
           </View>
         </View>
@@ -134,7 +136,7 @@ const createStyles = (theme: AppTheme) =>
       flexShrink: 0,
     },
     pointsBadgeText: {
-      color: colors.warning[600],
+      color: theme.badgeWarningText,
       fontWeight: '900',
       fontSize: 13,
     },

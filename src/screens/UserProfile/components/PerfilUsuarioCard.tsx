@@ -38,7 +38,7 @@ export function PerfilUsuarioCard({ profile, onEdit, onUpgrade, isUpgrading = fa
         ) : null}
       </View>
 
-      {user?.role === 'COMUM' && onUpgrade && (
+      {(user?.role === 'COMUM' && onUpgrade) ? (
         <TouchableOpacity
           style={styles.btnUpgradePremium}
           onPress={onUpgrade}
@@ -50,7 +50,7 @@ export function PerfilUsuarioCard({ profile, onEdit, onUpgrade, isUpgrading = fa
             {isUpgrading ? 'Ativando Premium...' : 'Fazer Upgrade para Premium ⭐'}
           </Text>
         </TouchableOpacity>
-      )}
+      ) : null}
 
       <View style={styles.infoPillsRow}>
         {user?.ddd && user?.numeroTelefone ? (
@@ -62,14 +62,14 @@ export function PerfilUsuarioCard({ profile, onEdit, onUpgrade, isUpgrading = fa
           </View>
         ) : null}
 
-        {enderecoPrincipal && (
+        {enderecoPrincipal ? (
           <View style={styles.infoPill}>
             <Ionicons name="location-outline" size={12} color={theme.textSecondary} />
             <Text style={styles.infoPillText}>
               {enderecoPrincipal.bairro ? `${enderecoPrincipal.bairro} • ` : ''}CEP {enderecoPrincipal.cep}
             </Text>
           </View>
-        )}
+        ) : null}
       </View>
 
       <TouchableOpacity

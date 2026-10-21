@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Platform } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../routes/types';
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default function WelcomeScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const handleRegister = useCallback(() => {
     navigation.navigate('Register');
   }, [navigation]);
@@ -21,7 +23,7 @@ export default function WelcomeScreen({ navigation }: Props) {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top + 16, 24), paddingBottom: Math.max(insets.bottom + 16, 24) }]}>
       <StatusBar style="light" />
 
       <View style={styles.content}>
@@ -89,7 +91,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#081324',
     paddingHorizontal: 28,
-    paddingTop: Platform.OS === 'android' ? 50 : 20,
   },
   content: {
     flex: 1,
@@ -162,7 +163,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     width: '100%',
-    paddingBottom: 35,
+    paddingBottom: 8,
     alignItems: 'center',
   },
   legalText: {

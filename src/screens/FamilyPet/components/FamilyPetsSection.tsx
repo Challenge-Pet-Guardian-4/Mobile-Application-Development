@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { PetCard } from './PetCard';
 import { PaginationControls } from '../../../components/PaginationControls';
-import { AppTheme, colors, spacing, borderRadius } from '../../../constants/theme';
+import { AppTheme, spacing, borderRadius } from '../../../constants/theme';
 import { shadows } from '../../../utils/shadow';
 import { useFamilyCare } from '../../../hooks/useFamilyCare';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
@@ -25,7 +25,7 @@ export function FamilyPetsSection({ family, onAddPet, onSelectPet }: FamilyPetsS
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Animais da Família</Text>
         <TouchableOpacity style={styles.btnAddPet} onPress={onAddPet} activeOpacity={0.8}>
-          <Ionicons name="add" size={16} color={colors.neutral.white} />
+          <Ionicons name="add" size={16} color="#FFFFFF" />
           <Text style={styles.btnAddPetText}>Adicionar Pet</Text>
         </TouchableOpacity>
       </View>
@@ -88,14 +88,14 @@ const createStyles = (theme: AppTheme) =>
     btnAddPet: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: colors.success.default,
+      backgroundColor: theme.primary,
       paddingVertical: spacing.xs,
       paddingHorizontal: spacing.sm,
       borderRadius: borderRadius.md,
       gap: 4,
     },
     btnAddPetText: {
-      color: colors.neutral.white,
+      color: "#FFFFFF",
       fontWeight: '800',
       fontSize: 12,
     },

@@ -30,7 +30,9 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
 
-  if (!cuidador) return null;
+  if (!cuidador) {
+    return null;
+  }
 
   const handlePressTransfer = (pet: PetResumo) => {
     Alert.alert(
@@ -112,7 +114,7 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
                 disabled={isLoading}
               >
                 <View style={[styles.checkbox, isLinked && styles.checkboxActive]}>
-                  {isLinked && <Ionicons name="checkmark" size={14} color="#FFFFFF" />}
+                  {isLinked ? <Ionicons name="checkmark" size={14} color="#FFFFFF" /> : null}
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.petName, isLinked && styles.petNameActive]}>
@@ -125,7 +127,7 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
               </TouchableOpacity>
 
               {/* Botão de Transferir Titularidade deste pet */}
-              {isLinked && (
+              {isLinked ? (
                 <TouchableOpacity
                   style={styles.btnTransferCrown}
                   onPress={() => handlePressTransfer(pet)}
@@ -135,14 +137,14 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
                   <MaterialCommunityIcons name="crown-outline" size={16} color={theme.badgeWarningText} />
                   <Text style={styles.btnTransferCrownText}>Passar Titularidade</Text>
                 </TouchableOpacity>
-              )}
+              ) : null}
             </View>
           );
         })
       )}
 
       {/* Ação Destrutiva em Massa */}
-      {cuidador.petIds.length > 0 && (
+      {cuidador.petIds.length > 0 ? (
         <TouchableOpacity
           style={styles.btnRemoveAll}
           onPress={handlePressRemoveAll}
@@ -154,7 +156,7 @@ export const ManageCaregiverModal = memo(function ManageCaregiverModal({
             Desvincular de todos os animais
           </Text>
         </TouchableOpacity>
-      )}
+      ) : null}
     </BaseModal>
   );
 });

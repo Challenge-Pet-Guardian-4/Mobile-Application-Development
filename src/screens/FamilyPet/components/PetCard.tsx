@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { PetResponse } from '../../../types/pet';
-import { AppTheme, colors, spacing, borderRadius } from '../../../constants/theme';
+import { AppTheme, spacing, borderRadius } from '../../../constants/theme';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 export interface PetCardProps {
@@ -24,12 +24,12 @@ export function PetCard({ pet, isResponsavelPrincipal, tarefasCount, pontosTotai
       activeOpacity={0.85}
       disabled={!onPress}
     >
-      {isResponsavelPrincipal && (
+      {isResponsavelPrincipal ? (
         <View style={styles.principalBadge}>
-          <Ionicons name="shield-checkmark" size={10} color={colors.neutral.white} />
+          <Ionicons name="shield-checkmark" size={10} color={theme.badgeSuccessText} />
           <Text style={styles.principalBadgeText}>Tutor Princ.</Text>
         </View>
-      )}
+      ) : null}
 
       <View style={styles.avatarWrapper}>
         <MaterialCommunityIcons name="paw" size={24} color={theme.primary} />
@@ -85,7 +85,7 @@ const createStyles = (theme: AppTheme) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: 3,
-      backgroundColor: colors.success[600],
+      backgroundColor: theme.badgeSuccessBg,
       paddingVertical: 2,
       paddingHorizontal: 6,
       borderRadius: borderRadius.xs,
@@ -94,7 +94,7 @@ const createStyles = (theme: AppTheme) =>
     principalBadgeText: {
       fontSize: 9,
       fontWeight: '800',
-      color: colors.neutral.white,
+      color: theme.badgeSuccessText,
     },
     avatarWrapper: {
       width: 52,

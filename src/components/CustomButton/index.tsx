@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle, TouchableOpacityProps } from 'react-native';
 import { shadows } from '../../utils/shadow';
-import { colors, borderRadius, AppTheme } from '../../constants/theme';
+import { borderRadius, AppTheme } from '../../constants/theme';
 import { useThemedStyles, useTheme } from '../../contexts/ThemeContext';
 
 interface CustomButtonProps extends TouchableOpacityProps {
@@ -65,7 +65,7 @@ export const CustomButton = memo(function CustomButton({
       {...rest}
     >
       {isLoading ? (
-        <ActivityIndicator color={variant === 'outline' ? theme.text : colors.neutral.white} size="small" />
+        <ActivityIndicator color={variant === 'outline' ? theme.text : '#FFFFFF'} size="small" />
       ) : (
         <>
           {icon}
@@ -101,12 +101,12 @@ const createStyles = (theme: AppTheme) =>
       borderColor: theme.border,
     },
     btnDanger: {
-      backgroundColor: colors.danger.default,
+      backgroundColor: theme.colors.danger.default,
       ...shadows.sm,
       elevation: 2,
     },
     btnSuccess: {
-      backgroundColor: colors.success.default,
+      backgroundColor: theme.colors.success.default,
       ...shadows.sm,
       elevation: 2,
     },
@@ -119,7 +119,7 @@ const createStyles = (theme: AppTheme) =>
       letterSpacing: 0.2,
     },
     textPrimary: {
-      color: colors.neutral.white,
+      color: '#FFFFFF',
     },
     textSecondary: {
       color: theme.badgePrimaryText,

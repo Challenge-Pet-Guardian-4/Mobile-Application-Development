@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../../utils/shadow';
 import { APP_VERSION_INFO } from '../../../config/version';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
-import { AppTheme, colors } from '../../../constants/theme';
+import { AppTheme } from '../../../constants/theme';
 
 interface ContaESuporteProps {
   onOpenNotifications: () => void;
@@ -133,7 +133,7 @@ export function ContaESuporte({
         activeOpacity={0.7}
       >
         <View style={styles.menuIconWrapperDanger}>
-          <Ionicons name="log-out-outline" size={20} color={colors.danger.default} />
+          <Ionicons name="log-out-outline" size={20} color={theme.badgeDangerText} />
         </View>
         <View style={styles.itemContent}>
           <Text style={styles.menuTextDanger}>Encerrar Sessão (Logout)</Text>
@@ -237,7 +237,7 @@ const createStyles = (theme: AppTheme) =>
     menuTextDanger: {
       fontSize: 14,
       fontWeight: '600',
-      color: colors.danger.default,
+      color: theme.badgeDangerText,
     },
     menuTextDestructive: {
       fontSize: 14,

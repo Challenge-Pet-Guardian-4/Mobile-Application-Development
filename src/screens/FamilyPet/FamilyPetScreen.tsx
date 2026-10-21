@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FamilyStackParamList } from '../../routes/types';
 import { useFamilyCare } from '../../hooks/useFamilyCare';
-import { colors, spacing, AppTheme } from '../../constants/theme';
+import { spacing, AppTheme } from '../../constants/theme';
 import { Header } from '../../components/Header';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { FamilySummaryCard } from './components/FamilySummaryCard';
@@ -11,14 +12,16 @@ import { FamilyPetsSection } from './components/FamilyPetsSection';
 import { FamilyRoutineSection } from './components/FamilyRoutineSection';
 import { FamilyCaregiversSection } from './components/FamilyCaregiversSection';
 import { FamilyPetModals } from './components/FamilyPetModals';
-import { useThemedStyles } from '../../contexts/ThemeContext';
+import { useThemedStyles, useTheme } from '../../contexts/ThemeContext';
 
 interface FamilyPetScreenProps {
   navigation: NativeStackNavigationProp<FamilyStackParamList>;
 }
 
 export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
+  const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
   const familyCare = useFamilyCare();
   const { status, family, modals } = familyCare;
 
@@ -27,16 +30,16 @@ export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 16) }]}>
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl
             refreshing={status.isFetching && !status.isLoading}
             onRefresh={status.refetchAll}
-            tintColor={colors.success.default}
+            tintColor={theme.primary}
           />
         }
       >
@@ -78,7 +81,6 @@ export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
           onManageCaregiver={modals.abrirGerenciamento}
         />
 
-        <View style={{ height: 140 }} />
       </ScrollView>
 
       {/* Modais de Gestão da Família, Tarefas e Co-Cuidadores */}

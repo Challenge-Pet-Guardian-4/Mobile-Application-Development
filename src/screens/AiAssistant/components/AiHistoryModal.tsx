@@ -121,11 +121,11 @@ export function AiHistoryModal({
                           >
                             {item.titulo || 'Conversa sem título'}
                           </Text>
-                          {isActive && (
+                          {isActive ? (
                             <View style={styles.badgeAtiva}>
                               <Text style={styles.badgeAtivaText}>Ativa</Text>
                             </View>
-                          )}
+                          ) : null}
                         </View>
 
                         <View style={styles.sessionMetaRow}>

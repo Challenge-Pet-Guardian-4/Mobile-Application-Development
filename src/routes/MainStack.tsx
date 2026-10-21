@@ -1,5 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { RootStackParamList } from './types';
 import { useSession } from '../hooks/useSession';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 
@@ -8,7 +9,7 @@ import LoginScreen from '../screens/Login/LoginScreen';
 import RegisterScreen from '../screens/Register/RegisterScreen';
 import Tabs from './tabs';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function MainStack() {
   const { isAuthenticated, isLoading } = useSession();

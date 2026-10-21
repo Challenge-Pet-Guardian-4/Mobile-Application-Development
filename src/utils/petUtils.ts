@@ -37,9 +37,13 @@ export function normalizarDataNascParaIso(input: string): string {
  * Converte data ISO 'YYYY-MM-DD' ou 'YYYY-MM-DDTHH:mm:ss' para formato brasileiro 'DD/MM/AAAA' (ou 'DD/MM/AAAA HH:mm').
  */
 export function formatarIsoParaBr(isoDate?: string, incluirHora = false): string {
-  if (!isoDate) return '';
+  if (!isoDate) {
+    return '';
+  }
   const limpo = isoDate.trim();
-  if (limpo.includes('/') && !limpo.includes('T')) return limpo;
+  if (limpo.includes('/') && !limpo.includes('T')) {
+    return limpo;
+  }
 
   if (limpo.includes('T')) {
     const [dataPart, horaPart] = limpo.split('T');
@@ -64,7 +68,9 @@ export function formatarIsoParaBr(isoDate?: string, incluirHora = false): string
  * Utilizado exclusivamente para fins informativos e estéticos na interface.
  */
 export function calcularIdadePet(dataNasc?: string, fallbackIdade = 1): number {
-  if (!dataNasc) return fallbackIdade;
+  if (!dataNasc) {
+    return fallbackIdade;
+  }
 
   let dataObj: Date;
   if (dataNasc.includes('/')) {
@@ -74,7 +80,9 @@ export function calcularIdadePet(dataNasc?: string, fallbackIdade = 1): number {
     dataObj = new Date(dataNasc);
   }
 
-  if (isNaN(dataObj.getTime())) return fallbackIdade;
+  if (isNaN(dataObj.getTime())) {
+    return fallbackIdade;
+  }
 
   const hoje = new Date();
   let anos = hoje.getFullYear() - dataObj.getFullYear();
@@ -93,8 +101,12 @@ export function calcularIdadePet(dataNasc?: string, fallbackIdade = 1): number {
  */
 export function formatarIdadePet(dataNasc?: string, fallbackIdade?: number): string {
   const anos = calcularIdadePet(dataNasc, fallbackIdade);
-  if (anos === 0) return 'Menos de 1 ano';
-  if (anos === 1) return '1 ano';
+  if (anos === 0) {
+    return 'Menos de 1 ano';
+  }
+  if (anos === 1) {
+    return '1 ano';
+  }
   return `${anos} anos`;
 }
 
@@ -184,9 +196,13 @@ export function normalizarPrazoParaIso(input?: string, horaPadrao = '23:59:00'):
  * Formata prazo ISO para texto amigável em cards (ex: 'Hoje às 18:00', 'Amanhã às 08:00', '15/09 às 14:00').
  */
 export function formatarPrazoAmigavel(isoDate?: string): string {
-  if (!isoDate) return '';
+  if (!isoDate) {
+    return '';
+  }
   const limpo = isoDate.trim();
-  if (!limpo.includes('T')) return limpo;
+  if (!limpo.includes('T')) {
+    return limpo;
+  }
 
   const [dataPart, horaPart] = limpo.split('T');
   const [, mes, dia] = dataPart.split('-');

@@ -36,7 +36,9 @@ export const AuthService = {
       StorageService.getUser(),
     ]);
 
-    if (!token || !user) return { user: null, token: null };
+    if (!token || !user) {
+      return { user: null, token: null };
+    }
 
     try {
       const { data: freshUser } = await http.get<UsuarioResponse>('/usuarios/me');

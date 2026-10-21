@@ -56,7 +56,9 @@ export function useHomeData(navigation?: NativeStackNavigationProp<RootStackPara
 
   // Pontuação do Pet (prioriza Stored Procedure Oracle)
   const petScore = useMemo(() => {
-    if (pontosPetData?.pontosTotais !== undefined) return pontosPetData.pontosTotais;
+    if (pontosPetData?.pontosTotais !== undefined) {
+      return pontosPetData.pontosTotais;
+    }
     return metricasPet.concluidas.reduce((acc, t) => acc + t.pontosTarefa, 0);
   }, [pontosPetData, metricasPet.concluidas]);
 

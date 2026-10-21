@@ -14,7 +14,9 @@ export function SeletorPetTreinamento({ pet }: SeletorPetTreinamentoProps) {
   const styles = useThemedStyles(createStyles);
   const { pets, petAtivo, setSelectedPetIndex } = pet;
 
-  if ((pets?.length ?? 0) === 0) return null;
+  if ((pets?.length ?? 0) === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.petSelectorBox}>

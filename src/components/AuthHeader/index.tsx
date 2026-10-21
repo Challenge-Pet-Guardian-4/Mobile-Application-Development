@@ -23,21 +23,21 @@ export function AuthHeader({
 
   return (
     <View style={styles.container}>
-      {onBack && (
+      {onBack ? (
         <TouchableOpacity
           style={styles.backButton}
           onPress={onBack}
         >
           <Ionicons name="arrow-back" size={20} color={theme.text} />
         </TouchableOpacity>
-      )}
+      ) : null}
 
       <View style={styles.headerContent}>
-        {showIcon && (
+        {showIcon ? (
           <View style={styles.iconCircle}>
             <MaterialCommunityIcons name="paw" size={28} color={theme.primary} />
           </View>
-        )}
+        ) : null}
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
       </View>

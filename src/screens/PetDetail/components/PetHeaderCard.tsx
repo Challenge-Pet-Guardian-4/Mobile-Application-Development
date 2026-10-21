@@ -4,7 +4,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { shadows } from '../../../utils/shadow';
 import { PetResponse } from '../../../types/pet';
 import { formatarIdadePet } from '../../../utils/petUtils';
-import { AppTheme, colors } from '../../../constants/theme';
+import { AppTheme } from '../../../constants/theme';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 export interface PetHeaderCardProps {
@@ -52,13 +52,13 @@ export function PetHeaderCard({ pet, isResponsavelPrincipal = true, onEdit, onDe
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.btnExcluir} onPress={onDelete} activeOpacity={0.8}>
-            <Ionicons name="trash-outline" size={15} color={colors.danger.default} />
+            <Ionicons name="trash-outline" size={15} color={theme.badgeDangerText} />
             <Text style={styles.btnExcluirText}>Excluir</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={styles.coCuidadorNotice}>
-          <Ionicons name="shield-checkmark" size={16} color="#0284C7" />
+          <Ionicons name="shield-checkmark" size={16} color={theme.primary} />
           <Text style={styles.coCuidadorNoticeText}>
             Você é co-cuidador deste pet. Somente o tutor principal pode editar informações ou excluir a ficha.
           </Text>

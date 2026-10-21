@@ -34,7 +34,9 @@ export function usePetDetailModals({
   const [itemEdicaoHistorico, setItemEdicaoHistorico] = useState<HistoricoResponse | undefined>(undefined);
 
   const abrirEdicao = useCallback(() => {
-    if (!activePet) return;
+    if (!activePet) {
+      return;
+    }
     if (!isResponsavelPrincipal) {
       Alert.alert('Acesso Negado', 'Somente o tutor principal pode editar as informações deste pet.');
       return;

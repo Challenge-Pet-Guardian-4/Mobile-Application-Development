@@ -22,7 +22,9 @@ export const PaginationControls = memo(function PaginationControls({
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
 
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1) {
+    return null;
+  }
 
   const isFirst = currentPage <= 0;
   const isLast = currentPage >= totalPages - 1;

@@ -29,7 +29,9 @@ export function LessonDetailModal({
   const styles = useThemedStyles(createStyles);
   const { data: conteudoNoSql, isLoading: isLoadingConteudo } = useConteudoAula(licao?.id, visible);
 
-  if (!visible || !licao) return null;
+  if (!visible || !licao) {
+    return null;
+  }
 
   const handleOpenLink = (url: string) => {
     const formattedUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
@@ -53,14 +55,14 @@ export function LessonDetailModal({
           <Text style={styles.duoBadgeXPText}>+{licao.pontos} PONTOS XP</Text>
         </View>
 
-        {textoConteudo && (
+        {textoConteudo ? (
           <View style={styles.badgeMongo}>
             <MaterialCommunityIcons name="leaf" size={14} color="#16A34A" />
             <Text style={styles.badgeMongoText}>
               {tipoFormato.replace('_', ' ')}
             </Text>
           </View>
-        )}
+        ) : null}
       </View>
 
       {/* Seção Conteúdo Rico NoSQL (MongoDB) */}
@@ -80,7 +82,7 @@ export function LessonDetailModal({
             {renderMarkdownContent(textoConteudo, corTrilha, isDark)}
           </View>
 
-          {conteudoNoSql?.linksRecursos && conteudoNoSql.linksRecursos.length > 0 && (
+          {(conteudoNoSql?.linksRecursos && conteudoNoSql.linksRecursos.length > 0) ? (
             <View style={styles.linksContainer}>
               <Text style={styles.linksHeader}>Links & Recursos Recomendados:</Text>
               {conteudoNoSql.linksRecursos.map((link, idx) => (
@@ -98,11 +100,11 @@ export function LessonDetailModal({
                 </TouchableOpacity>
               ))}
             </View>
-          )}
+          ) : null}
         </View>
       ) : (
         /* Fallback de passos apenas se não houver conteúdo rico carregado */
-        licao.passos && licao.passos.length > 0 && (
+        (licao.passos && licao.passos.length > 0) ? (
           <View style={styles.passosContainer}>
             <Text style={styles.passosHeader}>Passo a Passo Prático com o Pet:</Text>
             {licao.passos.map((passo, idx) => (
@@ -114,7 +116,7 @@ export function LessonDetailModal({
               </View>
             ))}
           </View>
-        )
+        ) : null
       )}
 
       <TouchableOpacity

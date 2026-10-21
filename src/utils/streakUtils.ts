@@ -6,10 +6,14 @@ const DIAS_SEMANA_LABELS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'] as
  * Converte Date ou string ISO para string no formato YYYY-MM-DD no fuso local.
  */
 export function formatarDataIsoYmd(data: Date | string | null | undefined): string | null {
-  if (!data) return null;
+  if (!data) {
+    return null;
+  }
 
   if (data instanceof Date) {
-    if (isNaN(data.getTime())) return null;
+    if (isNaN(data.getTime())) {
+      return null;
+    }
     const ano = data.getFullYear();
     const mes = String(data.getMonth() + 1).padStart(2, '0');
     const dia = String(data.getDate()).padStart(2, '0');
@@ -17,7 +21,9 @@ export function formatarDataIsoYmd(data: Date | string | null | undefined): stri
   }
 
   const limpo = data.trim();
-  if (!limpo) return null;
+  if (!limpo) {
+    return null;
+  }
 
   if (/^\d{4}-\d{2}-\d{2}/.test(limpo)) {
     return limpo.slice(0, 10);
@@ -48,7 +54,9 @@ export function formatarDataIsoYmd(data: Date | string | null | undefined): stri
  * Agrupa tarefas por data (YYYY-MM-DD) considerando o prazo ou a data de conclusão.
  */
 function adicionarTarefaNoMapa(mapa: Map<string, TarefaResponse[]>, chave: string | null, tarefa: TarefaResponse) {
-  if (!chave) return;
+  if (!chave) {
+    return;
+  }
   const lista = mapa.get(chave) || [];
   lista.push(tarefa);
   mapa.set(chave, lista);
@@ -127,13 +135,17 @@ export function calcularTotalOfensiva(
   tasks: TarefaResponse[],
   referenceDate: Date = new Date()
 ): number {
-  if (tasks.length === 0) return 0;
+  if (tasks.length === 0) {
+    return 0;
+  }
 
   const mapaTarefas = mapearTarefasPorData(tasks);
 
   // Encontra a data mais antiga registrada para saber onde parar dias neutros
   const todasDatas = Array.from(mapaTarefas.keys()).sort();
-  if (todasDatas.length === 0) return 0;
+  if (todasDatas.length === 0) {
+    return 0;
+  }
   const primeiraDataIso = todasDatas[0];
 
   let streak = 0;

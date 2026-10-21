@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, KeyboardAvoidingView, 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { shadows } from '../../utils/shadow';
-import { colors, layout, borderRadius, AppTheme } from '../../constants/theme';
+import { layout, borderRadius, AppTheme } from '../../constants/theme';
 import { useThemedStyles, useTheme } from '../../contexts/ThemeContext';
 
 export type ModalSize = 'sm' | 'md' | 'lg';
@@ -82,7 +82,9 @@ export function BaseModal({
     return Math.max(180, computedCardMaxHeight - cardOverhead);
   }, [computedCardMaxHeight]);
 
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   return (
     <Modal
@@ -158,7 +160,7 @@ const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
     overlay: {
       flex: 1,
-      backgroundColor: colors.overlay.dark,
+      backgroundColor: theme.colors.overlay.dark,
       justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: 14,
@@ -166,7 +168,7 @@ const createStyles = (theme: AppTheme) =>
     },
     overlayKeyboard: {
       justifyContent: 'flex-start',
-      paddingTop: Platform.OS === 'ios' ? 44 : 24,
+      paddingTop: 20,
       paddingBottom: 8,
     },
     keyboardAvoid: {

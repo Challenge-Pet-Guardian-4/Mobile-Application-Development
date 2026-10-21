@@ -47,8 +47,12 @@ export function useRegisterForm(navigation: NavigationProp) {
   const [validacaoErro, setValidacaoErro] = useState<string | null>(null);
 
   const limparErros = useCallback(() => {
-    if (validacaoErro) setValidacaoErro(null);
-    if (mutationError) resetMutation();
+    if (validacaoErro) {
+      setValidacaoErro(null);
+    }
+    if (mutationError) {
+      resetMutation();
+    }
   }, [validacaoErro, mutationError, resetMutation]);
 
   const updateField = useCallback(

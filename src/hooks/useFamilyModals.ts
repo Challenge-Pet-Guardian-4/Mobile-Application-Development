@@ -23,13 +23,17 @@ export function useFamilyModals({
   const [cuidadorEmGestao, setCuidadorEmGestao] = useState<CuidadorResumo | undefined>(undefined);
 
   const handleAbrirConvite = useCallback(() => {
-    if (petsOndeSouPrincipal.length === 0) return;
+    if (petsOndeSouPrincipal.length === 0) {
+      return;
+    }
     setModalAtivo('convite');
   }, [petsOndeSouPrincipal.length]);
 
   const handleAbrirGerenciamento = useCallback(
     (cuidador: CuidadorResumo) => {
-      if (petsOndeSouPrincipal.length === 0) return;
+      if (petsOndeSouPrincipal.length === 0) {
+        return;
+      }
       setCuidadorEmGestao(cuidador);
       setModalAtivo('gerenciarCuidador');
     },
@@ -43,7 +47,9 @@ export function useFamilyModals({
 
   const handleTogglePetVinculo = useCallback(
     (petId: number, isCurrentlyLinked: boolean) => {
-      if (!cuidadorEmGestao) return;
+      if (!cuidadorEmGestao) {
+        return;
+      }
 
       const onSuccess = () => {
         setCuidadorEmGestao((prev) =>
@@ -69,7 +75,9 @@ export function useFamilyModals({
 
   const handleTransferirTitularidade = useCallback(
     (petId: number, _petNome?: string) => {
-      if (!cuidadorEmGestao) return;
+      if (!cuidadorEmGestao) {
+        return;
+      }
       caregiverActions.transferir(petId, cuidadorEmGestao.email, {
         onSuccess: handleFecharGerenciamento,
       });
@@ -78,7 +86,9 @@ export function useFamilyModals({
   );
 
   const handleRemoverDeTodosPets = useCallback(() => {
-    if (!cuidadorEmGestao) return;
+    if (!cuidadorEmGestao) {
+      return;
+    }
 
     const petsParaRemover = petsOndeSouPrincipal.filter((p) =>
       cuidadorEmGestao.petIds.includes(p.id)
@@ -109,7 +119,9 @@ export function useFamilyModals({
   }, []);
 
   const initialTaskData = useMemo(() => {
-    if (!tarefaEmEdicao) return undefined;
+    if (!tarefaEmEdicao) {
+      return undefined;
+    }
     return {
       petId: tarefaEmEdicao.petId,
       titulo: tarefaEmEdicao.titulo,

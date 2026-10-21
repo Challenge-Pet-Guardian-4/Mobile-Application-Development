@@ -153,7 +153,9 @@ const HistoricoFormContent = memo(function HistoricoFormContent({
 
 export function HistoricoFormModal(props: HistoricoFormModalProps) {
   const { visible, initialData, petId } = props;
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   const formKey = initialData?.id ? `hist_${initialData.id}` : `pet_${petId}_create`;
 

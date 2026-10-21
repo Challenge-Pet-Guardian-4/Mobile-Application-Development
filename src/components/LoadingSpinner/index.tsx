@@ -22,7 +22,9 @@ export const LoadingSpinner = memo(function LoadingSpinner({
   const spinnerColor = color || theme.primary;
 
   useEffect(() => {
-    if (!showCloudNotice) return;
+    if (!showCloudNotice) {
+      return;
+    }
     const timer = setTimeout(() => {
       setIsLongWait(true);
     }, 3500);
@@ -33,11 +35,11 @@ export const LoadingSpinner = memo(function LoadingSpinner({
     <View style={styles.container}>
       <ActivityIndicator size={size} color={spinnerColor} />
       {message ? <Text style={styles.message}>{message}</Text> : null}
-      {isLongWait && (
+      {isLongWait ? (
         <Text style={styles.cloudNotice}>
           O servidor em nuvem pode levar alguns segundos para inicializar...
         </Text>
-      )}
+      ) : null}
     </View>
   );
 });

@@ -31,7 +31,7 @@ export function PetCaregiversSection({ pet, user, onInvite }: PetCaregiversSecti
             Rede de Cuidado ({caregiversCount})
           </Text>
         </View>
-        {isPrincipal && (
+        {isPrincipal ? (
           <TouchableOpacity
             style={styles.btnInvite}
             onPress={onInvite}
@@ -40,11 +40,11 @@ export function PetCaregiversSection({ pet, user, onInvite }: PetCaregiversSecti
             <Ionicons name="person-add" size={13} color={theme.badgePrimaryText} />
             <Text style={styles.btnInviteText}>Convidar</Text>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
 
       {!temCuidadores ? (
-        user && (
+        user ? (
           <CaregiverCard
             nome={user?.nome || 'Tutor'}
             email={user?.email}
@@ -52,7 +52,7 @@ export function PetCaregiversSection({ pet, user, onInvite }: PetCaregiversSecti
             isCurrentUser
             isPrincipal={isPrincipal}
           />
-        )
+        ) : null
       ) : (
         pet?.caregivers?.map((c: CaregiverWithActions) => (
           <CaregiverCard

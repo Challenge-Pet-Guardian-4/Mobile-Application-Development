@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Platform, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Header } from '../../components/Header';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { PremiumLockCard } from '../../components/PremiumLockCard';
@@ -16,6 +17,7 @@ import { AppTheme } from '../../constants/theme';
 
 export default function TrainingEducationScreen() {
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
   const { status, pet, trail, actions } = useTrainings();
   const { petAtivo } = pet;
   const { trilhaAtual } = trail;
@@ -24,7 +26,7 @@ export default function TrainingEducationScreen() {
   if (status.isUserComum) {
     return (
       <View style={styles.container}>
-        <View style={styles.headerPad}>
+        <View style={[styles.headerPad, { paddingTop: Math.max(insets.top, 16) }]}>
           <Header title="Trilhas & Treinamento" />
         </View>
         <PremiumLockCard
@@ -56,7 +58,7 @@ export default function TrainingEducationScreen() {
           />
         }
       >
-        <View style={styles.headerPad}>
+        <View style={[styles.headerPad, { paddingTop: Math.max(insets.top, 16) }]}>
           <Header title="Trilhas & Treinamento" />
         </View>
 
@@ -111,6 +113,5 @@ const createStyles = (theme: AppTheme) =>
     },
     headerPad: {
       paddingHorizontal: 20,
-      paddingTop: Platform.OS === 'ios' ? 50 : 25,
     },
   });

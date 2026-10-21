@@ -34,13 +34,21 @@ export function useLoginForm(navigation?: NativeStackNavigationProp<AuthStackPar
 
   const updateField = <K extends keyof LoginFormData>(key: K, value: LoginFormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (validacaoErro) setValidacaoErro(null);
-    if (error) reset();
+    if (validacaoErro) {
+      setValidacaoErro(null);
+    }
+    if (error) {
+      reset();
+    }
   };
 
   const handleLogin = useCallback(() => {
-    if (validacaoErro) setValidacaoErro(null);
-    if (error) reset();
+    if (validacaoErro) {
+      setValidacaoErro(null);
+    }
+    if (error) {
+      reset();
+    }
 
     const validacao = LoginSchema.safeParse(form);
     if (!validacao.success) {

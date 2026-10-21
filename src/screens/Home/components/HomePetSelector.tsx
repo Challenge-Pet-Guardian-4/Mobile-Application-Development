@@ -15,7 +15,9 @@ export function HomePetSelector({ pets }: HomePetSelectorProps) {
   const styles = useThemedStyles(createStyles);
   const { list, active, select } = pets;
 
-  if ((list?.length ?? 0) === 0) return null;
+  if ((list?.length ?? 0) === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.petSelectorContainer}>

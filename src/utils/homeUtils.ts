@@ -68,7 +68,9 @@ export function obterStatusScoreBar(
  * de dados de formulário esperada pelo modal de edição.
  */
 export function formatarDadosIniciaisTarefa(tarefa?: TarefaResponse): TaskFormData | undefined {
-  if (!tarefa) return undefined;
+  if (!tarefa) {
+    return undefined;
+  }
   return {
     petId: tarefa.petId,
     titulo: tarefa.titulo,

@@ -11,11 +11,17 @@ export function categorizarTarefas(lista: TarefaResponse[]): MetricasTarefas {
   const ativas: TarefaResponse[] = [];
 
   for (const t of lista) {
-    if (t.status === 'CONCLUIDO') concluidas.push(t);
-    else if (t.status === 'PENDENTE') pendentes.push(t);
-    else if (t.status === 'EXPIRADO') expiradas.push(t);
+    if (t.status === 'CONCLUIDO') {
+      concluidas.push(t);
+    } else if (t.status === 'PENDENTE') {
+      pendentes.push(t);
+    } else if (t.status === 'EXPIRADO') {
+      expiradas.push(t);
+    }
 
-    if (t.status !== 'EXPIRADO') ativas.push(t);
+    if (t.status !== 'EXPIRADO') {
+      ativas.push(t);
+    }
   }
 
   return { concluidas, pendentes, expiradas, ativas, total: lista.length };
@@ -50,7 +56,9 @@ export function ordenarTarefasRotina(lista: TarefaResponse[]): TarefaResponse[] 
  * Filtra tarefas da rotina do dia (hoje) com base na data de prazo ou conclusão.
  */
 export function filtrarTarefasHoje(lista: TarefaResponse[], hojeYmd: string | null | undefined): TarefaResponse[] {
-  if (!hojeYmd) return [];
+  if (!hojeYmd) {
+    return [];
+  }
   return lista.filter((t) => {
     const dataPrazo = formatarDataIsoYmd(t.prazo);
     const dataConclusao = formatarDataIsoYmd(t.conclusao);

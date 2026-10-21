@@ -36,7 +36,7 @@ export function PetDetailModals({ petDetail }: PetDetailModalsProps) {
       />
 
       {/* Modal de CRUD de Registro de Saúde / Histórico */}
-      {pet?.active && (
+      {pet?.active ? (
         <HistoricoFormModal
           visible={modals.historicoVisivel}
           onClose={() => modals.setHistoricoVisivel(false)}
@@ -46,7 +46,7 @@ export function PetDetailModals({ petDetail }: PetDetailModalsProps) {
           isLoading={actions.isSavingHistorico}
           onSubmit={modals.salvarHistorico}
         />
-      )}
+      ) : null}
     </>
   );
 }

@@ -42,6 +42,7 @@ export function createShadow({
         shadowOffset: { width: offsetX, height: offsetY },
         shadowOpacity: opacity,
         shadowRadius: blur,
+        elevation: Math.max(1, Math.round(blur / 2)),
       },
     }) ?? {}
   );

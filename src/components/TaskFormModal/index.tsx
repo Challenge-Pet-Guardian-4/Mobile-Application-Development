@@ -163,7 +163,7 @@ const TaskFormContent = memo(function TaskFormContent({
         </View>
       }
     >
-      {isExpiredEdit && <ExpiredTaskBanner />}
+      {isExpiredEdit ? <ExpiredTaskBanner /> : null}
 
       <PetSelector
         label="Para qual Pet?"
@@ -206,19 +206,21 @@ const TaskFormContent = memo(function TaskFormContent({
         onChangeDate={(prazo) => updateField('prazo', prazo)}
       />
 
-      {mode === 'edit' && (
+      {mode === 'edit' ? (
         <TaskStatusSelector
           status={form.status}
           onStatusChange={(status) => updateField('status', status)}
         />
-      )}
+      ) : null}
     </BaseModal>
   );
 });
 
 export function TaskFormModal(props: TaskFormModalProps) {
   const { visible, mode = 'create', taskId, initialData, initialPetId } = props;
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   const formKey = mode === 'edit'
     ? `edit_${taskId ?? initialData?.petId ?? 'default'}_${initialData?.titulo ?? 'default'}`

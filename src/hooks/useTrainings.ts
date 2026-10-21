@@ -74,7 +74,9 @@ export function useTrainings() {
   });
 
   const handleConcluirLicao = useCallback(() => {
-    if (!licaoSelecionada || !petAtivo?.id) return;
+    if (!licaoSelecionada || !petAtivo?.id) {
+      return;
+    }
     const { licao } = licaoSelecionada;
 
     toggleLicaoMutation.mutate(

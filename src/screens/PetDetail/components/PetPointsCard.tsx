@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { PetPontuacaoResponse } from '../../../types/pet';
 import { shadows } from '../../../utils/shadow';
 import { LoadingSpinner } from '../../../components/LoadingSpinner';
-import { AppTheme, colors, spacing, borderRadius } from '../../../constants/theme';
+import { AppTheme, spacing, borderRadius } from '../../../constants/theme';
 import { useTheme, useThemedStyles } from '../../../contexts/ThemeContext';
 
 export interface PetPointsCardProps {
@@ -37,7 +37,7 @@ export function PetPointsCard({ pontos, isLoading = false }: PetPointsCardProps)
         </View>
 
         <View style={styles.totalBadge}>
-          <MaterialCommunityIcons name="star" size={14} color={colors.warning[600]} />
+          <MaterialCommunityIcons name="star" size={14} color={theme.badgeWarningText} />
           <Text style={styles.totalBadgeText}>{pontosTotais} XP</Text>
         </View>
       </View>
@@ -53,7 +53,7 @@ export function PetPointsCard({ pontos, isLoading = false }: PetPointsCardProps)
 
         <View style={styles.statBox}>
           <View style={[styles.iconBox, styles.iconBoxSuccess]}>
-            <MaterialCommunityIcons name="school-outline" size={18} color={colors.success[500]} />
+            <MaterialCommunityIcons name="school-outline" size={18} color={theme.badgeSuccessText} />
           </View>
           <Text style={styles.statValue}>+{pontosAulas} pts</Text>
           <Text style={styles.statLabel}>Aulas & Treinos</Text>

@@ -67,7 +67,10 @@ export function useFamilyCare() {
   const cadastrarPet = useCallback(
     (data: PetFormData, callbacks?: ActionCallbacks) => {
       const validacao = PetSchema.safeParse(data);
-      if (!validacao.success) return Alert.alert('Dados Inválidos', formatZodError(validacao.error));
+      if (!validacao.success) {
+        Alert.alert('Dados Inválidos', formatZodError(validacao.error));
+        return;
+      }
 
       createPetMutation.mutate(
         {
@@ -88,7 +91,10 @@ export function useFamilyCare() {
   const convidarCuidador = useCallback(
     (data: InviteCaregiverData, callbacks?: ActionCallbacks) => {
       const validacao = InviteCaregiverSchema.safeParse(data);
-      if (!validacao.success) return Alert.alert('Dados do Convite', formatZodError(validacao.error));
+      if (!validacao.success) {
+        Alert.alert('Dados do Convite', formatZodError(validacao.error));
+        return;
+      }
 
       caregiverActions.convidar(validacao.data.petId, data.email, callbacks);
     },

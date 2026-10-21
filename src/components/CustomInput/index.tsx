@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { View, Text, TextInput, StyleSheet, TextInputProps, ViewStyle } from 'react-native';
 import { shadows } from '../../utils/shadow';
-import { colors, borderRadius, AppTheme } from '../../constants/theme';
+import { borderRadius, AppTheme } from '../../constants/theme';
 import { useThemedStyles, useTheme } from '../../contexts/ThemeContext';
 
 interface CustomInputProps extends TextInputProps {
@@ -27,17 +27,20 @@ export const CustomInput = memo(function CustomInput({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label ? <Text style={styles.label}>{label}</Text> : null}
+
       <View style={[styles.inputWrapper, hasError && styles.inputWrapperError]}>
-        {leftIcon && <View style={styles.leftIconWrapper}>{leftIcon}</View>}
+        {leftIcon ? <View style={styles.leftIconWrapper}>{leftIcon}</View> : null}
+
         <TextInput
           style={[styles.input, style]}
           placeholderTextColor={rest.placeholderTextColor ?? theme.textMuted}
           {...rest}
         />
-        {rightIcon && <View style={styles.rightIconWrapper}>{rightIcon}</View>}
+        
+        {rightIcon ? <View style={styles.rightIconWrapper}>{rightIcon}</View> : null}
       </View>
-      {hasError && <Text style={styles.errorText}>{error}</Text>}
+      {hasError ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 });
@@ -58,7 +61,7 @@ const createStyles = (theme: AppTheme) =>
     inputWrapper: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: theme.isDark ? theme.surfaceSubtle : colors.neutral.white,
+      backgroundColor: theme.isDark ? theme.surfaceSubtle : '#FFFFFF',
       borderWidth: 1,
       borderColor: theme.border,
       borderRadius: borderRadius.lg,
@@ -68,8 +71,8 @@ const createStyles = (theme: AppTheme) =>
       elevation: 1,
     },
     inputWrapperError: {
-      borderColor: colors.danger.default,
-      backgroundColor: theme.isDark ? 'rgba(239, 68, 68, 0.15)' : colors.danger[50],
+      borderColor: theme.badgeDangerBorder,
+      backgroundColor: theme.badgeDangerBg,
     },
     input: {
       flex: 1,
@@ -84,7 +87,7 @@ const createStyles = (theme: AppTheme) =>
       marginLeft: 8,
     },
     errorText: {
-      color: colors.danger.default,
+      color: theme.badgeDangerText,
       fontSize: 11,
       marginTop: 4,
       marginLeft: 2,

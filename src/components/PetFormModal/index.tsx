@@ -197,7 +197,9 @@ export function PetFormModal({
   isLoading = false,
   submitButtonTitle,
 }: PetFormModalProps) {
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   const modalTitle = title || (mode === 'create' ? 'Cadastrar Novo Pet' : 'Editar Ficha do Pet');
   const modalSubtitle =

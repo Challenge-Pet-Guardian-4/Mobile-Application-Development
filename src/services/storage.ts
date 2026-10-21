@@ -31,7 +31,9 @@ export const StorageService = {
 
   async getUser(): Promise<UsuarioResponse | null> {
     const raw = await SecureStore.getItemAsync(SECURE_USER_PROFILE_KEY);
-    if (!raw) return null;
+    if (!raw) {
+      return null;
+    }
     try {
       return JSON.parse(raw) as UsuarioResponse;
     } catch {

@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, RefreshControl, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { Header } from '../../../components/Header';
-import { AppTheme, colors, spacing } from '../../../constants/theme';
+import { AppTheme, spacing } from '../../../constants/theme';
 import { shadows } from '../../../utils/shadow';
 import { useHomeData } from '../../../hooks/useHomeData';
 import { useThemedStyles, useTheme } from '../../../contexts/ThemeContext';
@@ -22,18 +23,19 @@ export function HomeEmptyState({
 }: HomeEmptyStateProps) {
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
   const isRefreshing = status.isFetching && !status.isLoading;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 16) }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={status.refetch}
-            tintColor={colors.success.default}
+            tintColor={theme.primary}
           />
         }
       >
@@ -42,7 +44,7 @@ export function HomeEmptyState({
         {/* Card Principal de Boas-Vindas */}
         <View style={styles.welcomeCard}>
           <View style={styles.iconCircle}>
-            <MaterialCommunityIcons name="dog-side" size={44} color={colors.success.default} />
+            <MaterialCommunityIcons name="dog-side" size={44} color={theme.primary} />
           </View>
           <Text style={styles.title}>Nenhum Pet Cadastrado</Text>
           <Text style={styles.subtitle}>
@@ -66,8 +68,8 @@ export function HomeEmptyState({
 
         <View style={styles.featuresContainer}>
           <View style={styles.featureCard}>
-            <View style={[styles.featureIconBox, { backgroundColor: theme.isDark ? '#1E3A8A' : '#EFF6FF' }]}>
-              <MaterialCommunityIcons name="calendar-check" size={24} color={colors.primary.default} />
+            <View style={[styles.featureIconBox, { backgroundColor: theme.badgePrimaryBg }]}>
+              <MaterialCommunityIcons name="calendar-check" size={24} color={theme.badgePrimaryText} />
             </View>
             <View style={styles.featureContent}>
               <Text style={styles.featureTitle}>Rotina & Tarefas Diárias</Text>
@@ -103,21 +105,21 @@ export function HomeEmptyState({
         </View>
 
         {/* Atalhos Rápidos para outras abas */}
-        {(onNavigateToEducation || onNavigateToAi) && (
+        {(onNavigateToEducation || onNavigateToAi) ? (
           <View style={styles.shortcutsRow}>
-            {onNavigateToEducation && (
+            {onNavigateToEducation ? (
               <TouchableOpacity
                 style={styles.shortcutCard}
                 onPress={onNavigateToEducation}
                 activeOpacity={0.8}
               >
-                <MaterialCommunityIcons name="school-outline" size={22} color={colors.primary.default} />
+                <MaterialCommunityIcons name="school-outline" size={22} color={theme.primary} />
                 <Text style={styles.shortcutTitle}>Trilhas Educativas</Text>
                 <Text style={styles.shortcutDesc}>Aprenda cuidados essenciais</Text>
               </TouchableOpacity>
-            )}
+            ) : null}
 
-            {onNavigateToAi && (
+            {onNavigateToAi ? (
               <TouchableOpacity
                 style={styles.shortcutCard}
                 onPress={onNavigateToAi}
@@ -127,11 +129,10 @@ export function HomeEmptyState({
                 <Text style={styles.shortcutTitle}>Falar com a IA</Text>
                 <Text style={styles.shortcutDesc}>Assistente inteligente</Text>
               </TouchableOpacity>
-            )}
+            ) : null}
           </View>
-        )}
+        ) : null}
 
-        <View style={{ height: 20 }} />
       </ScrollView>
     </View>
   );
@@ -142,12 +143,11 @@ const createStyles = (theme: AppTheme) =>
     container: {
       flex: 1,
       backgroundColor: theme.background,
-      paddingTop: Platform.OS === 'ios' ? 50 : 25,
     },
     scrollContent: {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.xs,
-      paddingBottom: 100,
+      paddingBottom: 24,
       gap: spacing.md,
     },
     welcomeCard: {
@@ -185,14 +185,14 @@ const createStyles = (theme: AppTheme) =>
     },
     primaryButton: {
       flexDirection: 'row',
-      backgroundColor: colors.success.default,
+      backgroundColor: theme.primary,
       width: '100%',
       paddingVertical: 14,
       borderRadius: 16,
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 18,
-      ...shadows.colored(colors.success.default, 0.3),
+      ...shadows.colored(theme.primary, 0.3),
       elevation: 3,
     },
     primaryButtonText: {

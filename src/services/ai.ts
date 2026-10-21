@@ -23,7 +23,9 @@ const pythonClient = axios.create({
 });
 
 function formatPetContext(pet?: PetResponse): AiPetContextPayload | undefined {
-  if (!pet) return undefined;
+  if (!pet) {
+    return undefined;
+  }
   const idadePet = calcularIdadePet(pet.dataNasc);
   return {
     id: pet.id,
@@ -55,7 +57,9 @@ export const AiService = {
 
   // Consulta o microserviço Python para obter insights preventivos gerados por IA
   async getInsightsDoPet(pet?: PetResponse): Promise<AiPetInsight[]> {
-    if (!pet) return [];
+    if (!pet) {
+      return [];
+    }
 
     const petContext = formatPetContext(pet);
 
@@ -127,7 +131,9 @@ export const AiService = {
 
   // Consulta as sessões de chat anteriores do pet (estilo ChatGPT/Claude)
   async getSessoesDoPet(petId?: number): Promise<AiChatSession[]> {
-    if (!petId) return [];
+    if (!petId) {
+      return [];
+    }
 
     try {
       const response = await pythonClient.get<{
@@ -159,7 +165,9 @@ export const AiService = {
 
   // Recupera todas as mensagens de uma conversa específica pelo sessionId
   async getMensagensDaSessao(sessionId: string): Promise<AiMessage[]> {
-    if (!sessionId) return [];
+    if (!sessionId) {
+      return [];
+    }
 
     try {
       const response = await pythonClient.get<{
@@ -181,7 +189,9 @@ export const AiService = {
 
   // Exclui permanentemente uma sessão de chat e seus registros associados
   async excluirSessao(sessionId: string): Promise<boolean> {
-    if (!sessionId) return false;
+    if (!sessionId) {
+      return false;
+    }
 
     try {
       const response = await pythonClient.delete<{ status: string; session_id: string }>(

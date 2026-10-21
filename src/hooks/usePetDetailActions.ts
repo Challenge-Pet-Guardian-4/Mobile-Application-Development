@@ -63,7 +63,9 @@ export function usePetDetailActions({
 
   const salvarEdicaoPet = useCallback(
     (formData: PetFormData, callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
+      if (!activePet) {
+        return;
+      }
       if (!isResponsavelPrincipal) {
         Alert.alert('Acesso Negado', 'Somente o tutor principal pode editar as informações cadastrais deste pet.');
         return;
@@ -95,7 +97,9 @@ export function usePetDetailActions({
 
   const excluirPet = useCallback(
     (callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
+      if (!activePet) {
+        return;
+      }
       if (!isResponsavelPrincipal) {
         Alert.alert('Acesso Negado', 'Somente o tutor principal tem permissão para excluir a ficha deste pet.');
         return;
@@ -125,7 +129,9 @@ export function usePetDetailActions({
 
   const convidarCuidador = useCallback(
     (email: string, callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
+      if (!activePet) {
+        return;
+      }
       if (!isResponsavelPrincipal) {
         Alert.alert('Acesso Negado', 'Somente o tutor principal tem permissão para convidar novos cuidadores para este pet.');
         return;
@@ -138,7 +144,9 @@ export function usePetDetailActions({
 
   const removerCuidador = useCallback(
     (cuidadorEmail: string, nomeCuidador: string, callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
+      if (!activePet) {
+        return;
+      }
 
       const isSelf = Boolean(user?.email && cuidadorEmail.toLowerCase() === user.email.toLowerCase());
       const title = isSelf ? 'Sair do Cuidado' : 'Remover Cuidador';
@@ -167,7 +175,9 @@ export function usePetDetailActions({
 
   const transferirResponsabilidade = useCallback(
     (novoResponsavelEmail: string, nomeNovoResponsavel: string, callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
+      if (!activePet) {
+        return;
+      }
 
       confirmarAcao(
         'Transferir Titularidade',
@@ -181,7 +191,9 @@ export function usePetDetailActions({
 
   const criarHistorico = useCallback(
     (data: { tipoHist: string; dataHist: string }, callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
+      if (!activePet) {
+        return;
+      }
 
       createHistoricoMutation.mutate(
         {
@@ -197,7 +209,9 @@ export function usePetDetailActions({
 
   const atualizarHistorico = useCallback(
     (id: number, data: { tipoHist: string; dataHist: string }, callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
+      if (!activePet) {
+        return;
+      }
 
       updateHistoricoMutation.mutate(
         {
@@ -216,7 +230,9 @@ export function usePetDetailActions({
 
   const excluirHistorico = useCallback(
     (id: number, tipoHist: string, callbacks?: ActionCallbacks) => {
-      if (!activePet) return;
+      if (!activePet) {
+        return;
+      }
 
       confirmarAcao(
         'Excluir Registro',
