@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { AppTheme } from '../../../constants/theme';
@@ -17,9 +17,7 @@ export function AiHeader({ onGoBack, onClearChat, onOpenHistory, hasMessages }: 
   const insets = useSafeAreaInsets();
   const styles = useThemedStyles(createStyles);
 
-  const topPadding = Platform.OS === 'ios'
-    ? Math.max(insets.top, 44) + 6
-    : Math.max(insets.top, StatusBar.currentHeight ?? 24) + 12;
+  const topPadding = Math.max(insets.top, 16);
 
   return (
     <View style={[styles.headerPad, { paddingTop: topPadding }]}>

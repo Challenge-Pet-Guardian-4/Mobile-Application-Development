@@ -8,7 +8,7 @@ import { HistoricoResponse } from '../../../types/historico';
 import { TarefaResponse } from '../../../types/task';
 import { formatarIsoParaBr } from '../../../utils/petUtils';
 import { AppTheme, spacing, borderRadius } from '../../../constants/theme';
-import { useThemedStyles } from '../../../contexts/ThemeContext';
+import { useThemedStyles, useTheme } from '../../../contexts/ThemeContext';
 
 interface HealthHistoryProps {
   type: 'health';
@@ -54,6 +54,7 @@ function formatarDataConclusao(dataStr?: string | null): string {
 }
 
 export function PetHistorySection(props: PetHistorySectionProps) {
+  const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
   const { type, items, isLoading = false, pageSize = 10 } = props;
   const [currentPage, setCurrentPage] = useState(0);
@@ -84,7 +85,7 @@ export function PetHistorySection(props: PetHistorySectionProps) {
 
         {isHealth ? (
           <TouchableOpacity style={styles.btnAdd} onPress={props.onAdd} activeOpacity={0.7}>
-            <Ionicons name="add" size={14} color="#FFFFFF" />
+            <Ionicons name="add" size={14} color={theme.badgeDangerText} />
             <Text style={styles.btnAddText}>Registrar</Text>
           </TouchableOpacity>
         ) : null}

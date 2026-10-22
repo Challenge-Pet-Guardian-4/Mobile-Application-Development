@@ -25,7 +25,7 @@ export function FamilyPetsSection({ family, onAddPet, onSelectPet }: FamilyPetsS
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Animais da Família</Text>
         <TouchableOpacity style={styles.btnAddPet} onPress={onAddPet} activeOpacity={0.8}>
-          <Ionicons name="add" size={16} color="#FFFFFF" />
+          <Ionicons name="add" size={16} color='#FFFFFF' />
           <Text style={styles.btnAddPetText}>Adicionar Pet</Text>
         </TouchableOpacity>
       </View>
@@ -95,7 +95,7 @@ const createStyles = (theme: AppTheme) =>
       gap: 4,
     },
     btnAddPetText: {
-      color: "#FFFFFF",
+      color: '#FFFFFF',
       fontWeight: '800',
       fontSize: 12,
     },

@@ -98,7 +98,7 @@ export const TasksRoutineSection = memo(function TasksRoutineSection(props: Task
             onPress={headerButton.onPress}
             activeOpacity={0.7}
           >
-            {headerButton.icon === 'add' ? <Ionicons name="add" size={16} color="#FFFFFF" /> : null}
+            {headerButton.icon === 'add' ? <Ionicons name="add" size={16} color='#FFFFFF' /> : null}
             <Text style={isLinkButton ? styles.headerButtonLinkText : styles.headerButtonPrimaryText}>
               {headerButton.label}
             </Text>
@@ -231,7 +231,7 @@ const createStyles = (theme: AppTheme) =>
       gap: 4,
     },
     headerButtonPrimaryText: {
-      color: "#FFFFFF",
+      color: '#FFFFFF',
       fontWeight: '800',
       fontSize: 12,
     },

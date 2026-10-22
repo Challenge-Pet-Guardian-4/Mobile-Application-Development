@@ -35,9 +35,9 @@ export function AiChatInputBar({ chat, insets }: AiChatInputBarProps) {
           contentContainerStyle={styles.suggestionsScroll}
           keyboardShouldPersistTaps="handled"
         >
-          {(chat?.sugestoesRapidas ?? []).map((sug: string, i: number) => (
+          {(chat?.sugestoesRapidas ?? []).map((sug: string) => (
             <TouchableOpacity
-              key={i}
+              key={sug}
               style={styles.suggestionChip}
               onPress={() => chat.handleSend(sug)}
               activeOpacity={0.75}

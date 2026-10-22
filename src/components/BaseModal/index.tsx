@@ -168,7 +168,6 @@ const createStyles = (theme: AppTheme) =>
     },
     overlayKeyboard: {
       justifyContent: 'flex-start',
-      paddingTop: 20,
       paddingBottom: 8,
     },
     keyboardAvoid: {

@@ -113,7 +113,7 @@ export function NotificationSettingsModal({
               activeOpacity={0.8}
             >
               {isSaving ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color='#FFFFFF' />
               ) : (
                 <Text style={styles.btnSalvarText}>Salvar Preferências</Text>
               )}
@@ -390,7 +390,7 @@ const createStyles = (theme: AppTheme) =>
     btnSalvarText: {
       fontSize: 13,
       fontWeight: '700',
-      color: "#FFFFFF",
+      color: '#FFFFFF',
     },
   });
 
