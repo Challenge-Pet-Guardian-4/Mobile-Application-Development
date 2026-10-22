@@ -88,7 +88,7 @@ const createStyles = (theme: AppTheme) =>
     btnAddPet: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: theme.primary,
+      backgroundColor: theme.colors.success.default,
       paddingVertical: spacing.xs,
       paddingHorizontal: spacing.sm,
       borderRadius: borderRadius.md,

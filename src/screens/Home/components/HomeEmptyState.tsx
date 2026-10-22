@@ -35,7 +35,7 @@ export function HomeEmptyState({
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={status.refetch}
-            tintColor={theme.primary}
+            tintColor={theme.colors.success.default}
           />
         }
       >
@@ -44,7 +44,7 @@ export function HomeEmptyState({
         {/* Card Principal de Boas-Vindas */}
         <View style={styles.welcomeCard}>
           <View style={styles.iconCircle}>
-            <MaterialCommunityIcons name="dog-side" size={44} color={theme.primary} />
+            <MaterialCommunityIcons name="dog-side" size={44} color={theme.colors.success.default} />
           </View>
           <Text style={styles.title}>Nenhum Pet Cadastrado</Text>
           <Text style={styles.subtitle}>
@@ -185,14 +185,14 @@ const createStyles = (theme: AppTheme) =>
     },
     primaryButton: {
       flexDirection: 'row',
-      backgroundColor: theme.primary,
+      backgroundColor: theme.colors.success.default,
       width: '100%',
       paddingVertical: 14,
       borderRadius: 16,
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 18,
-      ...shadows.colored(theme.primary, 0.3),
+      ...shadows.colored(theme.colors.success.default, 0.3),
       elevation: 3,
     },
     primaryButtonText: {

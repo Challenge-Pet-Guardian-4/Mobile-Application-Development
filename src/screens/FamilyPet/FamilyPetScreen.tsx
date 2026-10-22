@@ -39,7 +39,7 @@ export default function FamilyPetScreen({ navigation }: FamilyPetScreenProps) {
           <RefreshControl
             refreshing={status.isFetching && !status.isLoading}
             onRefresh={status.refetchAll}
-            tintColor={theme.primary}
+            tintColor={theme.colors.success.default}
           />
         }
       >

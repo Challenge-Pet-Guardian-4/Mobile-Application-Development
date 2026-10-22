@@ -6,7 +6,7 @@
     "icon": "./assets/icon.png",
     "android": {
       "package": "br.com.fiap.petguardian",
-      "versionCode": 5,
+      "versionCode": 6,
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

@@ -37,7 +37,7 @@ export function HomeErrorState({ status }: HomeErrorStateProps) {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={status.refetch}
-            tintColor={theme.primary}
+            tintColor={theme.colors.success.default}
           />
         }
       >
