@@ -19,8 +19,8 @@
 
 ## 🔗 Links Oficiais do Projeto
 
-* **Download Direto do APK (Android Standalone):** 📥 [**Baixar pet-guardian.apk (Build Oficial)**](https://expo.dev/artifacts/eas/rWEKRsh5ful68y3UE9Gfn9Q8vVJDVxgx3oFeH143EYM.apk)
-* **Painel de Compilação do EAS Build:** [Dashboard Expo EAS — Build #b216dcec](https://expo.dev/accounts/enzookuizumis-team/projects/pet-guardian/builds/b216dcec-3083-4a9c-bc3b-e8a4d1e10fdf)
+* **Download Direto do APK (Android Standalone):** 📥 [**Baixar pet-guardian.apk (Build Oficial)**](https://expo.dev/artifacts/eas/pJcL-hOAF894dO5Lsn5K_e04VrICYyGdilIiGbLHLzI.apk)
+* **Painel de Compilação do EAS Build:** [Dashboard Expo EAS — Build #b2f42a13](https://expo.dev/accounts/enzookuizumis-team/projects/pet-guardian/builds/b2f42a13-178e-4430-b8fc-d56fa69297ae)
 * **Repositório GitHub Mobile:** [Challenge-Pet-Guardian-4/Mobile-Application-Development](https://github.com/Challenge-Pet-Guardian-4/Mobile-Application-Development)
 * **Backend Java (Spring Boot):** [Challenge-Pet-Guardian-4/Java-Advanced](https://github.com/Challenge-Pet-Guardian-4/Java-Advanced)
 * **Microsserviço IA (Python / FastAPI):** [Disruptive-Architectures-IOT-IOB-IA](https://github.com/Challenge-Pet-Guardian-4/Disruptive-Architectures-IOT-IOB-IA)
@@ -394,7 +394,7 @@ npm run lint
 Não é necessário clonar o repositório ou instalar ferramentas de desenvolvimento para avaliar o aplicativo. O binário executável Android já está compilado e distribuído na nuvem:
 
 1. **Download:** Baixe o arquivo diretamente em seu smartphone Android ou computador através do link oficial:  
-   👉 [**Download Direto do pet-guardian.apk**](https://expo.dev/artifacts/eas/rWEKRsh5ful68y3UE9Gfn9Q8vVJDVxgx3oFeH143EYM.apk)
+   👉 [**Download Direto do pet-guardian.apk**](https://expo.dev/artifacts/eas/pJcL-hOAF894dO5Lsn5K_e04VrICYyGdilIiGbLHLzI.apk)
 2. **Instalação no Celular:** Abra o arquivo `.apk` baixado e toque em **Instalar** (permita a instalação de fontes desconhecidas caso solicitado pelo Android).
 3. **Instalação via Emulador Android Studio (ADB):**
    ```bash
