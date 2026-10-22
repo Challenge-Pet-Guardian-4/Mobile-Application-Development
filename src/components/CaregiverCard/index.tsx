@@ -68,6 +68,8 @@ export function CaregiverCard({
           {onTransfer ? (
             <TouchableOpacity
               style={styles.actionBtnTransfer}
+              accessibilityRole="button"
+              accessibilityLabel="Transferir titularidade"
               onPress={onTransfer}
               activeOpacity={0.7}
               hitSlop={8}
@@ -83,6 +85,8 @@ export function CaregiverCard({
           {onRemove ? (
             <TouchableOpacity
               style={styles.actionBtnRemove}
+              accessibilityRole="button"
+              accessibilityLabel={isCurrentUser ? 'Sair da rede de cuidados' : 'Remover cuidador'}
               onPress={onRemove}
               activeOpacity={0.7}
               hitSlop={8}

@@ -27,6 +27,8 @@ export function AuthHeader({
         <TouchableOpacity
           style={styles.backButton}
           onPress={onBack}
+          accessibilityRole="button"
+          accessibilityLabel="Voltar"
         >
           <Ionicons name="arrow-back" size={20} color={theme.text} />
         </TouchableOpacity>

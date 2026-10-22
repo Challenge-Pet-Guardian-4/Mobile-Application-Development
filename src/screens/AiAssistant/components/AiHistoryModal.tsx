@@ -62,6 +62,8 @@ export function AiHistoryModal({
             <TouchableOpacity
               onPress={onClose}
               style={styles.closeBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Fechar histórico"
               activeOpacity={0.7}
             >
               <Ionicons name="close" size={20} color={theme.textSecondary} />
@@ -150,6 +152,8 @@ export function AiHistoryModal({
                         <TouchableOpacity
                           onPress={() => removerSessao(item.sessionId)}
                           style={styles.btnDeleteSession}
+                          accessibilityRole="button"
+                          accessibilityLabel="Excluir conversa"
                           hitSlop={10}
                           activeOpacity={0.6}
                         >

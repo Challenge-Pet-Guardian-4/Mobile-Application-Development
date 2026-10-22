@@ -127,6 +127,8 @@ export function BaseModal({
                   style={styles.closeBtn}
                   onPress={onClose}
                   hitSlop={12}
+                  accessibilityRole="button"
+                  accessibilityLabel="Fechar"
                 >
                   <Ionicons name="close" size={20} color={theme.textMuted} />
                 </TouchableOpacity>

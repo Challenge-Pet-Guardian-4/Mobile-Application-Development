@@ -26,6 +26,8 @@ export const PasswordInput = memo(function PasswordInput({
         <TouchableOpacity
           onPress={() => setMostrarSenha((prev) => !prev)}
           hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
         >
           <Ionicons
             name={mostrarSenha ? 'eye-off-outline' : 'eye-outline'}

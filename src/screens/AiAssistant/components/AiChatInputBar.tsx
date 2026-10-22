@@ -62,6 +62,8 @@ export function AiChatInputBar({ chat, insets }: AiChatInputBarProps) {
         />
         <TouchableOpacity
           style={[styles.btnSend, !chat.inputText.trim() && { opacity: 0.35 }]}
+          accessibilityRole="button"
+          accessibilityLabel="Enviar mensagem"
           onPress={() => chat.handleSend()}
           disabled={isSendDisabled}
           activeOpacity={0.8}

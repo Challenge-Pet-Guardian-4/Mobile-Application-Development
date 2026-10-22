@@ -33,6 +33,9 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
       <CustomInput
         label="Nome Completo"
         placeholder="Ex: Carlos Eduardo"
+        autoComplete="name"
+        textContentType="name"
+        returnKeyType="next"
         maxLength={60}
         value={form.nome}
         onChangeText={(t) => updateField('nome', t)}
@@ -44,6 +47,10 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
         placeholder="seu@email.com"
         keyboardType="email-address"
         autoCapitalize="none"
+        autoComplete="email"
+        textContentType="emailAddress"
+        autoCorrect={false}
+        returnKeyType="next"
         maxLength={80}
         value={form.email}
         onChangeText={(t) => updateField('email', t)}
@@ -98,6 +105,9 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
       <PasswordInput
         label="Senha"
         placeholder="Mínimo 6 caracteres"
+        autoComplete="new-password"
+        textContentType="newPassword"
+        returnKeyType="next"
         maxLength={64}
         value={form.senha}
         onChangeText={(t) => updateField('senha', t)}
@@ -106,6 +116,10 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
       <PasswordInput
         label="Confirmar Senha"
         placeholder="Repita a senha"
+        autoComplete="new-password"
+        textContentType="newPassword"
+        returnKeyType="done"
+        onSubmitEditing={handleRegister}
         maxLength={64}
         value={form.confirmarSenha}
         onChangeText={(t) => updateField('confirmarSenha', t)}

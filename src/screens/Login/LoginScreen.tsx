@@ -21,7 +21,11 @@ export default function LoginScreen({ navigation }: Props) {
       style={styles.mainContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.contentWrapper}>
           <AuthHeader
             title="PetGuardian"

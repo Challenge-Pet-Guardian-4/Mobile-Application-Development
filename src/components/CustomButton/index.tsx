@@ -57,6 +57,7 @@ export const CustomButton = memo(function CustomButton({
       ]}
       activeOpacity={0.8}
       disabled={disabled || isLoading}
+      accessibilityRole="button"
       {...rest}
     >
       {isLoading ? (

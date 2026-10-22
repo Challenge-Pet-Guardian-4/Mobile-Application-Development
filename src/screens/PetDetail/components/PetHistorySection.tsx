@@ -129,6 +129,8 @@ export function PetHistorySection(props: PetHistorySectionProps) {
                   <View style={styles.actionButtons}>
                     <TouchableOpacity
                       onPress={() => props.onEdit(item)}
+                      accessibilityRole="button"
+                      accessibilityLabel="Editar registro"
                       style={styles.btnAction}
                       hitSlop={8}
                     >
@@ -136,6 +138,8 @@ export function PetHistorySection(props: PetHistorySectionProps) {
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => props.onDelete(item)}
+                      accessibilityRole="button"
+                      accessibilityLabel="Excluir registro"
                       style={styles.btnAction}
                       hitSlop={8}
                     >

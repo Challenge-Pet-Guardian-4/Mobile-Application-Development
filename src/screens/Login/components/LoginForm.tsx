@@ -32,6 +32,10 @@ export function LoginForm({ loginState }: LoginFormProps) {
         placeholder="seu@email.com"
         keyboardType="email-address"
         autoCapitalize="none"
+        autoComplete="email"
+        textContentType="emailAddress"
+        autoCorrect={false}
+        returnKeyType="next"
         value={form.email}
         onChangeText={(t) => updateField('email', t)}
         leftIcon={<Ionicons name="mail-outline" size={18} color={theme.textMuted} />}
@@ -40,6 +44,10 @@ export function LoginForm({ loginState }: LoginFormProps) {
       <PasswordInput
         label="Senha"
         placeholder="Sua senha secreta"
+        autoComplete="current-password"
+        textContentType="password"
+        returnKeyType="done"
+        onSubmitEditing={handleLogin}
         value={form.senha}
         onChangeText={(t) => updateField('senha', t)}
       />

@@ -110,6 +110,8 @@ export const RoutineCard = memo(function RoutineCard({
         {onEdit ? (
           <TouchableOpacity
             style={styles.actionButton}
+            accessibilityRole="button"
+            accessibilityLabel="Editar tarefa"
             onPress={() => onEdit(tarefa)}
             hitSlop={ACTION_HIT_SLOP}
             activeOpacity={0.7}
@@ -121,6 +123,8 @@ export const RoutineCard = memo(function RoutineCard({
         {onDelete ? (
           <TouchableOpacity
             style={styles.deleteButton}
+            accessibilityRole="button"
+            accessibilityLabel="Excluir tarefa"
             onPress={() => onDelete(tarefa.id)}
             hitSlop={ACTION_HIT_SLOP}
             activeOpacity={0.7}
