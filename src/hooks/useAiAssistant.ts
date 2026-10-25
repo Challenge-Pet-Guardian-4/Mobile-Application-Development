@@ -4,6 +4,7 @@ import { AiService } from '../services/ai';
 import { queryKeys } from '../lib/queryKeys';
 import { AiChatSession, AiMessage } from '../types/ai';
 import { PetResponse } from '../types/pet';
+import { HistoricoResponse } from '../types/historico';
 
 export function useAiWarmup() {
   useEffect(() => {
@@ -11,10 +12,10 @@ export function useAiWarmup() {
   }, []);
 }
 
-export function useAiInsights(pet?: PetResponse) {
+export function useAiInsights(pet?: PetResponse, historicos?: HistoricoResponse[]) {
   return useQuery({
-    queryKey: queryKeys.ai.insights(pet?.id),
-    queryFn: () => AiService.getInsightsDoPet(pet),
+    queryKey: [...queryKeys.ai.insights(pet?.id), historicos?.length ?? 0],
+    queryFn: () => AiService.getInsightsDoPet(pet, historicos),
     enabled: !!pet,
   });
 }
@@ -23,7 +24,7 @@ function gerarNovoSessionId(): string {
   return `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 }
 
-export function useAiChat(pet?: PetResponse) {
+export function useAiChat(pet?: PetResponse, historicos?: HistoricoResponse[]) {
   const [messages, setMessages] = useState<AiMessage[]>([]);
   const [sessionId, setSessionId] = useState<string>(gerarNovoSessionId);
 
@@ -35,7 +36,7 @@ export function useAiChat(pet?: PetResponse) {
 
   const sendMutation = useMutation({
     mutationFn: (variables: { text: string; historico: AiMessage[]; sessionId: string }) =>
-      AiService.enviarMensagem(variables.text, pet, variables.historico, variables.sessionId),
+      AiService.enviarMensagem(variables.text, pet, variables.historico, variables.sessionId, historicos),
     onSuccess: (response) => {
       setMessages((prev) => [...prev, response]);
     },

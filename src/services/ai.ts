@@ -11,6 +11,7 @@ import {
   MensagemBancoRaw,
 } from '../types/ai';
 import { PetResponse } from '../types/pet';
+import { HistoricoResponse } from '../types/historico';
 import { calcularIdadePet } from '../utils/petUtils';
 import { createThrottledPing } from './http';
 
@@ -22,12 +23,13 @@ const pythonClient = axios.create({
   },
 });
 
-function formatPetContext(pet?: PetResponse): AiPetContextPayload | undefined {
+function formatPetContext(pet?: PetResponse, historicos?: HistoricoResponse[]): AiPetContextPayload | undefined {
   if (!pet) {
     return undefined;
   }
+
   const idadePet = calcularIdadePet(pet.dataNasc);
-  return {
+  const payload: AiPetContextPayload = {
     id: pet.id,
     nome: pet.nome,
     raca: pet.raca,
@@ -37,6 +39,16 @@ function formatPetContext(pet?: PetResponse): AiPetContextPayload | undefined {
     sexo: pet.sexo,
     castrado: pet.castrado,
   };
+
+  if (historicos && historicos.length > 0) {
+    payload.historicos = historicos.map((h) => ({
+      id: h.id,
+      tipoHist: h.tipoHist,
+      dataHist: h.dataHist,
+    }));
+  }
+
+  return payload;
 }
 
 function mapMensagemBancoToAiMessage(m: MensagemBancoRaw): AiMessage {
@@ -56,12 +68,12 @@ export const AiService = {
   ping: createThrottledPing(() => pythonClient.get('/')),
 
   // Consulta o microserviço Python para obter insights preventivos gerados por IA
-  async getInsightsDoPet(pet?: PetResponse): Promise<AiPetInsight[]> {
+  async getInsightsDoPet(pet?: PetResponse, historicos?: HistoricoResponse[]): Promise<AiPetInsight[]> {
     if (!pet) {
       return [];
     }
 
-    const petContext = formatPetContext(pet);
+    const petContext = formatPetContext(pet, historicos);
 
     try {
       const response = await pythonClient.post('/ai/insights', petContext);
@@ -81,9 +93,10 @@ export const AiService = {
     pergunta: string,
     pet?: PetResponse,
     historico?: AiMessage[],
-    sessionId?: string
+    sessionId?: string,
+    historicos?: HistoricoResponse[]
   ): Promise<AiMessage> {
-    const petContext = formatPetContext(pet);
+    const petContext = formatPetContext(pet, historicos);
     const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
     const historicoPayload: AiMessageHistoricoItem[] | undefined = historico

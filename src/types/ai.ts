@@ -19,6 +19,12 @@ export interface AiPetInsight {
   urgencia: 'baixa' | 'media' | 'alta';
 }
 
+export interface AiPetHistoricoItem {
+  id?: number;
+  tipoHist: string;
+  dataHist: string;
+}
+
 export interface AiPetContextPayload {
   id?: number;
   nome?: string;
@@ -28,6 +34,7 @@ export interface AiPetContextPayload {
   idade?: number;
   sexo?: string;
   castrado?: boolean;
+  historicos?: AiPetHistoricoItem[];
 }
 
 export interface AiMessageHistoricoItem {

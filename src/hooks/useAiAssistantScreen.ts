@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Keyboard, Platform, ScrollView } from 'react-native';
-import { usePets } from './usePets';
+import { usePets, usePetDetailData } from './usePets';
 import { useSession } from './useSession';
 import { useActivePet } from './useActivePet';
 import { useAiChat, useAiInsights, useAiWarmup } from './useAiAssistant';
@@ -29,8 +29,12 @@ export function useAiAssistantScreen() {
   // Executa warm-up silencioso em background via hook dedicado
   useAiWarmup();
 
-  const { data: insights, isLoading: isLoadingInsights } = useAiInsights(activePet);
-  const { messages, sessionId, sendMessage, carregarSessao, clearChat, isLoading: isChatSending } = useAiChat(activePet);
+  // Consulta atômica dos dados clínicos detalhados do pet (vacinas, consultas, exames)
+  const { data: petDetail } = usePetDetailData(activePet?.id);
+  const historicos = petDetail?.historicos;
+
+  const { data: insights, isLoading: isLoadingInsights } = useAiInsights(activePet, historicos);
+  const { messages, sessionId, sendMessage, carregarSessao, clearChat, isLoading: isChatSending } = useAiChat(activePet, historicos);
 
   // Monitora visibilidade do teclado para ajuste de padding
   useEffect(() => {
