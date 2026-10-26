@@ -4,6 +4,13 @@
  * O cadastro e a edição utilizam exclusivamente a DATA DE NASCIMENTO (DD/MM/AAAA ou ISO YYYY-MM-DD).
  */
 
+function obterDataLocalIso(data = new Date()): string {
+  const ano = data.getFullYear();
+  const mes = String(data.getMonth() + 1).padStart(2, '0');
+  const dia = String(data.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+}
+
 /**
  * Converte data no formato 'DD/MM/AAAA' ou 'YYYY-MM-DD' para uma string ISO 'YYYY-MM-DD' aceita pela API Java.
  */
@@ -152,13 +159,13 @@ export function obterPrazoFuturoPadraoBr(): string {
  */
 export function normalizarPrazoParaIso(input?: string, horaPadrao = '23:59:00'): string {
   if (!input) {
-    const hoje = new Date().toISOString().slice(0, 10);
+    const hoje = obterDataLocalIso();
     return `${hoje}T${horaPadrao}`;
   }
 
   const limpo = input.trim();
   if (!limpo) {
-    const hoje = new Date().toISOString().slice(0, 10);
+    const hoje = obterDataLocalIso();
     return `${hoje}T${horaPadrao}`;
   }
 
@@ -188,7 +195,7 @@ export function normalizarPrazoParaIso(input?: string, horaPadrao = '23:59:00'):
     return `${limpo}T${horaPadrao}`;
   }
 
-  const hoje = new Date().toISOString().slice(0, 10);
+  const hoje = obterDataLocalIso();
   return `${hoje}T${horaPadrao}`;
 }
 
@@ -209,14 +216,14 @@ export function formatarPrazoAmigavel(isoDate?: string): string {
   const [h, m] = horaPart.split(':');
   const horaMin = `${h}:${m}`;
 
-  const hojeIso = new Date().toISOString().slice(0, 10);
+  const hojeIso = obterDataLocalIso();
   if (dataPart === hojeIso) {
     return `Hoje às ${horaMin}`;
   }
 
   const amanha = new Date();
   amanha.setDate(amanha.getDate() + 1);
-  const amanhaIso = amanha.toISOString().slice(0, 10);
+  const amanhaIso = obterDataLocalIso(amanha);
   if (dataPart === amanhaIso) {
     return `Amanhã às ${horaMin}`;
   }
@@ -251,4 +258,3 @@ export function formatarPapelCuidador(
 
   return 'Co-cuidador Familiar';
 }
-

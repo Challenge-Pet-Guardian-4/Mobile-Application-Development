@@ -100,7 +100,7 @@ const PetFormContent = memo(function PetFormContent({
       <CustomInput
         label="Nome do Pet"
         placeholder="Ex: Luna, Thor, Bob..."
-        maxLength={50}
+        maxLength={30}
         value={form.nome}
         onChangeText={(t) => updateField('nome', t)}
       />
@@ -108,7 +108,7 @@ const PetFormContent = memo(function PetFormContent({
       <CustomInput
         label="Raça"
         placeholder="Ex: Golden Retriever, SRD, Poodle..."
-        maxLength={50}
+        maxLength={30}
         value={form.raca}
         onChangeText={(t) => updateField('raca', t)}
       />

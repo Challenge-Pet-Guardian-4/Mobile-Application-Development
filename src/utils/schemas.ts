@@ -65,10 +65,11 @@ export const ProfileEditSchema = z.object({
   senha: z.string().min(6, 'A senha deve conter no mínimo 6 caracteres.'),
 });
 
-// Validador de data real no formato DD/MM/AAAA ou YYYY-MM-DD
-const isValidDateBrOrIso = (val: string): boolean => {
+export const IDADE_MAXIMA_PET_ANOS = 30;
+
+const parseDateBrOrIso = (val: string): Date | null => {
   if (!val || typeof val !== 'string') {
-    return false;
+    return null;
   }
   const limpo = val.trim();
   let d: number;
@@ -78,7 +79,7 @@ const isValidDateBrOrIso = (val: string): boolean => {
   if (limpo.includes('/')) {
     const parts = limpo.split('/');
     if (parts.length !== 3) {
-      return false;
+      return null;
     }
     d = parseInt(parts[0], 10);
     m = parseInt(parts[1], 10);
@@ -86,30 +87,53 @@ const isValidDateBrOrIso = (val: string): boolean => {
   } else if (limpo.includes('-')) {
     const parts = limpo.split('-');
     if (parts.length !== 3) {
-      return false;
+      return null;
     }
     y = parseInt(parts[0], 10);
     m = parseInt(parts[1], 10);
     d = parseInt(parts[2], 10);
   } else {
-    return false;
+    return null;
   }
 
   if (isNaN(d) || isNaN(m) || isNaN(y)) {
-    return false;
+    return null;
   }
   if (m < 1 || m > 12 || d < 1 || d > 31 || y < 1900 || y > 2100) {
-    return false;
+    return null;
   }
 
   const dateObj = new Date(y, m - 1, d);
   if (dateObj.getFullYear() !== y || dateObj.getMonth() !== m - 1 || dateObj.getDate() !== d) {
+    return null;
+  }
+
+  return dateObj;
+};
+
+// Validador de data real no formato DD/MM/AAAA ou YYYY-MM-DD (não futura)
+const isValidDateBrOrIso = (val: string): boolean => {
+  const dateObj = parseDateBrOrIso(val);
+  if (!dateObj) {
     return false;
   }
 
   const hoje = new Date();
   hoje.setHours(23, 59, 59, 999);
   return dateObj <= hoje;
+};
+
+// Validador de idade plausível para animais domésticos (máximo 30 anos)
+const isPetAgePlausible = (val: string): boolean => {
+  const dateObj = parseDateBrOrIso(val);
+  if (!dateObj) {
+    return true;
+  }
+
+  const hoje = new Date();
+  const minDate = new Date(hoje.getFullYear() - IDADE_MAXIMA_PET_ANOS, hoje.getMonth(), hoje.getDate());
+  minDate.setHours(0, 0, 0, 0);
+  return dateObj >= minDate;
 };
 
 // Schema de Pet
@@ -122,6 +146,9 @@ export const PetSchema = z.object({
     .min(1, 'A data de nascimento do pet é obrigatória.')
     .refine(isValidDateBrOrIso, {
       message: 'Data de nascimento inválida. Informe uma data real (DD/MM/AAAA) que não esteja no futuro.',
+    })
+    .refine(isPetAgePlausible, {
+      message: 'A data de nascimento do pet não pode ultrapassar 30 anos.',
     }),
   porte: z.enum(['PEQUENO', 'MEDIO', 'GRANDE'], {
     error: 'Porte inválido. Escolha PEQUENO, MEDIO ou GRANDE.',
