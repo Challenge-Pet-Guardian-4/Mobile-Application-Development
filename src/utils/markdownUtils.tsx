@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 /**
  * Utilitário para interpretar e renderizar sintaxe simplificada de Markdown em elementos React Native.
- * Suporta títulos (H1, H2/H3), callouts/dicas de ouro, listas numeradas, listas com marcadores e parágrafos.
+ * Suporta títulos (H1 a H6), tabelas com scroll horizontal, callouts/dicas de ouro,
+ * listas numeradas, listas com marcadores e parágrafos.
  */
 export function renderMarkdownContent(
   markdown: string,
@@ -28,14 +29,132 @@ export function renderMarkdownContent(
     if (/^[-*_]{3,}$/.test(line)) {
       elements.push(
         <View
-          key={idx}
+          key={`divider-${idx}`}
           style={[styles.mdDivider, isDark && styles.mdDividerDark]}
         />
       );
       continue;
     }
 
-    // 2. Títulos H1 a H6 (# até ######)
+    // 2. Tabela Markdown (| Col 1 | Col 2 | ...)
+    if (line.startsWith('|') && line.endsWith('|')) {
+      const tableLines: string[] = [];
+      while (
+        idx < lines.length &&
+        lines[idx].trim().startsWith('|') &&
+        lines[idx].trim().endsWith('|')
+      ) {
+        tableLines.push(lines[idx].trim());
+        idx++;
+      }
+      idx--; // Recua 1 índice para o loop for avançar corretamente
+
+      if (tableLines.length >= 2) {
+        const parseRow = (r: string) => {
+          const cells = r.split('|');
+          if (cells.length >= 2) {
+            cells.shift();
+            cells.pop();
+          }
+          return cells.map(c => c.replace(/\*\*/g, '').trim());
+        };
+
+        const headerCells = parseRow(tableLines[0]);
+        const delimiterCells = parseRow(tableLines[1]);
+        const alignments: ('left' | 'center' | 'right')[] = delimiterCells.map(d => {
+          if (d.startsWith(':') && d.endsWith(':')) return 'center';
+          if (d.endsWith(':')) return 'right';
+          return 'left';
+        });
+
+        const bodyRows = tableLines.slice(2).map(parseRow);
+
+        elements.push(
+          <ScrollView
+            key={`table-scroll-${idx}`}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.mdTableScroll}
+            contentContainerStyle={styles.mdTableContent}
+          >
+            <View style={[styles.mdTableContainer, isDark && styles.mdTableContainerDark]}>
+              {/* Cabeçalho da Tabela */}
+              <View
+                style={[
+                  styles.mdTableRow,
+                  styles.mdTableHeaderRow,
+                  isDark && styles.mdTableHeaderRowDark,
+                ]}
+              >
+                {headerCells.map((h, hIdx) => (
+                  <View
+                    key={`th-${hIdx}`}
+                    style={[
+                      styles.mdTableCellContainer,
+                      hIdx > 0 && (isDark ? styles.mdTableCellBorderLeftDark : styles.mdTableCellBorderLeft),
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.mdTableCellText,
+                        styles.mdTableHeaderText,
+                        { color: primaryTextColor, textAlign: alignments[hIdx] || 'left' },
+                      ]}
+                    >
+                      {h}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Linhas de Dados */}
+              {bodyRows.map((row, rIdx) => {
+                const isEven = rIdx % 2 === 1;
+                const rowBg = isEven
+                  ? isDark
+                    ? 'rgba(255, 255, 255, 0.03)'
+                    : '#F8FAFC'
+                  : 'transparent';
+
+                return (
+                  <View
+                    key={`tr-${rIdx}`}
+                    style={[
+                      styles.mdTableRow,
+                      styles.mdTableBodyRow,
+                      isDark && styles.mdTableBodyRowDark,
+                      { backgroundColor: rowBg },
+                    ]}
+                  >
+                    {row.map((cell, cIdx) => (
+                      <View
+                        key={`td-${rIdx}-${cIdx}`}
+                        style={[
+                          styles.mdTableCellContainer,
+                          cIdx > 0 && (isDark ? styles.mdTableCellBorderLeftDark : styles.mdTableCellBorderLeft),
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.mdTableCellText,
+                            { color: bodyTextColor, textAlign: alignments[cIdx] || 'left' },
+                          ]}
+                        >
+                          {cell}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
+        );
+        continue;
+      }
+    }
+
+    // 3. Títulos H1 a H6 (# até ######)
     const headerMatch = line.match(/^(#{1,6})\s*(.*)/);
     if (headerMatch) {
       const level = headerMatch[1].length;
@@ -43,13 +162,13 @@ export function renderMarkdownContent(
       if (headerText) {
         if (level === 1) {
           elements.push(
-            <Text key={idx} style={[styles.mdH1, { color: primaryTextColor }]}>
+            <Text key={`h1-${idx}`} style={[styles.mdH1, { color: primaryTextColor }]}>
               {headerText}
             </Text>
           );
         } else {
           elements.push(
-            <Text key={idx} style={[styles.mdH2, { color: corTema }]}>
+            <Text key={`h2-${idx}`} style={[styles.mdH2, { color: corTema }]}>
               {headerText}
             </Text>
           );
@@ -58,12 +177,12 @@ export function renderMarkdownContent(
       continue;
     }
 
-    // 3. Blockquote / Dica de Ouro (> ...)
+    // 4. Blockquote / Dica de Ouro (> ...)
     if (line.startsWith('>')) {
       const calloutText = line.replace(/^>\s*/, '').replace(/\*\*/g, '').trim();
       elements.push(
         <View
-          key={idx}
+          key={`callout-${idx}`}
           style={[
             styles.mdCallout,
             isDark && styles.mdCalloutDark,
@@ -76,13 +195,13 @@ export function renderMarkdownContent(
       continue;
     }
 
-    // 4. Lista numerada (1. , 1) )
+    // 5. Lista numerada (1. , 1) )
     const numMatch = line.match(/^(\d+)[\.\)]\s+(.*)/);
     if (numMatch) {
       const num = numMatch[1];
       const stepText = numMatch[2].replace(/\*\*/g, '').trim();
       elements.push(
-        <View key={idx} style={styles.mdStepRow}>
+        <View key={`step-${idx}`} style={styles.mdStepRow}>
           <View style={[styles.mdStepBadge, { backgroundColor: corTema }]}>
             <Text style={styles.mdStepBadgeText}>{num}</Text>
           </View>
@@ -92,12 +211,12 @@ export function renderMarkdownContent(
       continue;
     }
 
-    // 5. Lista com marcadores (- , * , • )
+    // 6. Lista com marcadores (- , * , • )
     const bulletMatch = line.match(/^[-*•]\s+(.*)/);
     if (bulletMatch) {
       const bulletText = bulletMatch[1].replace(/\*\*/g, '').trim();
       elements.push(
-        <View key={idx} style={styles.mdBulletRow}>
+        <View key={`bullet-${idx}`} style={styles.mdBulletRow}>
           <Text style={[styles.mdBulletDot, { color: corTema }]}>•</Text>
           <Text style={[styles.mdBulletText, { color: bodyTextColor }]}>{bulletText}</Text>
         </View>
@@ -105,14 +224,14 @@ export function renderMarkdownContent(
       continue;
     }
 
-    // 6. Parágrafo comum
+    // 7. Parágrafo comum
     const paragraphText = line
       .replace(/\*\*/g, '')
       .replace(/^#{1,6}\s*/, '')
       .trim();
     if (paragraphText) {
       elements.push(
-        <Text key={idx} style={[styles.mdParagraph, { color: bodyTextColor }]}>
+        <Text key={`p-${idx}`} style={[styles.mdParagraph, { color: bodyTextColor }]}>
           {paragraphText}
         </Text>
       );
@@ -218,5 +337,62 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     color: '#334155',
     fontWeight: '400',
+  },
+  // Estilos da Tabela
+  mdTableScroll: {
+    marginVertical: 6,
+  },
+  mdTableContent: {
+    paddingVertical: 2,
+  },
+  mdTableContainer: {
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    overflow: 'hidden',
+  },
+  mdTableContainerDark: {
+    borderColor: '#334155',
+  },
+  mdTableRow: {
+    flexDirection: 'row',
+  },
+  mdTableHeaderRow: {
+    backgroundColor: '#F1F5F9',
+    borderBottomWidth: 1,
+    borderBottomColor: '#CBD5E1',
+  },
+  mdTableHeaderRowDark: {
+    backgroundColor: '#1E293B',
+    borderBottomColor: '#334155',
+  },
+  mdTableBodyRow: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  mdTableBodyRowDark: {
+    borderBottomColor: '#334155',
+  },
+  mdTableCellContainer: {
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    minWidth: 80,
+    justifyContent: 'center',
+  },
+  mdTableCellBorderLeft: {
+    borderLeftWidth: 1,
+    borderLeftColor: '#E2E8F0',
+  },
+  mdTableCellBorderLeftDark: {
+    borderLeftWidth: 1,
+    borderLeftColor: '#334155',
+  },
+  mdTableCellText: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  mdTableHeaderText: {
+    fontWeight: '700',
+    fontSize: 12,
   },
 });
