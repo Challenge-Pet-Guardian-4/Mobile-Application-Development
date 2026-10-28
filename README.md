@@ -24,8 +24,12 @@
 * **Repositório GitHub Mobile:** [Challenge-Pet-Guardian-4/Mobile-Application-Development](https://github.com/Challenge-Pet-Guardian-4/Mobile-Application-Development)
 * **Backend Java (Spring Boot):** [Challenge-Pet-Guardian-4/Java-Advanced](https://github.com/Challenge-Pet-Guardian-4/Java-Advanced)
 * **Microsserviço IA (Python / FastAPI):** [Disruptive-Architectures-IOT-IOB-IA](https://github.com/Challenge-Pet-Guardian-4/Disruptive-Architectures-IOT-IOB-IA)
-* **Vídeo Demonstrativo no YouTube:** *[Link do YouTube a ser anexado]*
 
+---
+
+## 🔗 Vídeo de Demonstração (Sprint 4)
+
+[Video Mobile - Challenge Pet Guardian Sprint 4](https://youtu.be/1XsIjz_erpQ?si=DOOAeGhiCVlnQj7f)
 
 ---
 
