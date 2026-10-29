@@ -51,7 +51,7 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
         textContentType="emailAddress"
         autoCorrect={false}
         returnKeyType="next"
-        maxLength={80}
+        maxLength={50}
         value={form.email}
         onChangeText={(t) => updateField('email', t)}
         leftIcon={<Ionicons name="mail-outline" size={18} color={theme.textMuted} />}
@@ -95,7 +95,7 @@ export function RegisterForm({ registerState }: RegisterFormProps) {
           <CustomInput
             label="Número"
             placeholder="100"
-            maxLength={10}
+            maxLength={5}
             value={form.numero}
             onChangeText={(t) => updateField('numero', t)}
           />

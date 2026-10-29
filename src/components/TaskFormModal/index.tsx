@@ -175,7 +175,7 @@ const TaskFormContent = memo(function TaskFormContent({
       <CustomInput
         label="Título da Tarefa"
         placeholder="Ex: Passeio de 30min, Ração da tarde..."
-        maxLength={60}
+        maxLength={30}
         value={form.titulo}
         onChangeText={(titulo) => updateField('titulo', titulo)}
       />

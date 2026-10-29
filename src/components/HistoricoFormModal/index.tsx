@@ -118,7 +118,7 @@ const HistoricoFormContent = memo(function HistoricoFormContent({
         placeholder="Ex: Vacina V10, Consulta de Rotina..."
         value={form.tipoHist}
         onChangeText={(t) => updateField('tipoHist', t)}
-        maxLength={100}
+        maxLength={30}
       />
 
       {/* Chips de Sugestão Rápida */}

@@ -7,8 +7,7 @@ import { AppTheme, spacing } from '../../../constants/theme';
 import { shadows } from '../../../utils/shadow';
 import { useHomeData } from '../../../hooks/useHomeData';
 import { useThemedStyles, useTheme } from '../../../contexts/ThemeContext';
-
-import axios from 'axios';
+import { ApiError } from '../../../types/api';
 import { useSession } from '../../../hooks/useSession';
 
 interface HomeErrorStateProps {
@@ -23,7 +22,7 @@ export function HomeErrorState({ status }: HomeErrorStateProps) {
   const isRefreshing = status.isFetching && !status.isLoading;
 
   const isAuthError =
-    (axios.isAxiosError(status.error) && status.error.response?.status === 401) ||
+    (status.error instanceof ApiError && status.error.status === 401) ||
     status.error?.message?.toLowerCase().includes('sessão expirada') ||
     status.error?.message?.toLowerCase().includes('não autorizada') ||
     status.error?.message?.toLowerCase().includes('login');

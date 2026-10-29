@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch, ActivityIndicator, Alert, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseModal } from '../../../components/BaseModal';
-import { OPCOES_ANTECEDENCIA, NotificationService, DEFAULT_NOTIFICATION_SETTINGS } from '../../../services/notifications';
+import { OPCOES_ANTECEDENCIA, DEFAULT_NOTIFICATION_SETTINGS } from '../../../services/notifications';
 import { NotificationSettings, AntecedenciaMinutos } from '../../../types/notification';
 import { useNotifications } from '../../../hooks/useNotifications';
 import { AppTheme, borderRadius, spacing } from '../../../constants/theme';
@@ -21,24 +21,21 @@ export function NotificationSettingsModal({
 }: NotificationSettingsModalProps) {
   const { theme } = useTheme();
   const styles = useThemedStyles(createStyles);
-  const { salvarSettings, isLoadingSettings, permissaoConcedida, solicitarPermissao, recarregarPermissoes } = useNotifications();
+  const { settings, salvarSettings, isLoadingSettings, permissaoConcedida, solicitarPermissao, recarregarPermissoes } = useNotifications();
   const [localSettings, setLocalSettings] = useState<NotificationSettings>(DEFAULT_NOTIFICATION_SETTINGS);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (visible) {
-      let isMounted = true;
-      NotificationService.getSettings().then((saved: NotificationSettings) => {
-        if (isMounted) {
-          setLocalSettings(saved);
-        }
-      });
       recarregarPermissoes();
-      return () => {
-        isMounted = false;
-      };
     }
   }, [visible, recarregarPermissoes]);
+
+  useEffect(() => {
+    if (visible) {
+      setLocalSettings(settings);
+    }
+  }, [visible, settings]);
 
   const handleToggleAtivado = async (novoValor: boolean) => {
     if (novoValor && !permissaoConcedida) {
@@ -393,4 +390,3 @@ const createStyles = (theme: AppTheme) =>
       color: '#FFFFFF',
     },
   });
-

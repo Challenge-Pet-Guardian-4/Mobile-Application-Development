@@ -11,7 +11,12 @@ const NonEmptyString = (errorMsg: string) =>
 const EmailPipeline = z
   .string()
   .transform((v) => v.trim().toLowerCase())
-  .pipe(z.email('O formato do e-mail é inválido.').min(1, 'O e-mail é obrigatório.'));
+  .pipe(
+    z
+      .email('O formato do e-mail é inválido.')
+      .min(1, 'O e-mail é obrigatório.')
+      .max(50, 'O e-mail deve ter no máximo 50 caracteres.')
+  );
 
 // Pipeline de DDD: extrai apenas dígitos numéricos e valida 2 dígitos
 const DddPipeline = z
@@ -45,7 +50,9 @@ export const RegisterSchema = z
     ddd: DddPipeline,
     numeroTelefone: TelefonePipeline,
     cep: CepPipeline,
-    numero: NonEmptyString('O número do endereço é obrigatório.'),
+    numero: NonEmptyString('O número do endereço é obrigatório.').pipe(
+      z.string().max(5, 'O número do endereço deve ter no máximo 5 caracteres.')
+    ),
     senha: z.string().min(6, 'A senha deve conter no mínimo 6 caracteres.'),
     confirmarSenha: z.string().min(1, 'Confirme sua senha.'),
   })
@@ -61,7 +68,9 @@ export const ProfileEditSchema = z.object({
   ddd: DddPipeline,
   numeroTelefone: TelefonePipeline,
   cep: CepPipeline,
-  numero: NonEmptyString('O número do endereço é obrigatório.'),
+  numero: NonEmptyString('O número do endereço é obrigatório.').pipe(
+    z.string().max(5, 'O número do endereço deve ter no máximo 5 caracteres.')
+  ),
   senha: z.string().min(6, 'A senha deve conter no mínimo 6 caracteres.'),
 });
 
@@ -163,7 +172,9 @@ export const TaskSchema = z.object({
     .number({ message: 'Cadastre e selecione um pet para criar a tarefa.' })
     .int('Identificador do pet inválido.')
     .positive('Cadastre e selecione um pet para criar a tarefa.'),
-  titulo: NonEmptyString('O título da tarefa é obrigatório.'),
+  titulo: NonEmptyString('O título da tarefa é obrigatório.').pipe(
+    z.string().max(30, 'O título da tarefa deve ter no máximo 30 caracteres.')
+  ),
   descricao: NonEmptyString('A descrição da tarefa é obrigatória.'),
   pontos: z.coerce.number()
     .int('A pontuação deve ser um número inteiro.')
@@ -182,7 +193,9 @@ export const InviteCaregiverSchema = z.object({
 
 // Schema de Registro de Histórico Clínico / Saúde do Pet
 export const HistoricoSchema = z.object({
-  tipoHist: NonEmptyString('Informe o tipo de evento, atendimento ou vacina.'),
+  tipoHist: NonEmptyString('Informe o tipo de evento, atendimento ou vacina.').pipe(
+    z.string().max(30, 'O tipo de evento deve ter no máximo 30 caracteres.')
+  ),
   dataHist: NonEmptyString('A data do evento é obrigatória.'),
   petId: z.number().int().positive('O pet é obrigatório.'),
 });

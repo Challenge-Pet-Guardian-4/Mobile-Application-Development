@@ -78,7 +78,7 @@ Nesta 4ª Sprint, o aplicativo atinge sua maturidade de engenharia e produção 
 - **Deep Linking:** Tocar na notificação redireciona o usuário diretamente para a rotina do animal através do `navigationRef` exportado em `routes/types.ts`.
 
 ### 🌗 Tematização Completa: Modo Claro e Modo Escuro (Light & Dark Mode)
-- **`ThemeContext` Reativo:** Provedor central que detecta preferências do usuário, armazena no `AsyncStorage` (`@petguardian:theme`) e reage a alternâncias instantâneas.
+- **`ThemeContext` Reativo:** Provedor central que detecta preferências do usuário, armazena no `AsyncStorage` (`@petguardian_theme_mode`) e reage a alternâncias instantâneas.
 - **Tokens de Design Consolidados:** Paleta profissional com fundos profundos em slate dark (`#0B0F19`, `#111827`, `#1E293B`), textos de alto contraste e bordas sutis.
 - **StatusBar Dinâmica:** Sincronização automática entre o tema visual e a barra de status do sistema (`light` no dark mode, `dark` no light mode).
 
@@ -174,8 +174,6 @@ src/
 │   ├── HistoricoFormModal/    → Formulário de lançamento de eventos de saúde
 │   ├── InviteCaregiverModal/  → Formulário de convite de co-cuidador por e-mail
 │   ├── PetFormModal/          → Formulário de cadastro/edição de animais
-│   ├── PetScoreBar/           → Barra animada de nível e progresso de XP do pet
-│   ├── StreakCard/            → Card de ofensiva e consistência de cuidados diários
 │   ├── TaskFormModal/         → Formulário de criação e edição de rotinas
 │   └── TasksRoutineSection/   → Seção modular de rotinas e tarefas da Home
 ├── config/              → Configurações de ambiente, URLs e versionamento
@@ -326,7 +324,7 @@ src/
 * **Pets & Care Circle:** `GET /pets/me`, `POST /pets`, `GET /pets/{id}/pontos`, `PUT /pets/{id}`, `DELETE /pets/{id}`, `GET /pets/{id}/cuidadores`, `POST /pets/{id}/cuidadores`, `DELETE /pets/{id}/cuidadores/me`.
 * **Tarefas de Rotina:** `GET /tarefas/me`, `POST /tarefas`, `PUT /tarefas/{id}`, `DELETE /tarefas/{id}`, `PATCH /tarefas/{id}/concluir`, `PATCH /tarefas/{id}/desmarcar`.
 * **Histórico de Saúde:** `POST /historicos`, `PUT /historicos/{id}`, `DELETE /historicos/{id}` (com leitura consolidada na ficha clínica via `GET /pets/{id}/detalhe`).
-* **Trilhas Didáticas (MongoDB):** `GET /trilhas/me`, `GET /modulos/trilha/{id}`, `GET /aulas/modulo/{id}`, `PATCH /aulas/{id}/concluir`.
+* **Trilhas Didáticas (MongoDB):** `GET /trilhas/me`, `GET /aulas/{aulaId}/conteudo`, `PATCH /aulas/{id}/concluir`, `PATCH /aulas/{id}/desmarcar`.
 
 ### Microsserviço Python FastAPI (`Disruptive-Architectures-IOT-IOB-IA`)
 * **Chat Conversacional:** `POST /ai/chat` (Com contexto clínico completo do pet e streaming de resposta).

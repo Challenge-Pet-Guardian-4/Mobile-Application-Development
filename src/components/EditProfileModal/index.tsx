@@ -106,7 +106,7 @@ const EditProfileContent = memo(function EditProfileContent({
         placeholder="seu@email.com"
         keyboardType="email-address"
         autoCapitalize="none"
-        maxLength={80}
+        maxLength={50}
         value={form.email}
         onChangeText={(t) => updateField('email', t)}
         leftIcon={<Ionicons name="mail-outline" size={18} color="#94A3B8" />}
@@ -154,7 +154,7 @@ const EditProfileContent = memo(function EditProfileContent({
           <CustomInput
             label="Número"
             placeholder="100"
-            maxLength={10}
+            maxLength={5}
             value={form.numero}
             onChangeText={(t) => updateField('numero', t)}
           />
