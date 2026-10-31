@@ -19,7 +19,7 @@
 
 ## 🔗 Links Oficiais do Projeto
 
-* **Download Direto do APK (Android Standalone):** 📥 [**Baixar pet-guardian.apk (Build Oficial)**](https://expo.dev/artifacts/eas/d0NQEeHVBq5s7pwcQNN2fytIyrj_3wM9X2NsE94elco.apk)
+* **Download Direto do APK (Android Standalone):** 📥 [**Baixar pet-guardian.apk (Build Oficial)**](https://expo.dev/artifacts/eas/pUFkw-KxRhfSQ8zkdRmehrSXJQJJ_XwGSjmXEViJVl0.apk)
 * **Painel de Compilação do EAS Build:** [Dashboard Expo EAS — Build #24b0fcca (versionCode 9)](https://expo.dev/accounts/enzookuizumis-team/projects/pet-guardian/builds/24b0fcca-6549-44d2-82bc-c21c3e4d9b8c)
 * **Repositório GitHub Mobile:** [Challenge-Pet-Guardian-4/Mobile-Application-Development](https://github.com/Challenge-Pet-Guardian-4/Mobile-Application-Development)
 * **Backend Java (Spring Boot):** [Challenge-Pet-Guardian-4/Java-Advanced](https://github.com/Challenge-Pet-Guardian-4/Java-Advanced)
