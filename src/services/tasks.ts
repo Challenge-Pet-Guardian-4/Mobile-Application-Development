@@ -41,7 +41,7 @@ export const TaskService = {
     return response.data;
   },
 
-  // Conclui uma tarefa somando pontos ao cuidador e ao pet via JWT
+  // Conclui uma tarefa somando pontos de XP ao pet (Arquitetura Pet-Centric compartilhada no Care Circle)
   async concluirTarefa(id: number): Promise<TarefaResponse> {
     const response = await http.patch<TarefaResponse>(`/tarefas/${id}/concluir`);
     return response.data;
