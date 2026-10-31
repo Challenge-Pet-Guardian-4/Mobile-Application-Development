@@ -40,8 +40,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUser(session.user);
           setToken(session.token);
         }
-      } catch (error) {
-        console.log('[AuthProvider] Falha ao carregar sessão:', error);
+      } catch {
+        // Falha silenciosa ao carregar sessão no startup
       } finally {
         setIsLoading(false);
       }

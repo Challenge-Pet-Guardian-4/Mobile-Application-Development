@@ -56,8 +56,8 @@ http.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
-    } catch (error) {
-      console.log('[HTTP] Erro ao recuperar token seguro do storage:', error);
+    } catch {
+      // Falha silenciosa ao recuperar token do storage
     }
     return config;
   },
@@ -81,7 +81,6 @@ http.interceptors.response.use(
 
     // 401: Notificação e limpeza de credenciais
     if (status === 401) {
-      console.log('[HTTP] Erro 401 - Sessão expirada ou não autorizada.');
       try {
         await StorageService.clearAuthSession();
       } catch {

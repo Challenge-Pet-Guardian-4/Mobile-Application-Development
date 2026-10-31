@@ -83,7 +83,7 @@ Nesta 4ª Sprint, o aplicativo atinge sua maturidade de engenharia e produção 
 - **StatusBar Dinâmica:** Sincronização automática entre o tema visual e a barra de status do sistema (`light` no dark mode, `dark` no light mode).
 
 ### 🏷️ Modal "Sobre o App" & Metadados do Edital FIAP
-- **Centralização Técnica (`version.ts`):** Exibe nome da aplicação, versão de lançamento `1.0.0`, número da build `#4`, sprint correspondente, disciplina e challenge.
+- **Centralização Técnica (`version.ts`):** Exibe nome da aplicação, versão de lançamento `1.0.0`, número da build `#8` (versionCode 8), sprint correspondente, disciplina e challenge.
 - **Sincronização Dinâmica com o Git:** Hash de commit curto e mensagem do último commit injetados dinamicamente em tempo de execução via Expo Config (`app.config.js` e `expo-constants`), eliminando arquivos intermediários no repositório.
 - **Identificação Acadêmica:** Nome completo e RM de todos os 5 integrantes da equipe, facilitando a validação e avaliação pelos docentes.
 
