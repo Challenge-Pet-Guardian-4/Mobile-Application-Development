@@ -19,7 +19,7 @@
 
 ## 🔗 Links Oficiais do Projeto
 
-* **Download Direto do APK (Android Standalone):** 📥 [**Baixar pet-guardian.apk (Build Oficial)**](https://expo.dev/artifacts/eas/usOk6lhDpwbcCCwys0Tg40oPrsxRWiBFv_CSeqCQc8Y.apk)
+* **Download Direto do APK (Android Standalone):** 📥 [**Baixar pet-guardian.apk (Build Oficial)**](https://expo.dev/artifacts/eas/d0NQEeHVBq5s7pwcQNN2fytIyrj_3wM9X2NsE94elco.apk)
 * **Painel de Compilação do EAS Build:** [Dashboard Expo EAS — Build #8aed5b2f (versionCode 8)](https://expo.dev/accounts/enzookuizumis-team/projects/pet-guardian/builds/8aed5b2f-5238-41e6-bd9e-ed09cc6d6278)
 * **Repositório GitHub Mobile:** [Challenge-Pet-Guardian-4/Mobile-Application-Development](https://github.com/Challenge-Pet-Guardian-4/Mobile-Application-Development)
 * **Backend Java (Spring Boot):** [Challenge-Pet-Guardian-4/Java-Advanced](https://github.com/Challenge-Pet-Guardian-4/Java-Advanced)
@@ -396,7 +396,7 @@ npm run lint
 Não é necessário clonar o repositório ou instalar ferramentas de desenvolvimento para avaliar o aplicativo. O binário executável Android já está compilado e distribuído na nuvem:
 
 1. **Download:** Baixe o arquivo diretamente em seu smartphone Android ou computador através do link oficial:  
-   👉 [**Download Direto do pet-guardian.apk**](https://expo.dev/artifacts/eas/usOk6lhDpwbcCCwys0Tg40oPrsxRWiBFv_CSeqCQc8Y.apk)
+   👉 [**Download Direto do pet-guardian.apk**](https://expo.dev/artifacts/eas/d0NQEeHVBq5s7pwcQNN2fytIyrj_3wM9X2NsE94elco.apk)
 2. **Instalação no Celular:** Abra o arquivo `.apk` baixado e toque em **Instalar** (permita a instalação de fontes desconhecidas caso solicitado pelo Android).
 3. **Instalação via Emulador Android Studio (ADB):**
    ```bash
