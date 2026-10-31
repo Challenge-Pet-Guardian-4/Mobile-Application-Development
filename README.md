@@ -20,7 +20,7 @@
 ## 🔗 Links Oficiais do Projeto
 
 * **Download Direto do APK (Android Standalone):** 📥 [**Baixar pet-guardian.apk (Build Oficial)**](https://expo.dev/artifacts/eas/d0NQEeHVBq5s7pwcQNN2fytIyrj_3wM9X2NsE94elco.apk)
-* **Painel de Compilação do EAS Build:** [Dashboard Expo EAS — Build #8aed5b2f (versionCode 8)](https://expo.dev/accounts/enzookuizumis-team/projects/pet-guardian/builds/8aed5b2f-5238-41e6-bd9e-ed09cc6d6278)
+* **Painel de Compilação do EAS Build:** [Dashboard Expo EAS — Build #24b0fcca (versionCode 9)](https://expo.dev/accounts/enzookuizumis-team/projects/pet-guardian/builds/24b0fcca-6549-44d2-82bc-c21c3e4d9b8c)
 * **Repositório GitHub Mobile:** [Challenge-Pet-Guardian-4/Mobile-Application-Development](https://github.com/Challenge-Pet-Guardian-4/Mobile-Application-Development)
 * **Backend Java (Spring Boot):** [Challenge-Pet-Guardian-4/Java-Advanced](https://github.com/Challenge-Pet-Guardian-4/Java-Advanced)
 * **Microsserviço IA (Python / FastAPI):** [Disruptive-Architectures-IOT-IOB-IA](https://github.com/Challenge-Pet-Guardian-4/Disruptive-Architectures-IOT-IOB-IA)
@@ -83,7 +83,7 @@ Nesta 4ª Sprint, o aplicativo atinge sua maturidade de engenharia e produção 
 - **StatusBar Dinâmica:** Sincronização automática entre o tema visual e a barra de status do sistema (`light` no dark mode, `dark` no light mode).
 
 ### 🏷️ Modal "Sobre o App" & Metadados do Edital FIAP
-- **Centralização Técnica (`version.ts`):** Exibe nome da aplicação, versão de lançamento `1.0.0`, número da build `#8` (versionCode 8), sprint correspondente, disciplina e challenge.
+- **Centralização Técnica (`version.ts`):** Exibe nome da aplicação, versão de lançamento `1.0.0`, número da build `#9` (versionCode 9), sprint correspondente, disciplina e challenge.
 - **Sincronização Dinâmica com o Git:** Hash de commit curto e mensagem do último commit injetados dinamicamente em tempo de execução via Expo Config (`app.config.js` e `expo-constants`), eliminando arquivos intermediários no repositório.
 - **Identificação Acadêmica:** Nome completo e RM de todos os 5 integrantes da equipe, facilitando a validação e avaliação pelos docentes.
 
