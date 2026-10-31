@@ -22,7 +22,7 @@ export const APP_VERSION_INFO = {
   appName: 'PetGuardian',
   tagline: 'Ecossistema Pet-Centric & Governança Familiar',
   version: '1.0.0',
-  buildNumber: '8',
+  buildNumber: '9',
   sprint: '4ª Sprint (Entrega Final)',
   disciplina: 'Mobile Application Development',
   instituicao: 'FIAP - 2TDSPG',

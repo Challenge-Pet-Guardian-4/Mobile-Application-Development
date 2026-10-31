@@ -175,7 +175,9 @@ export const TaskSchema = z.object({
   titulo: NonEmptyString('O título da tarefa é obrigatório.').pipe(
     z.string().max(30, 'O título da tarefa deve ter no máximo 30 caracteres.')
   ),
-  descricao: NonEmptyString('A descrição da tarefa é obrigatória.'),
+  descricao: NonEmptyString('A descrição da tarefa é obrigatória.').pipe(
+    z.string().max(200, 'A descrição da tarefa deve ter no máximo 200 caracteres.')
+  ),
   pontos: z.coerce.number()
     .int('A pontuação deve ser um número inteiro.')
     .min(0, 'A pontuação deve ser entre 0 e 10.')

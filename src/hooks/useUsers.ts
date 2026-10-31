@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserService } from '../services/users';
+import { StorageService } from '../services/storage';
 import { queryKeys } from '../lib/queryKeys';
 import { UsuarioRequest } from '../types/user';
 import { useSession } from './useSession';
@@ -27,12 +28,13 @@ export function useUserProfileData() {
 
 export function useUpdateUser() {
   const queryClient = useQueryClient();
-  const { setUser } = useSession();
+  const { setSession } = useSession();
 
   return useMutation({
     mutationFn: async (data: UsuarioRequest) => {
       const updatedUser = await UserService.updateMe(data);
-      setUser(updatedUser);
+      const currentToken = await StorageService.getToken();
+      setSession({ user: updatedUser, token: currentToken });
       return updatedUser;
     },
     onSuccess: () => {
