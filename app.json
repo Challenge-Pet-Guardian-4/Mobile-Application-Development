@@ -29,11 +29,11 @@
     ],
     "extra": {
       "gitCommit": {
-        "commitHash": "accbe9d5761e776c11db739321846772fa743cb6",
-        "shortCommitHash": "accbe9d",
+        "commitHash": "c82acab73104727dc9124832f51783b0c128c8d5",
+        "shortCommitHash": "c82acab",
         "branch": "main",
-        "commitDate": "2026-10-29T18:07:24-03:00",
-        "commitMessage": "feat(mobile): align DTO validation limits, handle X-Novo-Token and clean UI architecture"
+        "commitDate": "2026-11-04T08:51:51-03:00",
+        "commitMessage": "feat(mobile): bump versionCode to 10 and align Git commit metadata in About modal"
       },
       "eas": {
         "projectId": "2793cc90-df71-4d0c-9b1d-a105582dd0e9"
