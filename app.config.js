@@ -1,6 +1,6 @@
 const { execSync } = require('child_process');
 
-function getGitMetadata() {
+function getGitMetadata(fallback) {
   const envCommitHash = process.env.EAS_BUILD_GIT_COMMIT_HASH || '';
   try {
     const commitHash = execSync('git rev-parse HEAD', {
@@ -25,12 +25,13 @@ function getGitMetadata() {
 
     return { commitHash, shortCommitHash, branch, commitDate, commitMessage };
   } catch (_error) {
+    const hash = envCommitHash || fallback?.commitHash || '';
     return {
-      commitHash: envCommitHash,
-      shortCommitHash: envCommitHash ? envCommitHash.slice(0, 7) : '',
-      branch: process.env.EAS_BUILD_GIT_BRANCH || '',
-      commitDate: new Date().toISOString(),
-      commitMessage: 'EAS Build Cloud Release',
+      commitHash: hash,
+      shortCommitHash: hash ? hash.slice(0, 7) : (fallback?.shortCommitHash || ''),
+      branch: process.env.EAS_BUILD_GIT_BRANCH || fallback?.branch || 'main',
+      commitDate: fallback?.commitDate || new Date().toISOString(),
+      commitMessage: fallback?.commitMessage || 'EAS Build Cloud Release',
     };
   }
 }
@@ -39,6 +40,6 @@ module.exports = ({ config }) => ({
   ...config,
   extra: {
     ...config.extra,
-    gitCommit: getGitMetadata(),
+    gitCommit: getGitMetadata(config.extra?.gitCommit),
   },
 });
